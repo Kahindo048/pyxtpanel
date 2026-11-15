@@ -20,6 +20,60 @@ end
 
 mata: pyx_export("../out/_meta__stata.csv", (st_numscalar("c(stata_version)") \ st_numscalar("c(MP)")))
 
+* ---- case pd_autocorrelated
+use "../data/sim_serial.dta", clear
+quietly xtset id t, delta(1)
+quietly xtregar y x z, fe lbi
+scalar dw = e(d1)
+scalar lbi = e(LBI)
+scalar nlbi = e(N_LBI)
+mata: pyx_export("../out/pd_autocorrelated__d.csv", (st_numscalar("dw") \ st_numscalar("lbi") \ st_numscalar("nlbi")))
+
+* ---- case pd_independent
+use "../data/sim_balanced.dta", clear
+quietly xtset id t, delta(1)
+quietly xtregar x z, fe lbi
+scalar dw = e(d1)
+scalar lbi = e(LBI)
+scalar nlbi = e(N_LBI)
+mata: pyx_export("../out/pd_independent__d.csv", (st_numscalar("dw") \ st_numscalar("lbi") \ st_numscalar("nlbi")))
+
+* ---- case pd_gaps
+use "../data/sim_gaps.dta", clear
+quietly xtset id t, delta(1)
+quietly xtregar x z, fe lbi
+scalar dw = e(d1)
+scalar lbi = e(LBI)
+scalar nlbi = e(N_LBI)
+mata: pyx_export("../out/pd_gaps__d.csv", (st_numscalar("dw") \ st_numscalar("lbi") \ st_numscalar("nlbi")))
+
+* ---- case pd_entry_exit
+use "../data/sim_entry_exit.dta", clear
+quietly xtset id t, delta(1)
+quietly xtregar x z, fe lbi
+scalar dw = e(d1)
+scalar lbi = e(LBI)
+scalar nlbi = e(N_LBI)
+mata: pyx_export("../out/pd_entry_exit__d.csv", (st_numscalar("dw") \ st_numscalar("lbi") \ st_numscalar("nlbi")))
+
+* ---- case pd_delta2
+use "../data/sim_delta2.dta", clear
+quietly xtset id t, delta(2)
+quietly xtregar x z, fe lbi
+scalar dw = e(d1)
+scalar lbi = e(LBI)
+scalar nlbi = e(N_LBI)
+mata: pyx_export("../out/pd_delta2__d.csv", (st_numscalar("dw") \ st_numscalar("lbi") \ st_numscalar("nlbi")))
+
+* ---- case pd_singleton
+use "../data/sim_one_obs_unit.dta", clear
+quietly xtset id t, delta(1)
+quietly xtregar x z, fe lbi
+scalar dw = e(d1)
+scalar lbi = e(LBI)
+scalar nlbi = e(N_LBI)
+mata: pyx_export("../out/pd_singleton__d.csv", (st_numscalar("dw") \ st_numscalar("lbi") \ st_numscalar("nlbi")))
+
 * ---- case wr_autocorrelated
 use "../data/sim_serial.dta", clear
 quietly xtset id t

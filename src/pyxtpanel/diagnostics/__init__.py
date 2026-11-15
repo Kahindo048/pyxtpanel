@@ -40,6 +40,7 @@ from pyxtpanel.diagnostics.postestimation.hansen import hansen
 from pyxtpanel.diagnostics.postestimation.hausman import hausman
 from pyxtpanel.diagnostics.postestimation.sargan import sargan
 from pyxtpanel.diagnostics.postestimation.wald import wald
+from pyxtpanel.diagnostics.serial.panel_durbin_watson import panel_durbin_watson
 from pyxtpanel.diagnostics.serial.wooldridge import wooldridge
 from pyxtpanel.diagnostics.specification.reset import reset
 from pyxtpanel.diagnostics.specification.vif import VarianceInflation, vif
@@ -62,6 +63,7 @@ __all__ = [
     "levin_lin_chu",
     "lm_cross_section",
     "lm_random_effects",
+    "panel_durbin_watson",
     "pesaran_cd",
     "shapiro_francia",
     "shapiro_wilk",

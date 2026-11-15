@@ -339,7 +339,9 @@ def serial_correlation(
 ) -> TestResult:
     """Test the errors of a model for first-order serial correlation, from the data.
 
-    The test is Wooldridge's (``"wooldridge"`` or ``"xtserial"``).  There is no default test.
+    The tests are Wooldridge's (``"wooldridge"`` or ``"xtserial"``) and the panel Durbin-Watson
+    and Baltagi-Wu LBI statistics (``"panel_durbin_watson"`` or ``"xtregar"``, with no p-value).
+    There is no default test.
 
     Parameters
     ----------
