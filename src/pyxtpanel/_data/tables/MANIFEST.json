@@ -1,0 +1,50 @@
+{
+  "mackinnon_adf.csv": {
+    "title": "MacKinnon approximate p-values of the Dickey-Fuller t statistic, with a constant (c) or a constant and a linear trend (ct)",
+    "source": "MacKinnon, J. G. (1994), Approximate asymptotic distribution functions for unit-root and cointegration tests, Journal of Business and Economic Statistics 12(2), 167-176, tables of the normal-approximation coefficients",
+    "usage": "p = Phi(g0 + g1 tau + g2 tau^2 + g3 tau^3), with the 'small' coefficients below tau_star and the 'large' ones above; p = 0 below tau_min and 1 above tau_max",
+    "transcribed": "2026-11-07",
+    "verified_against": "statsmodels.tsa.adfuller.mackinnonp coefficients (independent implementation of the same paper) in tests/unit/diagnostics/test_tables.py, and the numbers used by Stata 17 dfuller in the Fisher and IPS cases",
+    "sha256": "0bc09d8770919151fde05794e91e1230d9de532e7da8563ac5089e203427a17b"
+  },
+  "llc_adjustments.csv": {
+    "title": "Levin-Lin-Chu finite-sample adjustments: mean (mu) and standard deviation (sigma) factors of the t statistic by T, for no constant (model 1), a constant (model 2) and a constant and trend (model 3); the row with an empty t is the limit T = infinity",
+    "source": "Levin, A., Lin, C.-F. and Chu, C.-S. J. (2002), Unit root tests in panel data: asymptotic and finite-sample properties, Journal of Econometrics 108(1), 1-24, Table 2",
+    "usage": "linear interpolation in the average number of equations per unit between the tabulated T (none below 25 or above 250), as Stata's xtunitroot llc does; 'nointerpolate' takes the row of the first tabulated T at or above the value",
+    "transcribed": "2026-11-07",
+    "verified_against": "transcribed from the values compiled in Stata 17's _xturllc.ado (no independent copy of the paper was readable); verified end to end by the xtunitroot llc cases of tests/golden/diagnostics_unitroot_golden.json, which exercise interpolated rows of all three models",
+    "sha256": "12bfa8d9959d8def38a2c536b5b2a5bf41ad0594032718738b30a66cb7e080d7"
+  },
+  "ips_table1.csv": {
+    "title": "IPS Table 1: mean and variance of the Dickey-Fuller t statistic (t) and of its variant using the sample variance of the differences (ttilde), for ADF regressions without lagged differences, by T; the row with an empty t is the limit",
+    "source": "Im, K. S., Pesaran, M. H. and Shin, Y. (2003), Testing for unit roots in heterogeneous panels, Journal of Econometrics 115(1), 53-74, Table 1",
+    "usage": "linear interpolation in T between the rows (none up to T = 10 or beyond 1000), as Stata's xtunitroot ips does; below T = 6 the first row is used",
+    "transcribed": "2026-11-07",
+    "verified_against": "transcribed by program from the values compiled in Stata 17's _xturips.ado (no independent copy of the paper was readable); verified end to end by the xtunitroot ips cases of tests/golden/diagnostics_unitroot_golden.json",
+    "sha256": "1d012bafe9a22dc55c496f0dfad02e51dbc4fb33c32af950489eb1db0d79e9d1"
+  },
+  "ips_table2.csv": {
+    "title": "IPS Table 2: exact critical values of the t-bar statistic for 1%, 5% and 10% (level), without (trend 0) or with (trend 1) a linear trend, by number of units n and periods t",
+    "source": "Im, K. S., Pesaran, M. H. and Shin, Y. (2003), Testing for unit roots in heterogeneous panels, Journal of Econometrics 115(1), 53-74, Table 2",
+    "usage": "the cell of the first n and first t at or above the actual numbers (n up to 100 and t up to 100: larger values use the last row and column), no interpolation, as Stata does",
+    "transcribed": "2026-11-07",
+    "verified_against": "transcribed by program from the values compiled in Stata 17's _xturips.ado (no independent copy of the paper was readable); verified end to end by the xtunitroot ips cases of tests/golden/diagnostics_unitroot_golden.json",
+    "sha256": "5374028e1c33b7ace61995de648808bd110a1327ff6f3b417bdf4d73a532e71c"
+  },
+  "ips_table3.csv": {
+    "title": "IPS Table 3: mean and variance of the ADF t statistic for 0 to 8 lagged differences, without (trend 0) or with (trend 1) a trend, by T; empty where the paper gives no value",
+    "source": "Im, K. S., Pesaran, M. H. and Shin, Y. (2003), Testing for unit roots in heterogeneous panels, Journal of Econometrics 115(1), 53-74, Table 3",
+    "usage": "column of the first T at or above the actual T, linearly interpolated between neighbouring columns (none below T = 10 or from T = 100), as Stata does. Note: the cell (trend 1, lags 8, T 60) reads -2.204 as in Stata 17, between -1.987 at T = 50 and -2.046 at T = 70, which breaks the monotone pattern and looks like a transposition of -2.024; it is kept so that results equal Stata's",
+    "transcribed": "2026-11-07",
+    "verified_against": "transcribed by program from the values compiled in Stata 17's _xturips.ado (no independent copy of the paper was readable); verified end to end by the xtunitroot ips cases of tests/golden/diagnostics_unitroot_golden.json",
+    "sha256": "16568b07b7a18a8c95ea7e0b18497f403c6c152328dbbd604bdf94ccfd5959a3"
+  },
+  "frees_q.csv": {
+    "title": "Critical values of Frees' Q distribution (10%, 5% and 1%) for T = 4 to 30 periods",
+    "source": "Frees, E. W. (1995), Assessing cross-sectional correlation in panel data, Journal of Econometrics 69(2), 393-414; Frees, E. W. (2004), Longitudinal and Panel Data, Cambridge University Press, sec. 6.2",
+    "usage": "critical value at the number of periods common to all units; no interpolation; for 31 periods or more the normal approximation of Stata's xtcsd is used instead",
+    "transcribed": "2026-11-07",
+    "verified_against": "transcribed by program from the values compiled in the user-written xtcsd.ado (De Hoyos and Sarafidis 2006); no independent copy of the paper was readable; verified end to end by the xtcsd, frees cases of tests/golden/diagnostics_crosssection_golden.json for the rows they use",
+    "sha256": "3311747f83dfb23b59ebf603f5189455627894d89cd5ab19480a7cfb8f081293"
+  }
+}

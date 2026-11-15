@@ -1,0 +1,22 @@
+{
+  "balanced": {
+    "fd": 240,
+    "fod": 240
+  },
+  "gaps": {
+    "fd": 189,
+    "fod": 218
+  },
+  "entry_exit": {
+    "fd": 202,
+    "fod": 202
+  },
+  "weak": {
+    "fd": 90,
+    "fod": 90
+  },
+  "unsorted_ids": {
+    "fd": 126,
+    "fod": 147
+  }
+}

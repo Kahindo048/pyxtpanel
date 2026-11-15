@@ -1,0 +1,27 @@
+# environnement et caches
+.venv/
+.venv-pandas2/
+.venv-pandas3/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.benchmarks/
+*.egg-info/
+build/
+dist/
+
+# sorties de validation Stata (regenerables ; les resultats de reference figes vont dans tests/golden/)
+validation/out/
+validation/stata/*.log
+validation/stata/_run_*.do
+validation/stata/_run_*.log
+
+# editeurs et systeme
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

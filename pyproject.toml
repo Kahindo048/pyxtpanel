@@ -1,0 +1,179 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyxtpanel"
+version = "0.0.1"
+description = "Panel-data management and exploration in Python: the foundation (Stata's xt layer) for estimation packages, validated against Stata"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Frederick Kahindo", email = "frederickahindo048@gmail.com" }]
+requires-python = ">=3.10"
+# Minimum versions are those the CI matrix tests (A.1.5); they are not yet tested.
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "scipy>=1.10",
+]
+keywords = ["econometrics", "panel-data", "stata", "xtset", "xtsum", "unit-root", "pandas"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.7"]
+dev = [
+    "pytest>=8.0",
+    "pytest-benchmark>=4.0",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.100",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pandas-stubs",
+    "import-linter>=2.0",
+    "pre-commit>=3.7",
+    "matplotlib>=3.7",
+    "build>=1.2",
+    "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Kahindo048/pyxtpanel"
+Repository = "https://github.com/Kahindo048/pyxtpanel"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pyxtpanel = ["py.typed", "_data/tables/*", "datasets/*.csv"]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "NPY", "PERF", "C90", "D", "ANN"]
+ignore = [
+    "ANN401",   # explicit Any tolerated for generic containers
+    "D105",     # docstring of magic methods
+    "D107",     # docstring of __init__ (documented in the class)
+    "N803", "N806",   # matrix names in capitals (Z, W, X) as in the literature
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 12
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "ANN", "PERF"]
+"tools/**" = ["D", "ANN", "E501", "E731", "PERF", "SIM115", "T201", "PLR"]
+"validation/**" = ["D", "ANN", "E501"]
+"examples/**" = ["D", "ANN"]
+"**/__init__.py" = ["D104"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.10"
+files = ["src/pyxtpanel"]
+strict = true
+# pandas-stubs returns Any for many frame operations; return types are still declared
+warn_return_any = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+# scipy ships incomplete type information
+[[tool.mypy.overrides]]
+module = ["scipy.*", "linearmodels.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["pyxtpanel.plot.*"]
+disallow_untyped_calls = false  # matplotlib.dates is not fully typed
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+markers = [
+    "stata: needs Stata (local execution only)",
+    "slow: long test",
+    "golden: compares to frozen Stata reference results",
+    "bench: speed benchmark",
+]
+filterwarnings = ["error::DeprecationWarning:pyxtpanel.*"]
+
+# ---------------------------------------------------------------- coverage
+[tool.coverage.run]
+source = ["src/pyxtpanel"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
+
+# ---------------------------------------------------------------- import-linter
+[tool.importlinter]
+root_package = "pyxtpanel"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers: imports only go downwards"
+type = "layers"
+layers = [
+    "pyxtpanel.api | pyxtpanel.contract",
+    "pyxtpanel.plot | pyxtpanel.report | pyxtpanel.datasets",
+    "pyxtpanel.explore",
+    "pyxtpanel.describe | pyxtpanel.diagnostics",
+    "pyxtpanel.ops",
+    "pyxtpanel.panel",
+    "pyxtpanel.time",
+    "pyxtpanel._results | pyxtpanel._registry",
+    "pyxtpanel._i18n",
+    "pyxtpanel._config",
+    "pyxtpanel._errors | pyxtpanel._types | pyxtpanel._version | pyxtpanel._format",
+]
+exhaustive = false
+
+[[tool.importlinter.contracts]]
+name = "Explore reads describe but never the statistical tests"
+type = "forbidden"
+source_modules = ["pyxtpanel.explore"]
+forbidden_modules = ["pyxtpanel.diagnostics"]
+
+[[tool.importlinter.contracts]]
+name = "Matplotlib only in plot"
+type = "forbidden"
+allow_indirect_imports = true
+source_modules = [
+    "pyxtpanel.api",
+    "pyxtpanel.report",
+    "pyxtpanel.datasets",
+    "pyxtpanel.explore",
+    "pyxtpanel.describe",
+    "pyxtpanel.diagnostics",
+    "pyxtpanel.ops",
+    "pyxtpanel.panel",
+    "pyxtpanel.time",
+]
+forbidden_modules = ["matplotlib"]
