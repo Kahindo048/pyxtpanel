@@ -403,6 +403,17 @@ class PanelData(PanelBase):
         """Test the errors of a model for serial correlation (see ``serial_correlation``)."""
         return run_panel_test(self, test, dependent, regressors, family="serial", **options)
 
+    def slope_heterogeneity(
+        self,
+        dependent: str,
+        regressors: Sequence[str],
+        *,
+        test: str | None = None,
+        **options: Any,
+    ) -> TestResult:
+        """Test whether the slopes of a model are equal across units (``slope_heterogeneity``)."""
+        return run_panel_test(self, test, dependent, regressors, family="heterogeneity", **options)
+
     def plot(self, kind: str, **options: Any) -> Any:
         """Draw a figure (needs the ``plot`` extra).
 

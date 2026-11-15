@@ -54,6 +54,7 @@ __all__ = [
     "residual_variation",
     "resolve_duplicates",
     "serial_correlation",
+    "slope_heterogeneity",
     "spells",
     "to_array3d",
     "to_long",
@@ -352,3 +353,31 @@ def serial_correlation(
         The options of the test.
     """
     return run_panel_test(panel, test, dependent, regressors, family="serial", **options)
+
+
+def slope_heterogeneity(
+    panel: PanelBase,
+    dependent: str,
+    regressors: Sequence[str],
+    *,
+    test: str | None = None,
+    **options: Any,
+) -> TestResult:
+    """Test whether the slopes of a model are the same in every unit, from the data.
+
+    The test is Pesaran and Yamagata's (``"slope_homogeneity"`` or ``"xthst"``), the standardised
+    form of Swamy's.  There is no default test.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    dependent, regressors
+        Names of the dependent variable and of the regressors whose slopes are tested.
+    test
+        Name or alias of the test (required).
+    **options
+        The options of the test (``partial``, ``constant``, ``ar``, ``crosssectional``,
+        ``adjusted``).
+    """
+    return run_panel_test(panel, test, dependent, regressors, family="heterogeneity", **options)

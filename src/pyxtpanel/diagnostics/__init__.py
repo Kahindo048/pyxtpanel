@@ -26,6 +26,7 @@ from pyxtpanel.diagnostics.crosssection.lm_cross_section import lm_cross_section
 from pyxtpanel.diagnostics.crosssection.pesaran_cd import pesaran_cd
 from pyxtpanel.diagnostics.effects.f_effects import f_effects
 from pyxtpanel.diagnostics.effects.lm_random_effects import lm_random_effects
+from pyxtpanel.diagnostics.heterogeneity.slope_homogeneity import slope_homogeneity
 from pyxtpanel.diagnostics.heteroskedasticity.breusch_pagan import breusch_pagan
 from pyxtpanel.diagnostics.heteroskedasticity.wald_groupwise import wald_groupwise
 from pyxtpanel.diagnostics.heteroskedasticity.white import white
@@ -65,6 +66,7 @@ __all__ = [
     "shapiro_francia",
     "shapiro_wilk",
     "skewness_kurtosis",
+    "slope_homogeneity",
     "wald_groupwise",
     "Equations",
     "Note",

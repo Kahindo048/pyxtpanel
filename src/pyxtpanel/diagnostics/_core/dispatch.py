@@ -54,6 +54,7 @@ _FAMILY_LABELS = {
     "unitroot": "unit-root",
     "crosssection": "cross-section dependence",
     "serial": "serial-correlation",
+    "heterogeneity": "slope-heterogeneity",
 }
 
 
@@ -84,7 +85,8 @@ def run_panel_test(
     *args
         Positional arguments after the panel (the variable names).
     family
-        Restrict the test to a family (``"unitroot"``, ``"crosssection"``, ``"serial"``).
+        Restrict the test to a family (``"unitroot"``, ``"crosssection"``, ``"serial"``,
+        ``"heterogeneity"``).
     **options
         The options of the test.
 

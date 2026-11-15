@@ -30,6 +30,7 @@ RECIPES: dict[str, tuple[tuple[Any, ...], dict[str, Any]]] = {
     "lm_cross_section": (("y",), {}),
     "friedman": (("y",), {}),
     "frees": (("y",), {}),
+    "slope_homogeneity": (("y", ["x"]), {}),
 }
 
 

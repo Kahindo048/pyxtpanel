@@ -38,6 +38,7 @@ if TYPE_CHECKING:
         residual_variation,
         resolve_duplicates,
         serial_correlation,
+        slope_heterogeneity,
         spells,
         to_array3d,
         to_long,
@@ -90,6 +91,7 @@ _LAZY = {
     "unit_root": "pyxtpanel.api.functions",
     "cross_section_dependence": "pyxtpanel.api.functions",
     "serial_correlation": "pyxtpanel.api.functions",
+    "slope_heterogeneity": "pyxtpanel.api.functions",
     "xttab": "pyxtpanel.api.functions",
     "xttrans": "pyxtpanel.api.functions",
     "duplicates": "pyxtpanel.api.functions",
@@ -160,6 +162,7 @@ __all__ = [
     "unit_root",
     "cross_section_dependence",
     "serial_correlation",
+    "slope_heterogeneity",
     "xttab",
     "xttrans",
 ]

@@ -237,6 +237,60 @@ def _serial(rng: np.random.Generator) -> pd.DataFrame:
     return out
 
 
+def _slopes_panel(
+    rng: np.random.Generator,
+    cells: pd.DataFrame,
+    time: np.ndarray | pd.Series,
+    *,
+    heterogeneous: bool,
+) -> pd.DataFrame:
+    """Panel for the slope homogeneity test (L.8.11): ``y`` on ``x`` and ``z``, plus ``w``.
+
+    The slopes of ``x`` and ``z`` are the same in every unit, or drawn per unit when
+    ``heterogeneous``; ``w`` enters with a common slope and is meant to be partialled out; a
+    common factor drives ``x`` and the error of ``y`` so that cross-sectional averages matter.
+    """
+    n_periods = int(cells["rank"].max()) + 1
+    factor = rng.normal(size=n_periods)[cells["rank"].to_numpy()]
+    unit = cells["id"].to_numpy()
+    n_units = int(unit.max()) + 1
+    spread = 1.0 if heterogeneous else 0.0
+    slope_x = (1.0 + 0.5 * spread * rng.normal(size=n_units))[unit]
+    slope_z = (0.5 + 0.3 * spread * rng.normal(size=n_units))[unit]
+    effect = rng.normal(size=n_units)[unit]
+    n = len(cells)
+    x = 0.6 * factor + rng.normal(size=n)
+    z, w = rng.normal(size=n), rng.normal(size=n)
+    y = effect + slope_x * x + slope_z * z + 0.4 * w + 0.7 * factor + rng.normal(size=n)
+    out = pd.DataFrame({"id": unit, "t": time})
+    for name, values in (("y", y), ("x", x), ("z", z), ("w", w)):
+        out[name] = values.round(6)
+    return out
+
+
+@_register("slopes_homog", note="40 units x 20 periods, the same slopes in every unit (L.8.11)")
+def _slopes_homog(rng: np.random.Generator) -> pd.DataFrame:
+    cells = _cells(list(range(1, 41)), lambda u: np.arange(20))
+    return _slopes_panel(rng, cells, _int_time(cells, 1), heterogeneous=False)
+
+
+@_register("slopes_het", note="40 units x 20 periods, slopes drawn per unit (L.8.11)")
+def _slopes_het(rng: np.random.Generator) -> pd.DataFrame:
+    cells = _cells(list(range(1, 41)), lambda u: np.arange(20))
+    return _slopes_panel(rng, cells, _int_time(cells, 1), heterogeneous=True)
+
+
+@_register("slopes_unbalanced", note="40 units, entry, exit and holes, per-unit slopes (L.8.11)")
+def _slopes_unbalanced(rng: np.random.Generator) -> pd.DataFrame:
+    starts = rng.integers(0, 4, size=40)
+    stops = rng.integers(15, 20, size=40)
+    cells = _cells(list(range(1, 41)), lambda u: np.arange(starts[u - 1], stops[u - 1] + 1))
+    keep = rng.random(len(cells)) > 0.06
+    return _slopes_panel(
+        rng, cells[keep].reset_index(drop=True), _int_time(cells[keep], 1), heterogeneous=True
+    )
+
+
 def _unit_root_panel(
     rng: np.random.Generator, *, n_units: int, n_periods: int, kind: str
 ) -> pd.DataFrame:

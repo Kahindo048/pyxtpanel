@@ -81,6 +81,7 @@ def test_panel_tests_lists_the_category_a_tests_by_family() -> None:
         "levin_lin_chu",
     ]
     assert panel_tests("serial") == ["wooldridge"]
+    assert panel_tests("heterogeneity") == ["slope_homogeneity"]
     assert "hansen" not in panel_tests()
 
 
