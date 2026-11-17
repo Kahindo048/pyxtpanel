@@ -57,3 +57,15 @@ def test_by_name_in_both_languages() -> None:
     result = run_test("lm_random_effects", [1.0, 1.0, -1.0, -1.0], [0, 2, 4])
     assert "Breusch and Pagan Lagrangian multiplier test" in result.summary("en")
     assert "multiplicateur de Lagrange" in result.summary("fr")
+
+
+def test_negatively_correlated_residuals_get_a_remark_and_variance_u_applies_the_rule() -> None:
+    # Two observations per unit with opposite signs: the within-unit correlation is negative, the
+    # moment estimate of Var(u) is negative and the one-sided p-value must not be read.
+    e = np.tile([1.0, -1.0], 20) + 0.01 * np.arange(40)
+    offsets = np.arange(0, 41, 2)
+    result = lm_random_effects(e, offsets)
+    assert "negatively correlated" in result.summary("en")
+    assert "corrélés négativement" in result.summary("fr")
+    ruled = lm_random_effects(e, offsets, variance_u=-1.0)
+    assert ruled.statistic == 0.0 and ruled.pvalue == 1.0

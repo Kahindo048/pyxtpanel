@@ -36,6 +36,10 @@ _i18n.register(
             "en": "White's test needs at least one regressor besides the constant.",
             "fr": "le test de White exige au moins un régresseur en plus de la constante.",
         },
+        "diag.white.constant_squares": {
+            "en": "the squared residuals are constant: the variance cannot depend on anything.",
+            "fr": "les résidus au carré sont constants : la variance ne peut dépendre de rien.",
+        },
         "diag.white.no_variation": {
             "en": "the regressors and their products are constant or collinear with the "
             "constant: nothing to test.",
@@ -87,7 +91,7 @@ def white(residuals: object, regressors: object) -> TestResult:
     # df = e(df_m)
     e = as_array("residuals", residuals, ndim=1)
     raw = np.asarray(regressors, dtype=np.float64)
-    x = as_array("regressors", raw[:, None] if raw.ndim == 1 else raw, ndim=2)
+    x = as_array("regressors", raw[:, None] if raw.ndim == 1 else raw, ndim=2, allow_empty=True)
     if x.shape[0] != e.size:
         raise SpecificationError(
             _i18n.message("diag.white.rows", n=e.size, got=x.shape[0]), key="diag.white.rows"
@@ -100,6 +104,10 @@ def white(residuals: object, regressors: object) -> TestResult:
     i, j = np.tril_indices(x.shape[1])
     auxiliary = np.column_stack([x, centred[:, i] * centred[:, j]])
     fit = ols_fit(e**2, auxiliary)
+    if fit.tss <= 0.0:
+        raise NumericalError(
+            _i18n.message("diag.white.constant_squares"), key="diag.white.constant_squares"
+        )
     if fit.df_model < 1:
         raise NumericalError(
             _i18n.message("diag.white.no_variation"), key="diag.white.no_variation"

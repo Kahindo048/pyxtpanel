@@ -63,6 +63,10 @@ _i18n.register(
             "en": "{name} must be {expected}, got an array of shape {got}.",
             "fr": "{name} doit être {expected}, reçu un tableau de forme {got}.",
         },
+        "diag.input.empty": {
+            "en": "{name} is empty: the test needs at least one observation.",
+            "fr": "{name} est vide : le test exige au moins une observation.",
+        },
         "diag.input.not_finite": {
             "en": "{name} contains {count} missing or infinite values; the test needs finite "
             "numbers.",
@@ -206,6 +210,7 @@ def as_array(
     ndim: int,
     shape: tuple[int | None, ...] | None = None,
     finite: bool = True,
+    allow_empty: bool = False,
 ) -> FloatArray:
     """Return ``value`` as a checked ``float64`` array of ``ndim`` dimensions (category B input).
 
@@ -222,13 +227,16 @@ def as_array(
         3 columns).
     finite
         Refuse ``NaN`` and infinities.
+    allow_empty
+        Accept an array without a single value (refused by default).
 
     Raises
     ------
     SpecificationError
         If the dimensions or the shape are wrong.
     DataError
-        If ``finite`` and a value is missing or infinite.
+        If the array is empty (unless ``allow_empty``), or ``finite`` and a value is missing
+        or infinite.
     """
     try:
         array = np.asarray(value, dtype=np.float64)
@@ -250,6 +258,8 @@ def as_array(
             ),
             key="diag.input.array_shape",
         )
+    if array.size == 0 and not allow_empty:
+        raise DataError(_i18n.message("diag.input.empty", name=name), key="diag.input.empty")
     if finite and not np.isfinite(array).all():
         raise DataError(
             _i18n.message(

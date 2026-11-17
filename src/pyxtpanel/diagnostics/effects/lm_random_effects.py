@@ -30,6 +30,15 @@ _i18n.register(
             "fr": "l'estimation de Var(u) par les effets aléatoires est nulle : la statistique "
             "vaut 0 et la p-value 1, comme dans Stata.",
         },
+        "diag.lm_random_effects.wrong_sign": {
+            "en": "the pooled residuals are negatively correlated within units (the moment "
+            "estimate of Var(u) is negative): the one-sided p-value is then too small to be "
+            "read. Pass variance_u, the random-effects estimate, to apply xttest0's rule.",
+            "fr": "les résidus poolés sont corrélés négativement au sein des unités (l'estimation "
+            "par les moments de Var(u) est négative) : la p-value unilatérale est alors trop "
+            "petite pour être lue. Passez variance_u, l'estimation des effets aléatoires, pour "
+            "appliquer la règle de xttest0.",
+        },
         "diag.lm_random_effects.offsets": {
             "en": "offsets must start at 0, increase and end at the number of residuals ({n}).",
             "fr": "offsets doit commencer à 0, croître et finir au nombre de résidus ({n}).",
@@ -68,7 +77,9 @@ def lm_random_effects(
 
     ``A = 1 - sum_i (sum_t e_it)^2 / sum e_it^2`` is built from the residuals of the pooled
     least-squares regression.  The p-value is one-sided (half of the chi-square(1) tail, the
-    chibar-squared distribution).
+    chibar-squared distribution), which is only meaningful when the variance component is
+    estimated positive: without ``variance_u`` the statistic is squared and a negative
+    within-unit correlation also rejects (a remark says so, and the size is 10 % instead of 5 %).
 
     Parameters
     ----------
@@ -126,6 +137,8 @@ def lm_random_effects(
     else:
         statistic = (n**2 / 2.0) * a1**2 / (m11 - n)
         pvalue = float(stats.chi2.sf(statistic, 1)) / 2.0
+        if variance_u is None and a1 > 0.0:
+            notes = (Note("diag.lm_random_effects.wrong_sign"),)
     return TestResult(
         name="lm_random_effects",
         statistic=statistic,

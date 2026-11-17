@@ -46,6 +46,10 @@ _i18n.register(
             "en": "all residuals are zero: the variance of the errors cannot be tested.",
             "fr": "tous les résidus sont nuls : la variance des erreurs ne peut pas être testée.",
         },
+        "diag.breusch_pagan.constant_squares": {
+            "en": "the squared residuals are constant: the variance cannot depend on anything.",
+            "fr": "les résidus au carré sont constants : la variance ne peut dépendre de rien.",
+        },
         "diag.breusch_pagan.no_variation": {
             "en": "the variables tested are constant or collinear with the constant: nothing to "
             "test.",
@@ -140,6 +144,11 @@ def breusch_pagan(
             key="diag.breusch_pagan.zero_residuals",
         )
     fit = ols_fit(e**2 / mean_square, z)
+    if fit.tss <= 0.0:
+        raise NumericalError(
+            _i18n.message("diag.breusch_pagan.constant_squares"),
+            key="diag.breusch_pagan.constant_squares",
+        )
     if fit.df_model < 1:
         raise NumericalError(
             _i18n.message("diag.breusch_pagan.no_variation"), key="diag.breusch_pagan.no_variation"

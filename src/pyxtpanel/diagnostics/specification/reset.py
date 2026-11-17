@@ -49,6 +49,12 @@ _i18n.register(
             "fr": "les puissances sont colinéaires aux variables explicatives (typiquement parce "
             "qu'elles sont toutes des indicatrices) : le test n'est pas possible.",
         },
+        "diag.reset.constant": {
+            "en": "the dependent variable is constant: the model fits perfectly and the test is "
+            "not defined.",
+            "fr": "la variable dépendante est constante : le modèle s'ajuste parfaitement et le "
+            "test n'est pas défini.",
+        },
         "diag.reset.perfect_fit": {
             "en": "the augmented model fits perfectly: the F statistic is not defined.",
             "fr": "le modèle augmenté s'ajuste parfaitement : la statistique F n'est pas définie.",
@@ -127,6 +133,8 @@ def reset(y: object, x: object, *, rhs: bool = False) -> TestResult:
         raise SpecificationError(
             _i18n.message("diag.reset.rows", n=n, got=reg.shape[0]), key="diag.reset.rows"
         )
+    if np.min(dep) == np.max(dep):
+        raise NumericalError(_i18n.message("diag.reset.constant"), key="diag.reset.constant")
     if rhs:
         base, powers = _rhs_columns(reg)
     else:

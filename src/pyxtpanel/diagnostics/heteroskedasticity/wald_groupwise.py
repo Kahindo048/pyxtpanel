@@ -15,7 +15,7 @@ import pandas as pd
 from scipy import stats
 
 from pyxtpanel import _i18n
-from pyxtpanel._errors import SpecificationError
+from pyxtpanel._errors import NumericalError, SpecificationError
 from pyxtpanel.diagnostics._core import Note, TestResult, TestSpec, as_array, register_test
 
 _i18n.register(
@@ -32,6 +32,12 @@ _i18n.register(
         "diag.wald_groupwise.alternative": {
             "en": "the error variance differs between units",
             "fr": "la variance des erreurs diffère selon les unités",
+        },
+        "diag.wald_groupwise.all_skipped": {
+            "en": "no unit has a usable variance of its squared residuals (every unit has one "
+            "observation or constant squared residuals): the test is not defined.",
+            "fr": "aucune unité n'a de variance utilisable de ses résidus au carré (chaque unité a "
+            "une observation ou des résidus au carré constants) : le test n'est pas défini.",
         },
         "diag.wald_groupwise.skipped": {
             "en": "{count} units have no usable variance of their squared residuals (a single "
@@ -120,6 +126,11 @@ def wald_groupwise(residuals: object, offsets: object) -> TestResult:
     contribution = (s_i - overall) ** 2 / v_i
     statistic = float(np.nansum(contribution))
     skipped = int(np.isnan(v_i).sum())
+    if skipped == groups:
+        raise NumericalError(
+            _i18n.message("diag.wald_groupwise.all_skipped"),
+            key="diag.wald_groupwise.all_skipped",
+        )
     notes = (Note("diag.wald_groupwise.skipped", {"count": skipped}),) if skipped else ()
     details = pd.DataFrame(
         {"T": t.astype(int), "variance": s_i, "contribution": contribution},

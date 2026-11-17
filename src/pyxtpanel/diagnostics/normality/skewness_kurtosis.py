@@ -115,7 +115,6 @@ def skewness_kurtosis(residuals: object, *, adjust: bool = True) -> TestResult:
     # Royston's adjustment unless noadjust; moments from summarize, detail (divisor n)
     x = as_array("residuals", residuals, ndim=1)
     n = x.size
-    skew, kurt = moments(x)
     if n < MIN_OBS:
         return TestResult(
             name="skewness_kurtosis",
@@ -126,6 +125,7 @@ def skewness_kurtosis(residuals: object, *, adjust: bool = True) -> TestResult:
             n_obs=n,
             notes=(Note("diag.skewness_kurtosis.too_few", {"n": n}),),
         )
+    skew, kurt = moments(x)
     z1 = _z_skewness(skew, n)
     z2 = _z_kurtosis(kurt, n)
     k2 = z1 * z1 + z2 * z2

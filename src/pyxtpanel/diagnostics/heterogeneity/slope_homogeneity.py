@@ -25,6 +25,10 @@ if TYPE_CHECKING:
     from pyxtpanel._types import FloatArray, IntArray
     from pyxtpanel.panel.base import PanelBase
 
+#: Error variance, relative to the sum of squares of the dependent variable, under which a unit
+#: fits perfectly.
+PERFECT_FIT = 1e-24
+
 _i18n.register(
     "diag",
     {
@@ -148,7 +152,7 @@ def slope_homogeneity(
     SpecificationError
         If there is no regressor or a variable is both tested and partialled out.
     DataError
-        If a unit has too few observations for its parameters.
+        If a unit has too few observations for its parameters or there are fewer than 2 units.
     NumericalError
         If a unit fits perfectly or the regressors are collinear after partialling out.
     """
@@ -169,7 +173,7 @@ def slope_homogeneity(
             key="diag.slope_homogeneity.overlap",
         )
     wanted = list(dict.fromkeys([dependent, *names, *extra, *averaged]))
-    arrays = panel_variables(panel, wanted, test="slope_homogeneity")
+    arrays = panel_variables(panel, wanted, test="slope_homogeneity", min_units=2)
     column = {name: arrays.values[:, i] for i, name in enumerate(wanted)}
     y = column[dependent]
     x = np.column_stack([column[name] for name in names])
@@ -212,7 +216,8 @@ def slope_homogeneity(
         rows = slice(int(arrays.offsets[i]), int(arrays.offsets[i + 1]))
         e, xi = resid[rows], x_t[rows]
         sigma2[i] = float(e @ e) / (rows.stop - rows.start - dof_partial)
-        if sigma2[i] <= 0.0:
+        # a perfect fit leaves rounding noise, not an exact zero: compare with the data's scale
+        if sigma2[i] <= PERFECT_FIT * float(y[rows] @ y[rows]):
             raise NumericalError(
                 _i18n.message("diag.slope_homogeneity.zero_variance", unit=_plain(labels[i])),
                 key="diag.slope_homogeneity.zero_variance",
