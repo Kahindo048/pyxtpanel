@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "pyxtpanel: panel-data management and exploration in Python"
 type: software
-version: 0.0.1
+version: 0.0.2
 license: MIT
 authors:
   - family-names: Kahindo

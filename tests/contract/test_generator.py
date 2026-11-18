@@ -66,3 +66,33 @@ def test_a_new_statistical_test_needs_a_known_family_and_category(tmp_path) -> N
     with pytest.raises(ValueError, match="--categorie must be A"):
         nouveau.create("test", "demo", tmp_path, family="effects", category="C")
     assert not list(tmp_path.rglob("*.py"))
+
+
+def test_a_new_figure_gets_a_module_and_a_test_and_registers_itself(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """The generated module imports and registers its kind (checked in a separate process)."""
+    import subprocess
+    import sys
+
+    written = nouveau.create("graphique", "heat_demo", tmp_path)
+    assert [p.parent.name for p in written] == ["kinds", "plot"]
+    module, test = (p.read_text(encoding="utf-8") for p in written)
+    assert '@plot_kind(\n    "heat_demo"' in module and "def heat_demo_data(" in module
+    assert "def plot_heat_demo(" in module and "HeatDemoData" in module
+    ast.parse(test)
+    code = (
+        "import importlib.util, sys;"
+        f"spec = importlib.util.spec_from_file_location('heat_demo', r'{written[0]}');"
+        "mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod);"
+        "from pyxtpanel.plot import KINDS;"
+        "print('heat_demo' in KINDS.names())"
+    )
+    pytest.importorskip("matplotlib")
+    out = subprocess.run([sys.executable, "-I", "-c", code], capture_output=True, text=True)
+    assert out.returncode == 0, out.stderr
+    assert out.stdout.strip() == "True"
+
+
+def test_there_is_no_template_for_an_output_format() -> None:
+    """Formats are methods of Result, not a registry: the generator says so instead of guessing."""
+    assert "format" not in nouveau.KINDS
+    assert "no template for an output format" in (nouveau.__doc__ or "")

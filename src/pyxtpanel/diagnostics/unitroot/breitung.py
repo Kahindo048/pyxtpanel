@@ -18,6 +18,7 @@ from scipy import stats
 from pyxtpanel import _i18n
 from pyxtpanel._errors import DataError, NumericalError, SpecificationError
 from pyxtpanel.diagnostics._core import TestResult, TestSpec, panel_variables, register_test
+from pyxtpanel.diagnostics._core.inputs import plain_label
 
 if TYPE_CHECKING:
     from pyxtpanel._types import FloatArray
@@ -51,6 +52,12 @@ _i18n.register(
             "T - lags - 1 = {available} is below N = {units}.",
             "fr": "la statistique robuste exige plus de périodes, retards déduits, que de séries : "
             "T - lags - 1 = {available} est inférieur à N = {units}.",
+        },
+        "diag.breitung.degenerate_unit": {
+            "en": "unit {unit} has no residual variation after removing the lagged differences: "
+            "the statistic is not defined.",
+            "fr": "l'unité {unit} n'a plus de variation résiduelle après retrait des différences "
+            "retardées : la statistique n'est pas définie.",
         },
         "diag.breitung.degenerate": {
             "en": "a unit has no residual variation after removing the lagged differences (or "
@@ -183,9 +190,13 @@ def breitung(
     sigma2 = np.empty(n_units)
     for unit in range(n_units):
         lagged[unit], differenced[unit], sigma2[unit] = _unit(y[unit], lags, deterministics)
-    if not np.all(np.isfinite(sigma2)) or np.any(sigma2 <= 0.0):
+    degenerate = np.flatnonzero(~np.isfinite(sigma2) | (sigma2 <= 0.0))
+    if degenerate.size:  # the first unit in the order of the panel is named
         raise NumericalError(
-            _i18n.message("diag.breitung.degenerate"), key="diag.breitung.degenerate"
+            _i18n.message(
+                "diag.breitung.degenerate_unit", unit=plain_label(arrays.unit_labels[degenerate[0]])
+            ),
+            key="diag.breitung.degenerate_unit",
         )
     both = np.isfinite(lagged) & np.isfinite(differenced)
     product = np.where(both, lagged * differenced, 0.0)

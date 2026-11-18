@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyxtpanel"
-version = "0.0.1"
+version = "0.0.2"
 description = "Panel-data management and exploration in Python: the foundation (Stata's xt layer) for estimation packages, validated against Stata"
 readme = "README.md"
 license = "MIT"

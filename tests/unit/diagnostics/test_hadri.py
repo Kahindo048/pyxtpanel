@@ -10,6 +10,7 @@ import pytest
 from scipy import stats
 
 import pyxtpanel as xt
+from pyxtpanel import option_context
 from pyxtpanel._errors import DataError, NumericalError, SpecificationError
 from pyxtpanel.diagnostics import hadri, run_test
 
@@ -142,7 +143,7 @@ def test_refusals() -> None:
         hadri(declare(np.ones((6, 10))), "y")
     flat = y.copy()
     flat[0] = 4.0
-    with pytest.raises(NumericalError, match="residual variance is zero"):
+    with pytest.raises(NumericalError, match="residual variance of unit 1 is zero"):
         hadri(declare(flat), "y", robust=True)
 
 
@@ -153,3 +154,20 @@ def test_by_name_alias_and_the_family_function_in_both_languages() -> None:
     assert xt.unit_root(panel, "y", test="hadri").statistic == direct_result.statistic
     assert "Hadri LM stationarity test" in direct_result.summary("en")
     assert "stationnarité" in direct_result.summary("fr")
+
+
+def test_a_flat_unit_is_named_in_the_robust_error_in_both_languages() -> None:
+    y = (
+        series(3, n=6, t=12)
+        if "series" in globals()
+        else np.random.default_rng(3).normal(size=(6, 12))
+    )
+    y[4] = 2.0  # the fifth unit, whose identifier is 5, is constant
+    with pytest.raises(NumericalError, match=r"variance of unit 5 is zero") as english:
+        hadri(declare(y), "y", robust=True)
+    assert english.value.key == "diag.hadri.degenerate_unit"
+    with (
+        option_context(lang="fr"),
+        pytest.raises(NumericalError, match=r"variance résiduelle de l'unité 5 est nulle"),
+    ):
+        hadri(declare(y), "y", robust=True)

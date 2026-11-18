@@ -3,13 +3,15 @@
     python -m tools.nouveau operateur  moving_median
     python -m tools.nouveau description xtgini
     python -m tools.nouveau controle    short_units
+    python -m tools.nouveau graphique   heatmap
     python -m tools.nouveau test        fisher --famille unitroot --categorie A
 
 Creates, without touching any existing file:
 
-* the module (``ops/<name>.py``, ``describe/<name>.py`` or ``explore/checks/<name>.py``) that
-  registers itself,
-* its unit test (``tests/unit/test_<package>_<name>.py``),
+* the module (``ops/<name>.py``, ``describe/<name>.py``, ``explore/checks/<name>.py`` or
+  ``plot/kinds/<name>.py``) that registers itself,
+* its unit test (``tests/unit/test_<package>_<name>.py``, ``tests/plot/test_figure_<name>.py``
+  for a figure),
 * a skeleton of validation case (``validation/cases/<name>.py``) when the feature has a Stata
   reference.
 
@@ -22,8 +24,16 @@ A statistical test (``test``) gets its module in ``diagnostics/<family>/``, its 
 ``validation/cases/diagnostics_<family>_<name>.py`` (domain ``diagnostics_<family>``).  The
 contract test of ``tests/contract/`` fails until the case has been run in Stata and frozen.
 
-The other extension points (plot kinds, output formats) get their template when their registry
-is written (blocks F and G.3).
+A figure (``graphique``) gets ``plot/kinds/<name>.py``, which holds a pure function that computes
+what is drawn (``<name>_data``, tested without matplotlib) and the drawing function registered as
+a kind, and ``tests/plot/test_figure_<name>.py``.  The figure must then be named in part 6 of
+``docs/documentation.md`` (a contract test fails otherwise) and gets its gallery picture with
+``python -m tools.galerie``.
+
+There is no template for an output format: the formats of a result (``to_markdown``, ``to_latex``,
+HTML) are methods of :class:`~pyxtpanel._results.Result` written with the helpers of
+``pyxtpanel/_format.py``, and no registry holds them, so a new format is one helper there and one
+method (decision of 2026-11-18, A.5.9).
 """
 
 from __future__ import annotations
@@ -34,6 +44,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+KINDS = ("operateur", "description", "controle", "graphique", "test")
 
 OPERATOR = '''"""{title} (operator or transformation)."""
 
@@ -204,6 +215,109 @@ def test_{name}_raises_its_alert_on_a_panel_built_for_it(panel: xt.PanelData) ->
 '''
 
 
+FIGURE = '''"""``plot(kind="{name}")``: {title} (figure)."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+from pyxtpanel import _i18n
+from pyxtpanel._types import Lang
+from pyxtpanel.plot._spec import PlotSpec, plot_kind
+from pyxtpanel.plot.style import chart_style, finish, label, new_figure, resolve_lang
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
+    from pyxtpanel.panel.base import PanelBase
+
+_i18n.register(
+    "plot",
+    {{
+        "plot.{name}.title": {{"en": "TODO: title", "fr": "TODO : titre"}},
+    }},
+)
+
+
+@dataclass(frozen=True)
+class {klass}Data:
+    """What the figure draws, computed without matplotlib (so that it can be tested).
+
+    Attributes
+    ----------
+    TODO
+        TODO: describe the arrays the drawing reads.
+    """
+
+
+def {name}_data(panel: PanelBase) -> {klass}Data:
+    """TODO: compute what is drawn from the panel (compare it with a table of the package)."""
+    raise NotImplementedError
+
+
+@plot_kind(
+    "{name}",
+    PlotSpec(
+        summary="TODO: one line.",
+        stata=None,  # the Stata command this resembles (xtline...), or None for an addition
+    ),
+)
+def plot_{name}(panel: PanelBase, *, lang: Lang | None = None) -> Figure:
+    """TODO: describe what is drawn.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    lang
+        ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
+    """
+    chosen = resolve_lang(lang)
+    data = {name}_data(panel)
+    with chart_style():
+        fig, ax = new_figure()
+        ax.set_title(label("plot.{name}.title", chosen))
+        raise NotImplementedError(data)
+        return finish(fig, chosen)
+'''
+
+FIGURE_TEST = '''"""Figure {name}: what is drawn equals what is computed."""
+
+from __future__ import annotations
+
+import pandas as pd
+import pytest
+
+pytest.importorskip("matplotlib")
+
+import pyxtpanel as xt  # noqa: E402
+
+
+@pytest.fixture
+def panel() -> xt.PanelData:
+    frame = pd.DataFrame({{"id": [1, 1, 1, 2, 2], "t": [1, 2, 3, 1, 2], "x": [1.0, 2, 4, 3, 5]}})
+    return xt.xtset(frame, "id", "t")
+
+
+def test_{name}_data_by_hand(panel: xt.PanelData) -> None:
+    pytest.skip("TODO: the computed data of this small panel, worked out by hand")
+
+
+def test_{name}_draws_what_is_computed(panel: xt.PanelData) -> None:
+    pytest.skip("TODO: read the artists of panel.plot({name!r}) and compare them with the data")
+
+
+def test_{name}_texts_follow_the_language(panel: xt.PanelData) -> None:
+    pytest.skip("TODO: the title in English and in French")
+'''
+
+
 DIAG_HEAD = '''"""{title} test (category {category}, family {family}).
 
 Validated against Stata 17: TODO name the command and say which cases of
@@ -312,24 +426,31 @@ def create(
     family: str | None = None,
     category: str = "A",
 ) -> list[Path]:
-    """Write the files of a new ``operateur`` or ``description`` and return their paths.
+    """Write the files of a new feature (see ``KINDS``) and return their paths.
 
     Raises
     ------
     ValueError
         If the kind is unknown, the name is not a snake_case identifier, or a file exists.
     """
-    if kind not in ("operateur", "description", "controle", "test"):
-        raise ValueError(
-            f"unknown kind {kind!r}; available: operateur, description, controle, test"
-        )
+    if kind not in KINDS:
+        raise ValueError(f"unknown kind {kind!r}; available: {', '.join(KINDS)}")
     if not re.fullmatch(r"[a-z][a-z0-9_]*", name):
         raise ValueError(f"{name!r} must be a snake_case identifier")
     if kind == "test":
         return _write(_test_files(name, family, category, root))
-    package = {"operateur": "ops", "description": "describe", "controle": "explore"}[kind]
+    package = {"operateur": "ops", "description": "describe", "controle": "explore"}.get(kind, "")
     klass = "".join(part.capitalize() for part in name.split("_"))
     title = name.replace("_", " ").capitalize()
+    if kind == "graphique":
+        return _write(
+            {
+                root / "src" / "pyxtpanel" / "plot" / "kinds" / f"{name}.py": FIGURE.format(
+                    name=name, title=title, klass=klass
+                ),
+                root / "tests" / "plot" / f"test_figure_{name}.py": FIGURE_TEST.format(name=name),
+            }
+        )
     template = OPERATOR if kind == "operateur" else DESCRIPTION
     if kind == "controle":
         files = {
@@ -399,7 +520,7 @@ def _write(files: dict[Path, str]) -> list[Path]:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=(__doc__ or "").split("\n")[0])
-    parser.add_argument("kind", choices=["operateur", "description", "controle", "test"])
+    parser.add_argument("kind", choices=list(KINDS))
     parser.add_argument("name")
     parser.add_argument("--famille", help="family of a test (folder of diagnostics/)")
     parser.add_argument("--categorie", default="A", choices=["A", "B"], help="category of a test")
@@ -414,6 +535,9 @@ def main(argv: list[str]) -> int:
     if args.kind == "test":
         print("the contract test fails until the case is run in Stata and frozen:")
         print(f"  python -m validation.run diagnostics_{args.famille}")
+    if args.kind == "graphique":
+        print("remember: name the figure in part 6 of docs/documentation.md (table of kinds),")
+        print("then python -m tools.galerie and python -m tools.doc --write")
     if args.kind == "description":
         print("remember: add a sample call to SAMPLE_CALLS in tests/contract/test_public_api.py")
     print("remember: record the feature in CHANGELOG.md, then python -m tools.stata_map --write")
