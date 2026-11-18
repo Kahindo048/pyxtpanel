@@ -4,6 +4,8 @@ All notable changes are recorded here. The project follows [Semantic Versioning]
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-11-18
+
 ### Added
 - Stata weeks: the format `%tw` (52 weeks a year from 1960w1, week `w` starting on 1 January plus `7 * (w - 1)` days) is a frequency of the time axis, `"SW"`, for Stata-coded integers (`format="%tw"`), for dates (`freq="SW"`) and for `.dta` files, which are read and written with their weekly format. Checked in Stata 17: conversions (`yw`, `dofw`, `wofd`), `xtset` with and without gaps and `delta`, operators, `tsfill`, `xtdescribe`; the random campaign now draws `%tw` too (12 of the 160 frozen panels; 46 of 600 fresh ones, no difference from Stata).
 - `PanelData.plot` and `plot()` check the call before drawing: a missing argument (`panel.plot("states")` without `variable`) or an unknown option raises a `SpecificationError`, in French or English, that names the figure and lists its arguments, instead of Python's bare `TypeError`.
@@ -12,7 +14,13 @@ All notable changes are recorded here. The project follows [Semantic Versioning]
 - `validation/self_agreement.py` measures how close an agreement with Stata can be (`tests/golden/stata_self_agreement.json`, `test_self_agreement.py`): Stata against itself at most 5e-14 (units renamed in another order), the package against Stata at most 4e-13 on the 160 campaign panels, while a value read from the screen with `%9.0g` is off by up to 5e-3. The 1e-10 aimed at for closed forms is confirmed.
 - Cross-checks with pandas and `linearmodels` written independently (`tests/properties/test_cross_pandas.py`): within, between, lag, lead and first difference, row by row, on the 160 frozen scenarios of the campaign (`tests/properties/test_cross_pandas.py` always runs; `test_cross_linearmodels.py` runs where `linearmodels` is installed, and the CI has a job that installs it).
 
+- `python -m tools.nouveau graphique NAME` creates a figure (its module with a pure `<name>_data` function and the registered drawing, and its test); there is no template for an output format, which is a method of `Result`, not a registered extension.
+- `tests/contract/test_registered_elements.py`: every registered operator, description, tool, audit check and figure is named in a test and has a summary; every operator says whether it was compared with Stata or validated by hand and against pandas; every figure has a gallery picture and is documented; every alert code has its message and advice in both languages.
+- `tests/contract/test_messages.py` checks a rule: a message that points at "a unit" or "a variable" names it, unless it is on the short list of panel-wide or pooled causes.
+
 ### Changed
+- Errors name the unit at fault: Breitung (a unit without residual variation), Hadri with `robust=True` (a constant unit) and Levin-Lin-Chu (a unit whose Newey-West bandwidth is undefined) now say which unit, in French and English.
+- `tests/contract/test_messages.py` used to skip the whole `plot` package, so the figure messages were never checked for both languages; it now covers them.
 - The docstrings of 136 public functions and methods were completed (parameters, `Returns`, `Raises`); no behaviour changes.
 - `docs/RELEASING.md` describes the post-publication check; the check of a call against the signature of a test or a figure (`_signature.py`) is shared by `run_panel_test` and `plot`.
 

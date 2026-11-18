@@ -18,6 +18,7 @@ from scipy import stats
 from pyxtpanel import _i18n
 from pyxtpanel._errors import NumericalError, SpecificationError
 from pyxtpanel.diagnostics._core import TestResult, TestSpec, panel_variables, register_test
+from pyxtpanel.diagnostics._core.inputs import plain_label
 
 if TYPE_CHECKING:
     from pyxtpanel._types import FloatArray
@@ -59,6 +60,12 @@ _i18n.register(
             "variance, kernel estimates one long-run variance.",
             "fr": "robust et kernel ne se combinent pas : robust divise chaque unité par sa "
             "propre variance, kernel estime une seule variance de long terme.",
+        },
+        "diag.hadri.degenerate_unit": {
+            "en": "the residual variance of unit {unit} is zero (it is constant after removing its "
+            "mean or trend): the robust statistic is not defined.",
+            "fr": "la variance résiduelle de l'unité {unit} est nulle (elle est constante une "
+            "fois sa moyenne ou sa tendance retirée) : la statistique robuste n'est pas définie.",
         },
         "diag.hadri.degenerate": {
             "en": "the residual variance is zero (a unit, or every unit, is constant after "
@@ -209,8 +216,10 @@ def hadri(
         scale = float(np.sum(e**2)) / (n_units * divisor)
     if robust:
         if np.any(unit_noise):
+            first = plain_label(arrays.unit_labels[int(np.argmax(unit_noise))])
             raise NumericalError(
-                _i18n.message("diag.hadri.degenerate"), key="diag.hadri.degenerate"
+                _i18n.message("diag.hadri.degenerate_unit", unit=first),
+                key="diag.hadri.degenerate_unit",
             )
         lm = float(np.sum(sum_squares / unit_variance)) / (n_units * periods**2)
     else:

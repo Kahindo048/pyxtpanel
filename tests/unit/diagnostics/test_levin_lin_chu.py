@@ -210,3 +210,29 @@ def test_a_constant_unit_is_refused_and_named() -> None:
     with pytest.raises(NumericalError, match="unit 1 has no variation") as refusal:
         levin_lin_chu(panel, "y", lags=1)
     assert refusal.value.key == "diag.levin_lin_chu.constant_unit"
+
+
+def test_an_undefined_bandwidth_names_the_unit(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The bandwidth is found unit by unit: the message says which unit it could not be for."""
+    from pyxtpanel._errors import NumericalError
+
+    real = module._unit
+    calls = {"n": 0}
+
+    def refuse_third(*args, **kwargs):  # type: ignore[no-untyped-def]
+        calls["n"] += 1
+        if calls["n"] == 3:
+            raise NumericalError("undefined", key="diag.levin_lin_chu.undefined_bandwidth")
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(module, "_unit", refuse_third)
+    with pytest.raises(NumericalError, match=r"not defined for unit 3 ") as error:
+        levin_lin_chu(declare(series(1, n=6)), "y", bandwidth="nwest")
+    assert error.value.key == "diag.levin_lin_chu.undefined_bandwidth_unit"
+
+
+def test_the_bandwidth_of_a_series_without_autocovariance_is_refused() -> None:
+    from pyxtpanel._errors import NumericalError
+
+    with pytest.raises(NumericalError, match="Newey-West bandwidth is not defined"):
+        _newey_west_bandwidth(np.zeros(30), "bartlett")

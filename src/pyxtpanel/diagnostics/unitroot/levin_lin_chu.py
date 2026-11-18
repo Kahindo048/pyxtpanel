@@ -62,6 +62,12 @@ _i18n.register(
             "fr": "bandwidth doit valoir 'llc', 'nwest' ou un nombre positif ou nul (entier pour "
             "les noyaux de Bartlett et de Parzen), reçu {value!r}.",
         },
+        "diag.levin_lin_chu.undefined_bandwidth_unit": {
+            "en": "the Newey-West bandwidth is not defined for unit {unit} (its long-run variance "
+            "estimate is not positive); give a fixed bandwidth.",
+            "fr": "la fenêtre de Newey-West n'est pas définie pour l'unité {unit} (son estimation "
+            "de la variance de long terme n'est pas positive) ; donnez une fenêtre fixe.",
+        },
         "diag.levin_lin_chu.undefined_bandwidth": {
             "en": "the Newey-West bandwidth is not defined for a unit (its long-run variance "
             "estimate is not positive); give a fixed bandwidth.",
@@ -210,6 +216,16 @@ def levin_lin_chu(
                     unit=plain_label(arrays.unit_labels[position]),
                 ),
                 key="diag.levin_lin_chu.constant_unit",
+            ) from None
+        except NumericalError as error:
+            if error.key != "diag.levin_lin_chu.undefined_bandwidth":
+                raise
+            raise NumericalError(
+                _i18n.message(
+                    "diag.levin_lin_chu.undefined_bandwidth_unit",
+                    unit=plain_label(arrays.unit_labels[position]),
+                ),
+                key="diag.levin_lin_chu.undefined_bandwidth_unit",
             ) from None
         e_all.append(e)
         nu_all.append(nu)

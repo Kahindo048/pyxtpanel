@@ -10,6 +10,7 @@ import pytest
 from scipy import stats
 
 import pyxtpanel as xt
+from pyxtpanel import option_context
 from pyxtpanel._errors import DataError, NumericalError, SpecificationError
 from pyxtpanel.diagnostics import breitung, run_test
 
@@ -124,3 +125,16 @@ def test_by_name_alias_and_the_family_function_in_both_languages() -> None:
     assert xt.unit_root(panel, "y", test="breitung", lags=1).statistic == direct.statistic
     assert "Breitung unit-root test" in direct.summary("en")
     assert "Test de racine unitaire de Breitung" in direct.summary("fr")
+
+
+def test_a_flat_unit_is_named_in_the_error_in_both_languages() -> None:
+    y = series(7, n=6, t=12)
+    y[2] = 4.0  # the third unit, whose identifier is 3, has no variation at all
+    with pytest.raises(NumericalError, match=r"unit 3 has no residual variation") as english:
+        breitung(declare(y), "y")
+    assert english.value.key == "diag.breitung.degenerate_unit"
+    with (
+        option_context(lang="fr"),
+        pytest.raises(NumericalError, match=r"l'unité 3 n'a plus de variation résiduelle"),
+    ):
+        breitung(declare(y), "y")
