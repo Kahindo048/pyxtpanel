@@ -1,0 +1,7 @@
+# Source distribution: the package (src/), and the texts a packager or a reader needs.
+# The tests, the validation scripts and the Stata reference results stay in the repository
+# (they need validation/ and the data of Hansen 1999, which are not distributed with the package).
+include LICENSE NOTICE.md README.md CHANGELOG.md CITATION.cff CONTRIBUTING.md
+recursive-include docs *.md
+prune docs/latex
+global-exclude *.py[cod] __pycache__ *.log
