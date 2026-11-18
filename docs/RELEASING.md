@@ -27,11 +27,14 @@ token is stored anywhere (PyPI "trusted publishing"). The workflows are in `.git
    `[Unreleased]`.
 3. **Locally**, as in CONTRIBUTING: `ruff check . && ruff format --check . && mypy && lint-imports`,
    `pytest`, `python -m tools.doc --write`, then `python -m build` and `python -m twine check dist/*`.
-4. **Rehearsal on TestPyPI.** *Actions, Release, Run workflow* (repository `testpypi`). Then, in a fresh
-   environment: `pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
-   pyxtpanel==X.Y.Z` and run `python -I tools/smoke_install.py`. A version can be uploaded to an index
-   only once, so a rehearsal uses up the number on TestPyPI: use a pre-release such as `0.1.0rc1`.
-5. **Tag.** `git tag vX.Y.Z` then `git push origin vX.Y.Z`. The tag must be the version of
+4. **Optional rehearsal on TestPyPI** (needs its own trusted publisher, environment `testpypi`):
+   *Actions, Release, Run workflow* (repository `testpypi`). Then, in a fresh environment:
+   `pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+   pyxtpanel==X.Y.Z` and run `python -I tools/smoke_install.py`. TestPyPI and PyPI are separate
+   indexes, so a number used on one is still free on the other. Skipping the rehearsal is acceptable
+   (the CI already builds the package and installs the wheel alone): a bad release then costs its number
+   on PyPI (see below), nothing more.
+5. **Tag**, on a commit whose CI run is green. `git tag vX.Y.Z` then `git push origin vX.Y.Z`. The tag must be the version of
    `pyproject.toml` with a `v` in front; the workflow refuses it otherwise. A tag with `rc`, `a`, `b` or
    `dev` in it creates a GitHub *pre-release*.
 6. **Check.** The PyPI page (the README is its description), `pip install pyxtpanel` in a clean
@@ -40,9 +43,11 @@ token is stored anywhere (PyPI "trusted publishing"). The workflows are in `.git
 ## If something goes wrong
 
 * **A red build.** Nothing is published: `release.yml` starts with the whole CI.
-* **A bad release already on PyPI.** A file cannot be replaced or re-uploaded under the same version.
-  *Yank* the release on PyPI (it stays installable by exact version, but is no longer chosen by
-  `pip install pyxtpanel`) and publish the next number.
+* **A bad release already on PyPI.** A file cannot be replaced or re-uploaded under the same version,
+  not even after the release is deleted: the number is lost for good. Prefer *yanking* to deleting
+  (*Manage, Releases, Yank*): the release stays installable by exact version, so nobody who pinned it
+  breaks, but `pip install pyxtpanel` no longer chooses it. Then publish the next number
+  (`0.0.1` is followed by `0.0.2`). Deleting is only harmless while nobody has installed the release.
 * **The publish job is refused** (`invalid-publisher`): the workflow name, the environment or the
   repository in the trusted-publisher form on PyPI does not match `release.yml`, `pypi` and the
   repository that ran it.

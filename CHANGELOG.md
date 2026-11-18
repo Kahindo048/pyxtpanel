@@ -4,6 +4,10 @@ All notable changes are recorded here. The project follows [Semantic Versioning]
 
 ## [Unreleased]
 
+## [0.0.1] - 2026-11-18
+
+First release.
+
 ### Added
 - Repository, tooling configuration and package skeleton (architecture validated 2026-11-07).
 - Panel declaration (`xtset`), calendar time axis (integers with `delta`, dates, Stata `%t` formats), selection, gaps, `tsfill`, balance classes, `.dta` read/write with `xtset` characteristics.
