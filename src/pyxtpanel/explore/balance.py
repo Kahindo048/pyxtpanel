@@ -83,7 +83,9 @@ class Unbalancedness(Result):
             "T_max": self.t_max,
             "fill_rate": self.fill_rate,
         }
-        return pd.DataFrame({"value": values})
+        # a Series keeps the order of the keys on every pandas version (a dict of dicts is sorted
+        # by pandas before 2.2)
+        return pd.Series(values, name="value").to_frame()
 
     def summary(self, lang: Lang | None = None) -> str:
         """Return the measures as text."""

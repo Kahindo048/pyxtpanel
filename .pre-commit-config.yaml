@@ -1,0 +1,27 @@
+# Local hooks (A.1.3): the same checks as the CI, run before each commit with the tools of the
+# active environment.  Install once:  pip install -e ".[dev]"  then  pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format
+        language: system
+        types: [python]
+      - id: mypy
+        name: mypy (strict, src/pyxtpanel)
+        entry: mypy
+        language: system
+        pass_filenames: false
+        files: ^src/pyxtpanel/
+      - id: import-linter
+        name: import-linter (layers)
+        entry: lint-imports
+        language: system
+        pass_filenames: false
+        files: ^src/pyxtpanel/

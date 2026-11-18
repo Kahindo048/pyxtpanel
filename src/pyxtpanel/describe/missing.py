@@ -233,6 +233,7 @@ def complete_cases(panel: PanelBase, variables: Sequence[str]) -> CompleteCases:
         n_rows_kept=int(keep_sorted.sum()),
         n_units=int(index.n_units),
         n_units_kept=int((kept > 0).sum()),
-        ti=pd.DataFrame({"before": stats(before), "after": stats(after)}),
+        # Series, not dicts: the rows keep the order mean, min, p..., max on every pandas version
+        ti=pd.DataFrame({"before": pd.Series(stats(before)), "after": pd.Series(stats(after))}),
         panel=sub,
     )

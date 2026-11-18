@@ -266,7 +266,9 @@ def _facts(ctx: AuditContext) -> pd.DataFrame:
     }
     if len(ctx.variables) >= 2:
         values["complete_row_share"] = ctx.complete_share
-    return pd.DataFrame({"value": values}).rename_axis("fact")
+    # a Series keeps the order of the keys on every pandas version (a dict of dicts is sorted by
+    # pandas before 2.2)
+    return pd.Series(values, name="value").to_frame().rename_axis("fact")
 
 
 def _variables(ctx: AuditContext) -> pd.DataFrame:
