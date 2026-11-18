@@ -66,6 +66,11 @@ def jarque_bera(residuals: object) -> TestResult:
     residuals
         ``(n,)`` values to test.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

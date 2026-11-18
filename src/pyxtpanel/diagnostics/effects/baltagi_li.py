@@ -153,6 +153,11 @@ def baltagi_li(
         Optional ``(m,)`` integer period of each residual: a unit that skips a period is then
         refused, as ``xttest1`` does (r(498)).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

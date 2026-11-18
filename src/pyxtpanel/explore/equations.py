@@ -199,6 +199,16 @@ def usable_equations(
     instrument_lag
         Oldest lag allowed to serve as an instrument; default 2 for ``"fd"`` and 1 for
         ``"fod"``.
+
+    Returns
+    -------
+    UsableEquations
+        Result of :func:`usable_equations`.
+
+    Raises
+    ------
+    SpecificationError
+        If ``transform`` is not ``"fd"`` or ``"fod"``, or ``lags`` is not a non-negative integer.
     """
     if transform not in ("fd", "fod"):
         raise SpecificationError(

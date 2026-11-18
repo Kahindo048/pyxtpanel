@@ -19,7 +19,7 @@ blocks = {}  # letter -> title
 items = {}  # "A.1.1" -> dict
 cur_block = cur_pt = None
 for line in body.splitlines():
-    m = re.match(r"## ([A-L])\. (.+)", line)
+    m = re.match(r"## ([A-M])\. (.+)", line)
     if m:
         cur_block = m.group(1)
         blocks[cur_block] = m.group(2)
@@ -38,7 +38,7 @@ for line in body.splitlines():
         assert len(dep) == 1, (key, dep)
         items[key] = dict(done=m.group(1) == "x", dep=dep[0], block=cur_block)
 
-ref_re = re.compile(r"\b([A-L])(?:\.(\d+))?(?:\.(\d+))?\b")
+ref_re = re.compile(r"\b([A-M])(?:\.(\d+))?(?:\.(\d+))?\b")
 
 
 def expand(ref):
@@ -58,7 +58,7 @@ for k, it in items.items():
         graph[k] = []
         continue
     refs = re.findall(
-        r"\b[A-L](?:\.\d+){0,2}\b",
+        r"\b[A-M](?:\.\d+){0,2}\b",
         d.split(":", 1)[-1] if d.startswith("progressif") else d[len("après") :],
     )
     deps = []
@@ -91,7 +91,7 @@ for k in items:
         dfs(k, [])
 
 # références hors étiquettes (texte du plan)
-all_refs = set(re.findall(r"\b([A-L]\.\d+(?:\.\d+)?)\b", txt))
+all_refs = set(re.findall(r"\b([A-M]\.\d+(?:\.\d+)?)\b", txt))
 for r in sorted(all_refs):
     if not expand(r):
         errors.append(f"référence au texte sans cible: {r}")

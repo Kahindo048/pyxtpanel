@@ -93,6 +93,11 @@ def pesaran_cd(panel: PanelBase, variable: str, *, min_overlap: int = 3) -> Test
     min_overlap
         Smallest number of common periods a pair of units may have (3 or more; Stata needs 3).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

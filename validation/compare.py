@@ -3,7 +3,8 @@
 Tolerance rule: an element agrees when its absolute difference is at most ``atol`` **or** its
 relative difference is at most ``rtol``.  The defaults (5e-5 and 1e-6) are the floor of the
 project; closed-form quantities are compared with much tighter values (1e-10 relative is the
-aim, measured in B.3.4).
+aim; measured in B.3.4 by ``validation/self_agreement.py``: Stata differs from itself by at most
+5e-14 and the package from Stata by at most 4e-13 on the campaign).
 """
 
 from __future__ import annotations

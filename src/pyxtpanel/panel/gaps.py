@@ -61,6 +61,15 @@ def find_duplicates(
 
     Use it on raw data that :func:`pyxtpanel.xtset` refused, to see what to merge or drop.
 
+    Parameters
+    ----------
+    frame
+        The raw data.
+    id
+        Column that identifies the unit (``None`` when a two-level index holds the keys).
+    time
+        Column that holds the period (``None`` when a two-level index holds the keys).
+
     Returns
     -------
     pandas.DataFrame

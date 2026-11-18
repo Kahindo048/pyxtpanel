@@ -125,6 +125,11 @@ def breitung(
     robust
         Report the statistic robust to cross-sectional correlation.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

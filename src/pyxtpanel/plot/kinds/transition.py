@@ -62,6 +62,27 @@ def plot_transition(
 
     The options are those of :func:`~pyxtpanel.describe.trans.xttrans`; the number of
     transitions that bridge a calendar gap is written on the figure when there are some.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    variable
+        A discrete variable, or a continuous one cut with ``bins``.
+    gaps
+        ``"bridge"`` (default, Stata): pair each observation with the unit's next row, whatever the
+        calendar gap.  ``"strict"``: only pairs of consecutive periods.
+    bins
+        Discretize a continuous variable first (an addition of the package, not in Stata): an
+        integer ``k`` cuts it at its ``k``-quantiles, a list gives the cut points.  Values are
+        replaced by the number of the class, ``0`` for the lowest.
+    lang
+        ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
     """
     from matplotlib.colors import LinearSegmentedColormap
 

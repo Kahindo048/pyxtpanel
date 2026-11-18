@@ -90,6 +90,11 @@ def wald(
         Residual degrees of freedom for the ``F`` version (``e(df_r)`` in Stata); ``None`` for the
         chi-square version.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     NumericalError

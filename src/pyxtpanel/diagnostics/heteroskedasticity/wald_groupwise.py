@@ -94,6 +94,11 @@ def wald_groupwise(residuals: object, offsets: object) -> TestResult:
         ``(G + 1,)`` start of each unit in ``residuals`` (unit ``i`` owns
         ``residuals[offsets[i]:offsets[i + 1]]``).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

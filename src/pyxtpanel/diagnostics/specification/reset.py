@@ -115,6 +115,11 @@ def reset(y: object, x: object, *, rhs: bool = False) -> TestResult:
     rhs
         Use the powers of the regressors instead of those of the fitted values.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

@@ -54,6 +54,13 @@ def evaluate(index: PanelIndex, values: FloatArray, term: Term) -> FloatArray:
 def operate(panel: PanelBase, terms: Iterable[str | Term]) -> pd.DataFrame:
     """Evaluate Stata-style terms (``"L2.x"``, ``"D.y"``, ``"L(1/3).z"``) on a panel.
 
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    terms
+        Terms such as ``"L2.x"``, ``"D.y"`` or ``"L(1/3).z"``, as strings or parsed terms.
+
     Returns
     -------
     pandas.DataFrame
@@ -166,6 +173,11 @@ def transform(
         (what Stata's ``xtdata`` does).  Default: each variable uses its own observed rows.
     **params
         Parameters of the transformation.
+
+    Returns
+    -------
+    pandas.Series or pandas.DataFrame
+        A Series for one variable, a DataFrame for several, on the index of the declared frame.
     """
     func = OPERATORS.get(name)
     names, values = _selected(panel, variables, listwise)

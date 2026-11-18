@@ -86,6 +86,11 @@ def plot_lines(
         One small panel per unit instead of superimposed lines.
     lang
         ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
     """
     chosen = resolve_lang(lang)
     names, values = term_columns(panel, variable)

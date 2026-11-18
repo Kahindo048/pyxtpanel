@@ -120,6 +120,11 @@ def hausman(
     df
         Degrees of freedom to use instead of the rank (Stata's ``df()``).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

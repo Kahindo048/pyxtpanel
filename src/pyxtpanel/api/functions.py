@@ -144,6 +144,11 @@ def as_panel(
     **options
         Options of :func:`xtset` (``delta``, ``freq``, ``format``, ``missing_keys``).
 
+    Returns
+    -------
+    PanelData
+        A DataFrame declared as a panel, as Stata's ``xtset`` does.
+
     Raises
     ------
     SpecificationError
@@ -270,6 +275,18 @@ def audit(
         :func:`xtset`, and ``**options`` are the options of :func:`xtset`).
     variables, dependent, lags, thresholds, checks
         See :func:`pyxtpanel.explore.audit.audit`.
+    id
+        Column that identifies the unit, when ``data`` is a DataFrame.
+    time
+        Column that holds the period, when ``data`` is a DataFrame.
+    options
+        Options of :func:`xtset` (``delta``, ``freq``, ``format``, ``missing_keys``), used when
+        ``data`` is a DataFrame.
+
+    Returns
+    -------
+    AuditReport
+        Result of :func:`audit`.
     """
     if isinstance(data, pd.DataFrame):
         repeated = duplicates(data, id, time)
@@ -310,6 +327,11 @@ def unit_root(
     **options
         The options of the test (``deterministics``, ``lags``, ``demean``...); an option the test
         does not have is refused with the list of those it has.
+
+    Returns
+    -------
+    TestResult
+        The test statistic, its p-value and the quantities behind them.
     """
     return run_panel_test(panel, test, variable, family="unitroot", **options)
 
@@ -333,6 +355,11 @@ def cross_section_dependence(
         Name or alias of the test (required).
     **options
         The options of the test.
+
+    Returns
+    -------
+    TestResult
+        The test statistic, its p-value and the quantities behind them.
     """
     return run_panel_test(panel, test, variable, family="crosssection", **options)
 
@@ -361,6 +388,11 @@ def serial_correlation(
         Name or alias of the test (required).
     **options
         The options of the test.
+
+    Returns
+    -------
+    TestResult
+        The test statistic, its p-value and the quantities behind them.
     """
     return run_panel_test(panel, test, dependent, regressors, family="serial", **options)
 
@@ -388,6 +420,11 @@ def causality(
         Name or alias of the test (required).
     **options
         The options of the test (``lags``, ``statistic``).
+
+    Returns
+    -------
+    TestResult
+        The test statistic, its p-value and the quantities behind them.
     """
     return run_panel_test(panel, test, dependent, cause, family="causality", **options)
 
@@ -415,6 +452,11 @@ def cointegration(
         Name or alias of the test (required).
     **options
         The options of the test (``statistic``, ``adf_lags``, ``kernel``, ``kernel_lags``...).
+
+    Returns
+    -------
+    TestResult
+        The test statistic, its p-value and the quantities behind them.
     """
     return run_panel_test(panel, test, dependent, regressors, family="cointegration", **options)
 
@@ -443,5 +485,10 @@ def slope_heterogeneity(
     **options
         The options of the test (``partial``, ``constant``, ``ar``, ``crosssectional``,
         ``adjusted``).
+
+    Returns
+    -------
+    TestResult
+        The test statistic, its p-value and the quantities behind them.
     """
     return run_panel_test(panel, test, dependent, regressors, family="heterogeneity", **options)

@@ -80,6 +80,11 @@ def white(residuals: object, regressors: object) -> TestResult:
     regressors
         ``(n,)`` or ``(n, p)`` regressors of the model, without the constant.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

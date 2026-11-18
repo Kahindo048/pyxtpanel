@@ -48,10 +48,11 @@ _i18n.register(
             "Codez les unités en entiers avant d'écrire.",
         },
         "io.week_unsupported": {
-            "en": "Weekly data cannot be written with a Stata format (Stata weeks are not "
-            "calendar weeks).",
-            "fr": "Les données hebdomadaires ne peuvent pas être écrites avec un format Stata "
-            "(les semaines de Stata ne sont pas des semaines calendaires).",
+            "en": "Weekly data in calendar weeks cannot be written with a Stata format (Stata "
+            "weeks are not calendar weeks); declare the time with freq='SW' to write %tw.",
+            "fr": "Les données en semaines calendaires ne peuvent pas être écrites avec un format "
+            "Stata (les semaines de Stata ne sont pas des semaines calendaires) ; déclarez le "
+            "temps avec freq='SW' pour écrire du %tw.",
         },
     },
 )
@@ -160,6 +161,21 @@ def read_table(path: str | Path) -> pd.DataFrame:
     """Read a ``.dta``, ``.csv`` or ``.parquet`` file into a DataFrame.
 
     Stata value labels are not applied, so labelled variables stay numeric as they are in Stata.
+
+    Parameters
+    ----------
+    path
+        Path of the ``.dta``, ``.csv`` or ``.parquet`` file.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The data as the file holds them.
+
+    Raises
+    ------
+    DataError
+        If the extension is not ``.dta``, ``.csv`` or ``.parquet``.
     """
     file = Path(path)
     suffix = file.suffix.lower()
@@ -181,6 +197,16 @@ def read_stata(path: str | Path) -> pd.DataFrame:
     ``delta`` (an integer, or ``None``) and ``time_format`` (the ``%t`` format of the time
     variable, or ``None``); all are ``None`` when the file was saved without ``xtset``.  Names
     are **never guessed** from the columns.
+
+    Parameters
+    ----------
+    path
+        Path of the ``.dta`` file.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The data, with the panel declaration in ``attrs``.
     """
     file = Path(path)
     with pd.read_stata(file, convert_categoricals=False, iterator=True) as reader:
@@ -228,7 +254,7 @@ def panel_from_stata(cls: type[PanelBase], path: str | Path, **options: Any) -> 
     options.setdefault("delta", attrs.get("delta") if from_file else None)
     fmt = attrs.get("time_format")
     if fmt and from_file and pd.api.types.is_datetime64_any_dtype(frame[time_name]):
-        with contextlib.suppress(SpecificationError):  # %tw, %tc: infer the frequency instead
+        with contextlib.suppress(SpecificationError):  # %tc, %tC: infer the frequency instead
             options.setdefault("freq", freq_from_format(fmt))
     return cls.from_frame(frame, id_name, time_name, **options)
 
@@ -288,21 +314,22 @@ def inject_xtset(path: str | Path, panel: str, time: str, delta: int) -> None:
     file.write_bytes(bytes(raw))
 
 
-_STATA_DATE_CODE = {"D": "td", "M": "tm", "Q": "tq", "H": "th", "Y": "ty"}
+_STATA_DATE_CODE = {"D": "td", "SW": "tw", "M": "tm", "Q": "tq", "H": "th", "Y": "ty"}
 
 
 def write_stata(panel: PanelBase, path: str | Path) -> None:
     """Write the panel as a Stata 14 ``.dta`` that keeps its ``xtset`` declaration.
 
     The data are written sorted by unit then period.  Dates are written with the matching ``%t``
-    format (a date that is not a period start is written as the start of its period).  Weekly
-    data are refused.
+    format (a date that is not a period start is written as the start of its period).  Calendar
+    weeks (seven days from a Monday) have no Stata format and are refused; Stata weeks (``%tw``,
+    frequency ``"SW"``) are written.
 
     Raises
     ------
     SpecificationError
         If the identifier is not numeric (Stata's ``xtset`` needs a numeric panel variable) or
-        the data are weekly.
+        the data are in calendar weeks.
     """
     axis = panel.axis
     data = panel.to_frame(order="sorted")

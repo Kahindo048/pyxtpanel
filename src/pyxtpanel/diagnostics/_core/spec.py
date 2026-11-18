@@ -115,7 +115,20 @@ TESTS: Registry[TestSpec] = Registry("test", package="pyxtpanel.diagnostics")
 
 
 def register_test(name: str, spec: TestSpec) -> Callable[[F], F]:
-    """Register a statistical test under ``name``."""
+    """Register a statistical test under ``name``.
+
+    Parameters
+    ----------
+    name
+        Registered name of the test.
+    spec
+        Its :class:`TestSpec`: family, category, inputs and references.
+
+    Returns
+    -------
+    callable
+        The decorator that registers the function.
+    """
     return TESTS.register(name, spec)
 
 
@@ -124,6 +137,11 @@ def list_tests() -> pd.DataFrame:
 
     Columns: ``family``, ``category``, ``wave``, ``inputs``, ``balanced``, ``stata``, ``r``,
     ``reference``, ``summary``; indexed by test name.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per test, indexed by name.
     """
     rows = {
         name: {
@@ -146,6 +164,16 @@ def list_tests() -> pd.DataFrame:
 
 def resolve_test(name: str) -> str:
     """Return the registered name of the test called ``name`` (a name or an alias).
+
+    Parameters
+    ----------
+    name
+        Name or alias of the test.
+
+    Returns
+    -------
+    str
+        The registered name.
 
     Raises
     ------
@@ -172,6 +200,20 @@ def run_test(name: str, *args: object, **kwargs: object) -> TestResult:
     """Run the registered test ``name`` (or one of its aliases) with the given arguments.
 
     ``run_test("ips", panel, "x", lags=1)`` is ``im_pesaran_shin(panel, "x", lags=1)``.
+
+    Parameters
+    ----------
+    name
+        Registered name of the test, or one of its aliases.
+    args
+        Arguments of the test (the panel or the arrays, then the variable names).
+    kwargs
+        Options of the test.
+
+    Returns
+    -------
+    TestResult
+        The test statistic, its p-value and the quantities behind them.
 
     Raises
     ------

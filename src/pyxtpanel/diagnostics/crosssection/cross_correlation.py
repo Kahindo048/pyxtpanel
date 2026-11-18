@@ -112,6 +112,11 @@ def cross_correlation(panel: PanelBase, variable: str, *, min_overlap: int = 3) 
     min_overlap
         Smallest number of common periods for a defined correlation (2 or more).
 
+    Returns
+    -------
+    CrossCorrelation
+        Result of :func:`cross_correlation`.
+
     Raises
     ------
     SpecificationError

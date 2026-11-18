@@ -76,6 +76,11 @@ def f_effects(
     n_regressors
         Number ``k`` of slope coefficients (without the constant).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

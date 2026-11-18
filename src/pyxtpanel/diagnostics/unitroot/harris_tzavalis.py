@@ -111,6 +111,11 @@ def harris_tzavalis(
         Use ``T - 1`` instead of ``T`` in the moments (Stata's ``altt``: one observation is lost
         to the lag).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

@@ -12,9 +12,8 @@ tests of a family answer different questions.
 from __future__ import annotations
 
 import inspect
-import re
 
-from pyxtpanel import _i18n
+from pyxtpanel import _i18n, _signature
 from pyxtpanel._errors import SpecificationError
 from pyxtpanel.diagnostics._core.result import TestResult
 from pyxtpanel.diagnostics._core.spec import TESTS, resolve_test
@@ -62,7 +61,19 @@ _FAMILY_LABELS = {
 
 
 def panel_tests(family: str | None = None) -> list[str]:
-    """Return the names of the tests on a panel (category A), optionally of one family."""
+    """Return the names of the tests on a panel (category A), optionally of one family.
+
+    Parameters
+    ----------
+    family
+        Restrict the list to one family (``"unitroot"``, ``"crosssection"``...); default: all the
+        tests on a panel.
+
+    Returns
+    -------
+    list of str
+        The registered names.
+    """
     return [
         name
         for name, spec in TESTS.specs()
@@ -92,6 +103,11 @@ def run_panel_test(
         ``"heterogeneity"``).
     **options
         The options of the test.
+
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
 
     Raises
     ------
@@ -134,39 +150,11 @@ def run_panel_test(
             _i18n.message(
                 "diag.dispatch.bad_call",
                 name=name,
-                reason=_reason(signature, error),
-                accepted=_accepted(signature),
+                reason=_signature.reason(signature, error),
+                accepted=_signature.accepted(signature),
             ),
             key="diag.dispatch.bad_call",
         ) from None
     result = function(panel, *args, **options)
     assert isinstance(result, TestResult)
     return result
-
-
-def _reason(signature: inspect.Signature, error: TypeError) -> str:
-    """Return Python's reason for the refused call, worded the same on every Python version.
-
-    Python 3.12 says "missing a required keyword-only argument" for an option that can only be
-    given by name; 3.10 and 3.11 say "missing a required argument" for it.  The message is shown
-    to users and compared in tests, so the 3.12 wording is used everywhere.
-    """
-    reason = str(error)
-    match = re.fullmatch(r"missing a required argument: '(\w+)'", reason)
-    parameter = signature.parameters.get(match.group(1)) if match else None
-    if parameter is not None and parameter.kind is inspect.Parameter.KEYWORD_ONLY:
-        return f"missing a required keyword-only argument: '{parameter.name}'"
-    return reason
-
-
-def _accepted(signature: inspect.Signature) -> str:
-    """Return the arguments after the panel, keyword-only ones marked with their defaults."""
-    parts = []
-    for index, (name, parameter) in enumerate(signature.parameters.items()):
-        if index == 0:
-            continue  # the panel
-        if parameter.default is inspect.Parameter.empty:
-            parts.append(name)
-        else:
-            parts.append(f"{name}={parameter.default!r}")
-    return ", ".join(parts)

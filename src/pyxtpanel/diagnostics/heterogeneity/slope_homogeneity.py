@@ -210,6 +210,11 @@ def slope_homogeneity(
         With three regressors or more the result can differ from ``xthst``'s, which rebuilds the
         whitening matrix from singular vectors whose signs depend on the LAPACK in use.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

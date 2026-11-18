@@ -127,6 +127,11 @@ def vif(
         Sort from the largest factor (ties by name); ``False`` keeps the order of the columns
         (Stata's ``nosort``).
 
+    Returns
+    -------
+    VarianceInflation
+        Result of :func:`vif`.
+
     Raises
     ------
     SpecificationError

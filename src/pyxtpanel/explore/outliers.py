@@ -157,6 +157,11 @@ def within_outliers(
         A value is flagged when the absolute modified z-score exceeds it.
     min_obs
         Units with fewer observed values are not scored.
+
+    Returns
+    -------
+    WithinOutliers
+        Result of :func:`within_outliers`.
     """
     _check("threshold", threshold > 0, "positive", threshold)
     _check(
@@ -294,6 +299,11 @@ def level_shifts(
     influence
         A unit is influential when its share of the within sum of squares is above this
         multiple of the average share.
+
+    Returns
+    -------
+    LevelShifts
+        Result of :func:`level_shifts`.
     """
     _check("window", isinstance(window, int) and window >= 1, "an integer of at least 1", window)
     _check("threshold", threshold > 0, "positive", threshold)

@@ -89,6 +89,11 @@ def frees(panel: PanelBase, variable: str) -> TestResult:
     variable
         Name of a numeric variable; rows where it is missing are ignored.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     DataError

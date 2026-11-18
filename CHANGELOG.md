@@ -4,6 +4,18 @@ All notable changes are recorded here. The project follows [Semantic Versioning]
 
 ## [Unreleased]
 
+### Added
+- Stata weeks: the format `%tw` (52 weeks a year from 1960w1, week `w` starting on 1 January plus `7 * (w - 1)` days) is a frequency of the time axis, `"SW"`, for Stata-coded integers (`format="%tw"`), for dates (`freq="SW"`) and for `.dta` files, which are read and written with their weekly format. Checked in Stata 17: conversions (`yw`, `dofw`, `wofd`), `xtset` with and without gaps and `delta`, operators, `tsfill`, `xtdescribe`; the random campaign now draws `%tw` too (12 of the 160 frozen panels; 46 of 600 fresh ones, no difference from Stata).
+- `PanelData.plot` and `plot()` check the call before drawing: a missing argument (`panel.plot("states")` without `variable`) or an unknown option raises a `SpecificationError`, in French or English, that names the figure and lists its arguments, instead of Python's bare `TypeError`.
+- `tools/docstrings.py` (also run by the CI and by `tests/contract/test_docstrings.py`) checks the docstrings of the whole public API: a summary, every parameter described, a `Returns` or `Yields` section, a `Raises` section when the function raises an error of the package.
+- `release.yml`: once a release is published, the job `verify-pypi` installs it from PyPI in a clean environment and runs the smoke test on it, which fails if the version installed is not the tag's.
+- `validation/self_agreement.py` measures how close an agreement with Stata can be (`tests/golden/stata_self_agreement.json`, `test_self_agreement.py`): Stata against itself at most 5e-14 (units renamed in another order), the package against Stata at most 4e-13 on the 160 campaign panels, while a value read from the screen with `%9.0g` is off by up to 5e-3. The 1e-10 aimed at for closed forms is confirmed.
+- Cross-checks with pandas and `linearmodels` written independently (`tests/properties/test_cross_pandas.py`): within, between, lag, lead and first difference, row by row, on the 160 frozen scenarios of the campaign (`tests/properties/test_cross_pandas.py` always runs; `test_cross_linearmodels.py` runs where `linearmodels` is installed, and the CI has a job that installs it).
+
+### Changed
+- The docstrings of 136 public functions and methods were completed (parameters, `Returns`, `Raises`); no behaviour changes.
+- `docs/RELEASING.md` describes the post-publication check; the check of a call against the signature of a test or a figure (`_signature.py`) is shared by `run_panel_test` and `plot`.
+
 ## [0.0.1] - 2026-11-18
 
 First release.

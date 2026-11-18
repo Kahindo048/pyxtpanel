@@ -178,6 +178,11 @@ def cips(
     truncate
         Truncate the unit statistics (default).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

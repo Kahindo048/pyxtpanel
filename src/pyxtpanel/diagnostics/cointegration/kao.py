@@ -173,6 +173,11 @@ def kao(
     demean
         Remove the mean across units in each period first.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

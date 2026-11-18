@@ -107,6 +107,11 @@ def wooldridge(panel: PanelBase, dependent: str, regressors: Sequence[str]) -> T
         Names of its regressors, without a constant (the first difference removes the unit effect
         and any constant).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

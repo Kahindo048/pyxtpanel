@@ -171,6 +171,11 @@ def to_long(
     pandas.DataFrame
         Sorted by unit then period, with the other columns of ``wide`` repeated on every row.
         Declare it with :func:`pyxtpanel.xtset`.
+
+    Raises
+    ------
+    SpecificationError
+        If ``id`` is not a column of ``wide``, or if no column matches a stub.
     """
     stubs = list(stubs)
     if id is not None and id not in wide.columns:
@@ -261,6 +266,18 @@ def to_array3d(panel: PanelBase, variables: Sequence[str] | None = None) -> Arra
 
     Unlike :meth:`PanelData.arrays`, which keeps only the rows that exist, this array has a
     cell for every (period, unit), so that lags are positions along the second axis.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    variables
+        Variables to lay out; by default every numeric variable other than the keys.
+
+    Returns
+    -------
+    Array3D
+        A panel as an array ``variable x period x unit`` (result of :func:`to_array3d`).
     """
     names = list(variables) if variables is not None else numeric_names(panel)
     index = panel.index
@@ -361,6 +378,16 @@ def resolve_duplicates(
         Names of the key columns (or ``None`` when a two-level index holds them).
     how
         The merging rule.
+
+    Returns
+    -------
+    DuplicateResolution
+        Result of :func:`resolve_duplicates`.
+
+    Raises
+    ------
+    SpecificationError
+        If ``how`` is not one of the rules listed.
     """
     if how not in HOW:
         raise SpecificationError(

@@ -107,6 +107,11 @@ def friedman(
         ``"stata"`` (default): ``N - 1`` degrees of freedom as ``xtcsd``; ``"periods"``:
         ``T - 1``, the distribution of the statistic.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

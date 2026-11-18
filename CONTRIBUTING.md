@@ -18,6 +18,7 @@ mypy
 lint-imports
 pytest -m "not stata"
 python -m tools.doc --write   # after adding a function, operator, figure, tool or test: refresh the annexes
+python -m tools.docstrings    # every public docstring: summary, each parameter, Returns, Raises
 ```
 
 A new feature must also be named in its part of `docs/documentation.md` (the check `python -m tools.doc` and the contract test fail otherwise); the Python blocks of that document are run by the test suite. `python -m tools.doc --pdf` rebuilds `docs/documentation.tex` and `docs/documentation.pdf` (generated files, ignored by git; the Markdown stays the source).
@@ -26,7 +27,7 @@ A new feature must also be named in its part of `docs/documentation.md` (the che
 
 ## Continuous integration and releases
 
-GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: ruff, mypy and import-linter, the generated files, the whole test suite on Linux and Windows with Python 3.10 to 3.13, with pandas 2.x and 3.x and with the oldest numpy, pandas and scipy the package promises (without matplotlib), the coverage gate (90 %), and the build of the wheel and sdist installed alone in a fresh environment. No Stata is needed: its results are frozen in `tests/golden/`. A release is a tag: see [docs/RELEASING.md](docs/RELEASING.md).
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: ruff, mypy and import-linter, the generated files, the docstrings of the public API, the whole test suite on Linux and Windows with Python 3.10 to 3.13, with pandas 2.x and 3.x and with the oldest numpy, pandas and scipy the package promises (without matplotlib), the coverage gate (90 %), and the build of the wheel and sdist installed alone in a fresh environment. No Stata is needed: its results are frozen in `tests/golden/`. A release is a tag: see [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Adding a feature (one file, no existing file modified)
 

@@ -64,6 +64,18 @@ def plot_attrition(panel: PanelBase, *, lang: Lang | None = None) -> Figure:
     The left panels use :meth:`PanelData.attrition`'s table by period; the right panel is its
     Kaplan-Meier curve of the observed life of the units, where a unit still observed in the last
     period is censored and not counted as an exit.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    lang
+        ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
     """
     chosen = resolve_lang(lang)
     result = attrition(panel)

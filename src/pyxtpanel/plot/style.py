@@ -213,6 +213,27 @@ def save_figure(
 
     With ``formats`` (for example ``(".png", ".pdf")``) the extension of ``path`` is replaced by
     each of them, which writes one file per format.  Returns the files written.
+
+    Parameters
+    ----------
+    fig
+        The figure to write.
+    path
+        Destination; the extension (``.png``, ``.pdf`` or ``.svg``) gives the format.
+    dpi
+        Resolution of the raster formats.
+    formats
+        Extensions to write instead of that of ``path``, one file each.
+
+    Returns
+    -------
+    list of pathlib.Path
+        The files written.
+
+    Raises
+    ------
+    SpecificationError
+        If an extension is not ``.png``, ``.pdf`` or ``.svg``.
     """
     target = Path(path)
     suffixes = formats if formats is not None else (target.suffix.lower(),)

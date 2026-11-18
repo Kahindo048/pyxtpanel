@@ -115,6 +115,11 @@ def breusch_pagan(
     variant
         ``"normal"``, ``"iid"`` or ``"fstat"``.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

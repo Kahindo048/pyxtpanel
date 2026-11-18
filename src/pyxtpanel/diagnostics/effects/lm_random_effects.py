@@ -93,6 +93,11 @@ def lm_random_effects(
         reports a statistic of 0 and a p-value of 1 when it is not positive; pass it to do the
         same.  ``None`` ignores the rule.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError
