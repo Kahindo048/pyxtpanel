@@ -175,10 +175,10 @@ def declare(
         positions=positions,
     )
     check_span(encoded.axis, labels.size)
-    check_unique_pairs(
+    order = check_unique_pairs(
         unit_code, encoded.rank, id_name, time_name, (kept_id.to_numpy(), kept_time.to_numpy())
     )
-    index = build_index(unit_code, encoded.rank, positions, labels)
+    index = build_index(unit_code, encoded.rank, positions, labels, order)
     return Declaration(
         id_name=id_name,
         time_name=time_name,

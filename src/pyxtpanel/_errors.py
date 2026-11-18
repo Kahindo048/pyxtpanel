@@ -64,5 +64,6 @@ STATA_CODES: dict[int, str] = {
     198: "invalid syntax, option or argument",
     451: "repeated time values within a panel",
     459: "something that should not be missing is missing (or too few distinct values)",
+    498: "the panel is not balanced or has gaps, for a command that needs neither",
     2000: "no observations",
 }

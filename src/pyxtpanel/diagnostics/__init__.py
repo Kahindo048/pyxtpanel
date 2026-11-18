@@ -19,11 +19,16 @@ from pyxtpanel.diagnostics._core import (
     run_test,
 )
 from pyxtpanel.diagnostics._shared.overid import moment_covariance
+from pyxtpanel.diagnostics.causality.dumitrescu_hurlin import dumitrescu_hurlin
+from pyxtpanel.diagnostics.cointegration.kao import kao
+from pyxtpanel.diagnostics.cointegration.pedroni import pedroni
+from pyxtpanel.diagnostics.cointegration.westerlund import westerlund
 from pyxtpanel.diagnostics.crosssection.cross_correlation import CrossCorrelation, cross_correlation
 from pyxtpanel.diagnostics.crosssection.frees import frees
 from pyxtpanel.diagnostics.crosssection.friedman import friedman
 from pyxtpanel.diagnostics.crosssection.lm_cross_section import lm_cross_section
 from pyxtpanel.diagnostics.crosssection.pesaran_cd import pesaran_cd
+from pyxtpanel.diagnostics.effects.baltagi_li import baltagi_li
 from pyxtpanel.diagnostics.effects.f_effects import f_effects
 from pyxtpanel.diagnostics.effects.lm_random_effects import lm_random_effects
 from pyxtpanel.diagnostics.heterogeneity.slope_homogeneity import slope_homogeneity
@@ -44,7 +49,10 @@ from pyxtpanel.diagnostics.serial.panel_durbin_watson import panel_durbin_watson
 from pyxtpanel.diagnostics.serial.wooldridge import wooldridge
 from pyxtpanel.diagnostics.specification.reset import reset
 from pyxtpanel.diagnostics.specification.vif import VarianceInflation, vif
+from pyxtpanel.diagnostics.unitroot.breitung import breitung
+from pyxtpanel.diagnostics.unitroot.cips import cips
 from pyxtpanel.diagnostics.unitroot.fisher import fisher
+from pyxtpanel.diagnostics.unitroot.hadri import hadri
 from pyxtpanel.diagnostics.unitroot.harris_tzavalis import harris_tzavalis
 from pyxtpanel.diagnostics.unitroot.im_pesaran_shin import im_pesaran_shin
 from pyxtpanel.diagnostics.unitroot.levin_lin_chu import levin_lin_chu
@@ -52,18 +60,25 @@ from pyxtpanel.diagnostics.unitroot.levin_lin_chu import levin_lin_chu
 __all__ = [
     "CrossCorrelation",
     "VarianceInflation",
+    "baltagi_li",
+    "breitung",
+    "cips",
     "cross_correlation",
+    "dumitrescu_hurlin",
     "f_effects",
     "frees",
     "friedman",
     "fisher",
+    "hadri",
     "harris_tzavalis",
     "im_pesaran_shin",
     "jarque_bera",
+    "kao",
     "levin_lin_chu",
     "lm_cross_section",
     "lm_random_effects",
     "panel_durbin_watson",
+    "pedroni",
     "pesaran_cd",
     "shapiro_francia",
     "shapiro_wilk",
@@ -91,5 +106,6 @@ __all__ = [
     "vif",
     "wald",
     "white",
+    "westerlund",
     "wooldridge",
 ]

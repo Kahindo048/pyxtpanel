@@ -134,7 +134,7 @@ def panel_variables(
                     have=int(counts[first]),
                     need=need,
                 ),
-                stata_code=459,
+                stata_code=498,  # xtunitroot llc|ht|breitung|hadri, xtcointtest kao: r(498)
                 key="diag.input.not_balanced",
             )
     if consecutive:
@@ -151,7 +151,7 @@ def panel_variables(
                     unit=plain_label(labels[int(arrays.unit_of_row[row])]),
                     period=panel.axis.labels(np.array([arrays.time_index[row]]))[0],
                 ),
-                stata_code=451,
+                stata_code=498,  # xtunitroot ips, xtcointtest pedroni|westerlund: r(498)
                 key="diag.input.gap",
             )
     small = np.flatnonzero(counts < min_obs)

@@ -19,7 +19,7 @@ from scipy import stats
 from pyxtpanel import _i18n
 from pyxtpanel._errors import NumericalError, SpecificationError
 from pyxtpanel.diagnostics._core import Note, TestResult, TestSpec, panel_variables, register_test
-from pyxtpanel.diagnostics._shared.ols import ols_residuals
+from pyxtpanel.diagnostics._shared.ols import is_perfect_fit, ols_residuals
 
 if TYPE_CHECKING:
     from pyxtpanel.panel.base import PanelBase
@@ -131,6 +131,11 @@ def wooldridge(panel: PanelBase, dependent: str, regressors: Sequence[str]) -> T
     delta = arrays.values[rows] - arrays.values[previous[rows]]
     residual = np.full(arrays.n_obs, np.nan)
     residual[rows] = ols_residuals(delta[:, 0], delta[:, 1:])
+    # a perfect fit of the differences leaves rounding noise, not an exact zero
+    if is_perfect_fit(float(residual[rows] @ residual[rows]), float(delta[:, 0] @ delta[:, 0])):
+        raise NumericalError(
+            _i18n.message("diag.wooldridge.no_variation"), key="diag.wooldridge.no_variation"
+        )
     # Second regression: residual on its lag, for the rows where both exist (calendar lag).
     lagged = np.full(arrays.n_obs, np.nan)
     lagged[has_diff] = residual[previous[has_diff]]

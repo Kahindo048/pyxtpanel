@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import re
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -92,3 +94,37 @@ def test_each_tool_states_its_equivalents_and_how_it_is_validated(name: str) -> 
     assert "validated" in module.lower(), f"{name}: the module must say how it is validated"
     if spec.stata:
         assert "Stata" in module
+
+
+UNIT_TESTS = sorted(Path(__file__).resolve().parents[1].joinpath("unit").glob("test_explore_*.py"))
+PROPERTY_TESTS = Path(__file__).resolve().parents[1] / "properties" / "test_explore_properties.py"
+ORACLE = re.compile(r"^def (loop_|oracle|window_oracle)", re.MULTILINE)
+
+
+def has_evidence(name: str, files: list[Path], marker: re.Pattern[str]) -> bool:
+    """Whether a test file that names the tool also contains the marker."""
+    return any(
+        name in text and marker.search(text) for text in (path.read_text() for path in files)
+    )
+
+
+@pytest.mark.parametrize("name", TOOLS.names())
+def test_each_validation_claim_has_a_test_behind_it(name: str) -> None:
+    """A tool cannot claim a validation method that no test implements (K.7.2 to K.7.5)."""
+    claim = TOOLS.spec(name).validation
+    if name == "audit":  # aggregates tools validated on their own
+        return
+    if "hand-computed" in claim:
+        assert has_evidence(name, UNIT_TESTS, re.compile(r"def test_\w*by_hand")), name
+    if "independent loop implementation" in claim:
+        assert has_evidence(name, UNIT_TESTS, ORACLE), (
+            f"{name}: no loop implementation in the tests"
+        )
+    if "invariance" in claim:
+        text = PROPERTY_TESTS.read_text()
+        assert TOOLS.spec(name).on_panel or name in {"to_long", "resolve_duplicates"}, name
+        assert "test_shuffling_the_rows" in text and "test_renaming_the_units" in text
+    if "comparison with reshape" in claim:
+        golden = Path(__file__).resolve().parents[1] / "golden" / "explore_golden.json"
+        kind = "long_" if "reshape long" in claim else "wide_"
+        assert f'"{kind}' in golden.read_text(), f"{name}: no Stata case {kind}"

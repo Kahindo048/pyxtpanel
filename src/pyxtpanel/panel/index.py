@@ -83,6 +83,7 @@ def build_index(
     rank: IntArray,
     positions: IntArray,
     unit_labels: np.ndarray,
+    order: IntArray | None = None,
 ) -> PanelIndex:
     """Sort the usable rows by (unit, rank) and delimit the units.
 
@@ -96,15 +97,21 @@ def build_index(
         Position of each usable row in the user's frame.
     unit_labels
         Original identifier of each unit code.
+    order
+        Positions that already put the rows in (unit, rank) order, when the caller has sorted
+        them (``check_unique_pairs`` does); sorted here otherwise.
 
     Returns
     -------
     PanelIndex
         Units that have no usable row are dropped and the codes renumbered.
     """
-    order = np.lexsort((rank, unit_code))
+    if order is None:
+        order = np.lexsort((rank, unit_code))
     unit_sorted = unit_code[order]
-    present, counts = np.unique(unit_sorted, return_counts=True)
+    per_unit = np.bincount(unit_code, minlength=unit_labels.size)  # no second sort to count
+    present = np.flatnonzero(per_unit)
+    counts = per_unit[present]
     renumber = np.zeros(unit_labels.size, dtype=np.int64)
     renumber[present] = np.arange(present.size)
     offsets = np.concatenate([[0], np.cumsum(counts)]).astype(np.int64)

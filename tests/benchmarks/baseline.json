@@ -1,0 +1,27 @@
+{
+  "rows": 200000,
+  "calibration_s": 0.082439,
+  "ratios": {
+    "xtset (shuffled rows)": 0.5415,
+    "lag": 0.2189,
+    "diff": 0.23,
+    "operate L2D.x": 0.3974,
+    "within (unit)": 0.2513,
+    "within (two-way)": 1.1168,
+    "between": 0.2446,
+    "fod": 0.2825,
+    "group_mean": 0.106,
+    "xtsum": 0.2261,
+    "xtdescribe": 0.6094,
+    "xttrans (binned)": 0.4337,
+    "xtcorr": 1.2242,
+    "gaps": 0.0243,
+    "gap_types": 0.1129,
+    "tsfill": 0.7679,
+    "to_wide": 0.1188,
+    "arrays (contract)": 0.089
+  },
+  "python": "3.12.10",
+  "pandas": "3.1.1",
+  "numpy": "2.5.4"
+}

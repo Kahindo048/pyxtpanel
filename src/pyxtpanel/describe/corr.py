@@ -55,13 +55,35 @@ _i18n.register(
 )
 
 
-def pearson(a: FloatArray, b: FloatArray) -> float:
-    """Pearson correlation of two samples; missing when fewer than 2 points or a constant."""
+#: A variable whose deviations are below this fraction of its own scale is constant up to rounding.
+RELATIVE_ZERO = 1e-12
+
+
+def pearson(a: FloatArray, b: FloatArray, scale: tuple[float, float] | None = None) -> float:
+    """Pearson correlation of two samples.
+
+    Missing when there are fewer than 2 points or when a sample is constant, up to rounding: a
+    sample whose deviations are within ``RELATIVE_ZERO`` of its scale has no correlation (the
+    subtraction of a mean from a constant leaves noise of about 1e-16, which must not be
+    reported as a correlation).
+
+    Parameters
+    ----------
+    scale
+        Scale (largest absolute value) of each variable before its means were removed; by default
+        that of the samples themselves.
+    """
     if a.size < 2:
         return float("nan")
+    scale_a, scale_b = scale or (float(np.max(np.abs(a))), float(np.max(np.abs(b))))
     da, db = a - a.mean(), b - b.mean()
-    denominator = float(np.sqrt(np.sum(da**2) * np.sum(db**2)))
-    return float(np.sum(da * db) / denominator) if denominator > 0 else float("nan")
+    ss_a, ss_b = float(np.sum(da**2)), float(np.sum(db**2))
+    if (
+        ss_a <= a.size * (RELATIVE_ZERO * scale_a) ** 2
+        or ss_b <= a.size * (RELATIVE_ZERO * scale_b) ** 2
+    ):
+        return float("nan")
+    return float(np.sum(da * db) / np.sqrt(ss_a * ss_b))
 
 
 def unit_means(unit: IntArray, n_units: int, x: FloatArray) -> tuple[FloatArray, np.ndarray]:
@@ -71,19 +93,34 @@ def unit_means(unit: IntArray, n_units: int, x: FloatArray) -> tuple[FloatArray,
     return total / np.maximum(size, 1), size > 0
 
 
-def pair_correlation(
-    unit: IntArray, n_units: int, a: FloatArray, b: FloatArray, kind: Kind
-) -> tuple[float, int]:
-    """Correlation of one pair on its common rows, and the number of points used."""
+def pair_correlations(
+    unit: IntArray, n_units: int, a: FloatArray, b: FloatArray, kinds: Sequence[Kind]
+) -> dict[Kind, tuple[float, int]]:
+    """Correlations of one pair on its common rows, and the number of points each uses.
+
+    The rows where both variables are observed are selected once and shared by the kinds.
+    """
     both = ~np.isnan(a) & ~np.isnan(b)
     a, b, u = a[both], b[both], unit[both]
-    if kind == "overall":
-        return pearson(a, b), int(a.size)
-    mean_a, present = unit_means(u, n_units, a)
-    mean_b, _ = unit_means(u, n_units, b)
-    if kind == "between":
-        return pearson(mean_a[present], mean_b[present]), int(present.sum())
-    return pearson(a - mean_a[u], b - mean_b[u]), int(a.size)
+    raw = (float(np.max(np.abs(a))), float(np.max(np.abs(b)))) if a.size else (0.0, 0.0)
+    out: dict[Kind, tuple[float, int]] = {}
+    means: tuple[FloatArray, FloatArray, np.ndarray] | None = None
+    for kind in kinds:
+        if kind == "overall":
+            out[kind] = (pearson(a, b), int(a.size))
+            continue
+        if means is None:
+            mean_a, present = unit_means(u, n_units, a)
+            means = (mean_a, unit_means(u, n_units, b)[0], present)
+        mean_a, mean_b, present = means
+        if kind == "between":
+            out[kind] = (
+                pearson(mean_a[present], mean_b[present], raw),
+                int(present.sum()),
+            )
+        else:
+            out[kind] = (pearson(a - mean_a[u], b - mean_b[u], raw), int(a.size))
+    return out
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -157,19 +194,22 @@ def xtcorr(
         )
     wanted = KINDS if kind == "all" else (kind,)
     k = len(names)
-    corr: dict[str, pd.DataFrame] = {}
-    count: dict[str, pd.DataFrame] = {}
-    for one in wanted:
-        r = np.full((k, k), np.nan)
-        n = np.zeros((k, k))
-        for i in range(k):
-            for j in range(i, k):
-                r[i, j], n[i, j] = pair_correlation(
-                    panel.index.unit, panel.n_units, values[:, i], values[:, j], one
-                )
-                r[j, i], n[j, i] = r[i, j], n[i, j]
-        corr[one] = pd.DataFrame(r, index=names, columns=names)
-        count[one] = pd.DataFrame(n, index=names, columns=names)
+    r = {one: np.full((k, k), np.nan) for one in wanted}
+    n = {one: np.zeros((k, k)) for one in wanted}
+    for i in range(k):
+        for j in range(i, k):
+            pair = pair_correlations(
+                panel.index.unit, panel.n_units, values[:, i], values[:, j], wanted
+            )
+            for one in wanted:
+                r[one][i, j] = r[one][j, i] = pair[one][0]
+                n[one][i, j] = n[one][j, i] = pair[one][1]
+    corr: dict[str, pd.DataFrame] = {
+        one: pd.DataFrame(r[one], index=names, columns=names) for one in wanted
+    }
+    count: dict[str, pd.DataFrame] = {
+        one: pd.DataFrame(n[one], index=names, columns=names) for one in wanted
+    }
     return XtCorr(variables=tuple(names), corr=corr, n=count)
 
 

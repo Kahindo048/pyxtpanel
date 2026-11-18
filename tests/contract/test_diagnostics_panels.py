@@ -27,6 +27,13 @@ RECIPES: dict[str, tuple[tuple[Any, ...], dict[str, Any]]] = {
     "levin_lin_chu": (("y",), {"lags": 1}),
     "im_pesaran_shin": (("y",), {}),
     "fisher": (("y",), {"lags": 1}),
+    "breitung": (("y",), {}),
+    "hadri": (("y",), {}),
+    "cips": (("y",), {"lags": 1}),
+    "kao": (("y", ["x"]), {}),
+    "westerlund": (("y", ["x"]), {}),
+    "pedroni": (("y", ["x"]), {"kernel_lags": 2}),
+    "dumitrescu_hurlin": (("y", "x"), {}),
     "lm_cross_section": (("y",), {}),
     "friedman": (("y",), {}),
     "frees": (("y",), {}),
@@ -86,7 +93,14 @@ def test_the_balance_a_test_declares_is_the_balance_it_enforces(name: str) -> No
 def test_the_listing_says_which_tests_need_a_balanced_panel() -> None:
     listing = list_tests()
     required = set(listing.index[listing["balanced"] == "required"])
-    assert required == {"harris_tzavalis", "levin_lin_chu"}
+    assert required == {
+        "breitung",
+        "dumitrescu_hurlin",
+        "hadri",
+        "harris_tzavalis",
+        "kao",
+        "levin_lin_chu",
+    }
 
 
 def test_aliases_are_lower_case_and_never_collide() -> None:

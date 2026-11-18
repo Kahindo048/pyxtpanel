@@ -287,3 +287,38 @@ def test_row_order_does_not_change_the_sorted_index(data, seed) -> None:  # type
     # and the unit labels are renamed consistently (an offset of 100 keeps the order)
     c = PanelBase.from_frame(frame.assign(id=frame["id"] + 100), "id", "t")
     assert (a.index.offsets == c.index.offsets).all() and (a.index.rank == c.index.rank).all()
+
+
+@settings(max_examples=80, deadline=None)
+@given(
+    data=st.lists(
+        st.tuples(st.integers(0, 8), st.integers(0, 15)), min_size=1, max_size=60, unique=True
+    ),
+    seed=st.integers(0, 1000),
+)
+def test_the_order_found_by_the_duplicate_check_is_the_one_of_a_separate_sort(data, seed) -> None:  # type: ignore[no-untyped-def]
+    """Declaring sorts once (I.2.1): the shared order must equal ``lexsort`` on (unit, rank)."""
+    from pyxtpanel.panel.checks import check_unique_pairs
+    from pyxtpanel.panel.index import build_index
+
+    pairs = np.array(data)[np.random.default_rng(seed).permutation(len(data))]
+    unit, rank = pairs[:, 0].astype(np.int64), pairs[:, 1].astype(np.int64)
+    shown = (unit, rank)
+    order = check_unique_pairs(unit, rank, "id", "t", shown)
+    assert (order == np.lexsort((rank, unit))).all()
+    labels = np.arange(unit.max() + 1)
+    positions = np.arange(unit.size, dtype=np.int64)
+    shared = build_index(unit, rank, positions, labels, order)
+    alone = build_index(unit, rank, positions, labels)
+    for name in ("unit_labels", "offsets", "unit", "rank", "source_row"):
+        assert (getattr(shared, name) == getattr(alone, name)).all()
+
+
+def test_alignment_of_float_results_puts_missing_where_rows_were_set_aside() -> None:
+    frame = pd.DataFrame({"id": [1, 1, 2, 2, np.nan], "t": [1, 2, 1, 2, 1], "x": [1.0, 2, 3, 4, 5]})
+    panel = PanelBase.from_frame(frame, "id", "t", missing_keys="drop")
+    out = panel.align(np.array([10.0, 20.0, 30.0, 40.0]), "out")
+    assert out.tolist()[:4] == [10.0, 20.0, 30.0, 40.0] and np.isnan(out.iloc[4])
+    assert out.name == "out" and out.index.equals(frame.index)
+    ints = panel.align(np.array([1, 2, 3, 4]), "k")  # integers keep the reindex path (float, NaN)
+    assert ints.iloc[:4].tolist() == [1.0, 2.0, 3.0, 4.0] and np.isnan(ints.iloc[4])

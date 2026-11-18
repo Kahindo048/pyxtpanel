@@ -363,6 +363,175 @@ def _ur_unbalanced(rng: np.random.Generator) -> pd.DataFrame:
     return full[keep].reset_index(drop=True)
 
 
+@_register(
+    "ur_tiny", note="30 units, 8 to 14 consecutive periods, the last six with 1 to 6 (L.2.10)"
+)
+def _ur_tiny(rng: np.random.Generator) -> pd.DataFrame:
+    full = _unit_root_panel(rng, n_units=30, n_periods=14, kind="mixed")
+    lengths = np.concatenate([rng.integers(8, 15, size=24), np.arange(1, 7)])
+    keep = full["t"].to_numpy() <= lengths[full["id"].to_numpy() - 1]
+    return full[keep].reset_index(drop=True)
+
+
+def _factor_unit_root_panel(
+    rng: np.random.Generator, *, n_units: int, n_periods: int
+) -> pd.DataFrame:
+    """Series driven by a common random-walk factor with unit-specific loadings (L.2.8).
+
+    ``y = level + loading * factor + u``: the factor is an integrated process that every unit
+    loads on, so the units are strongly correlated; ``u`` is a random walk for half the units
+    and an AR(0.5) for the others.
+    """
+    factor = np.cumsum(rng.normal(size=n_periods))
+    loading = rng.normal(loc=1.0, scale=0.5, size=(n_units, 1))
+    level = rng.normal(scale=2.0, size=(n_units, 1))
+    walk = np.arange(n_units) % 2 == 0
+    ar = np.where(walk, 1.0, 0.5)
+    e = rng.normal(size=(n_units, n_periods))
+    u = np.empty((n_units, n_periods))
+    u[:, 0] = e[:, 0]
+    for t in range(1, n_periods):
+        u[:, t] = ar * u[:, t - 1] + e[:, t]
+    y = level + loading * factor + u
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, n_units + 1), n_periods),
+            "t": np.tile(np.arange(1, n_periods + 1), n_units),
+            "y": y.ravel().round(6),
+        }
+    )
+
+
+@_register(
+    "cips_factor", note="25 units x 30 periods, common random-walk factor, mixed roots (L.2.8)"
+)
+def _cips_factor(rng: np.random.Generator) -> pd.DataFrame:
+    return _factor_unit_root_panel(rng, n_units=25, n_periods=30)
+
+
+@_register("cips_small", note="6 units x 25 periods, common random-walk factor (L.2.8)")
+def _cips_small(rng: np.random.Generator) -> pd.DataFrame:
+    return _factor_unit_root_panel(rng, n_units=6, n_periods=25)
+
+
+def _coint_panel(
+    rng: np.random.Generator, *, n_units: int, n_periods: int, cointegrated: bool
+) -> pd.DataFrame:
+    """Random-walk regressors ``x``, ``z`` and ``y = a_i + b x + c z + e`` (L.4).
+
+    The regressors' innovations are correlated with the error's, so the long-run covariance is not
+    diagonal.  ``e`` is AR(0.5) when cointegrated and a random walk otherwise.
+    """
+    shocks = rng.normal(size=(n_units, n_periods, 3))
+    shocks[:, :, 1:] += 0.5 * shocks[:, :, :1]  # x and z innovations correlated with u
+    x = np.cumsum(shocks[:, :, 1], axis=1)
+    z = np.cumsum(shocks[:, :, 2], axis=1)
+    e = np.empty((n_units, n_periods))
+    state = shocks[:, 0, 0]
+    for t in range(n_periods):
+        state = (0.5 if cointegrated else 1.0) * state + shocks[:, t, 0] * (t > 0)
+        e[:, t] = state
+    effect = rng.normal(scale=2.0, size=(n_units, 1))
+    y = effect + 1.0 * x + 0.5 * z + e
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, n_units + 1), n_periods),
+            "t": np.tile(np.arange(1, n_periods + 1), n_units),
+            "y": y.ravel().round(6),
+            "x": x.ravel().round(6),
+            "z": z.ravel().round(6),
+        }
+    )
+
+
+@_register(
+    "coint_yes", note="30 units x 40 periods, y cointegrated with x and z (common slopes) (L.4)"
+)
+def _coint_yes(rng: np.random.Generator) -> pd.DataFrame:
+    return _coint_panel(rng, n_units=30, n_periods=40, cointegrated=True)
+
+
+@_register("coint_no", note="30 units x 40 periods, y a random walk unrelated to x and z (L.4)")
+def _coint_no(rng: np.random.Generator) -> pd.DataFrame:
+    return _coint_panel(rng, n_units=30, n_periods=40, cointegrated=False)
+
+
+@_register(
+    "coint_wide",
+    note="20 units x 50 periods, y and seven random-walk regressors, half the units cointegrated "
+    "(L.4)",
+)
+def _coint_wide(rng: np.random.Generator) -> pd.DataFrame:
+    n_units, n_periods, k = 20, 50, 7
+    shocks = rng.normal(size=(n_units, n_periods, k + 1))
+    shocks[:, :, 1:] += 0.4 * shocks[:, :, :1]
+    x = np.cumsum(shocks[:, :, 1:], axis=1)
+    ar = np.where(np.arange(n_units) % 2 == 0, 0.5, 1.0)
+    e = np.empty((n_units, n_periods))
+    state = shocks[:, 0, 0]
+    for t in range(n_periods):
+        state = ar * state + shocks[:, t, 0] * (t > 0)
+        e[:, t] = state
+    slopes = rng.normal(loc=0.5, scale=0.3, size=(n_units, 1, k))
+    y = rng.normal(scale=2.0, size=(n_units, 1)) + (slopes * x).sum(axis=2) + e
+    frame = {
+        "id": np.repeat(np.arange(1, n_units + 1), n_periods),
+        "t": np.tile(np.arange(1, n_periods + 1), n_units),
+        "y": y.ravel().round(6),
+    }
+    for j in range(k):
+        frame[f"x{j + 1}"] = x[:, :, j].ravel().round(6)
+    return pd.DataFrame(frame)
+
+
+@_register(
+    "coint_unbalanced",
+    note="24 units, 8 to 45 consecutive periods (some very short), y with x and z (L.4)",
+)
+def _coint_unbalanced(rng: np.random.Generator) -> pd.DataFrame:
+    full = _coint_panel(rng, n_units=24, n_periods=45, cointegrated=False)
+    lengths = np.concatenate([[8, 9, 10], rng.integers(20, 46, size=21)])
+    starts = np.array([rng.integers(0, 46 - length) for length in lengths])
+    unit = full["id"].to_numpy() - 1
+    rank = full["t"].to_numpy() - 1
+    keep = (rank >= starts[unit]) & (rank < starts[unit] + lengths[unit])
+    return full[keep].reset_index(drop=True)
+
+
+def _granger_panel(
+    rng: np.random.Generator, *, n_units: int, n_periods: int, causal_share: float
+) -> pd.DataFrame:
+    """``y_t = a_i + 0.4 y_{t-1} + b_i x_{t-1} + e_t`` with ``x`` an AR(0.5); ``b_i != 0`` for a
+    share of the units (L.5)."""
+    x = np.empty((n_units, n_periods))
+    y = np.empty((n_units, n_periods))
+    effect = rng.normal(size=n_units)
+    slope = np.where(rng.random(n_units) < causal_share, rng.uniform(0.3, 0.8, n_units), 0.0)
+    x[:, 0] = rng.normal(size=n_units)
+    y[:, 0] = effect + rng.normal(size=n_units)
+    for t in range(1, n_periods):
+        x[:, t] = 0.5 * x[:, t - 1] + rng.normal(size=n_units)
+        y[:, t] = effect + 0.4 * y[:, t - 1] + slope * x[:, t - 1] + rng.normal(size=n_units)
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, n_units + 1), n_periods),
+            "t": np.tile(np.arange(1, n_periods + 1), n_units),
+            "y": y.ravel().round(6),
+            "x": x.ravel().round(6),
+        }
+    )
+
+
+@_register("granger_yes", note="20 units x 30 periods, x causes y in about 60% of the units (L.5)")
+def _granger_yes(rng: np.random.Generator) -> pd.DataFrame:
+    return _granger_panel(rng, n_units=20, n_periods=30, causal_share=0.6)
+
+
+@_register("granger_no", note="20 units x 30 periods, x does not cause y anywhere (L.5)")
+def _granger_no(rng: np.random.Generator) -> pd.DataFrame:
+    return _granger_panel(rng, n_units=20, n_periods=30, causal_share=0.0)
+
+
 # ---------------------------------------------------------------- simulated panels (B.2.3)
 
 

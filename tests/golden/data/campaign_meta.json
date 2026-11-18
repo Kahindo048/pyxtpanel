@@ -1,0 +1,802 @@
+{
+ "0": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "21x16 ragged, x normal, z normal, t  delta 1, shuffled"
+ },
+ "1": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "50x5 balanced, x normal, z normal, t  delta 1"
+ },
+ "2": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "25x28 ragged, x constant, z normal, t  delta 1"
+ },
+ "3": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "30x3 entry_exit, x all_missing, z scaled, t  delta 1"
+ },
+ "4": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "5x9 holes, x normal, z normal, t %td delta 1, shuffled"
+ },
+ "5": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "20x14 holes, x scaled, z normal, t  delta 7"
+ },
+ "6": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "11x37 singletons, x normal, z constant, t  delta 1"
+ },
+ "7": {
+  "delta": 3,
+  "fmt": "%tm",
+  "kind": "3x39 singletons, x constant, z missing, t %tm delta 3"
+ },
+ "8": {
+  "delta": 3,
+  "fmt": "",
+  "kind": "13x3 holes, x normal, z missing, t  delta 3"
+ },
+ "9": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "11x2 balanced, x scaled, z normal, t  delta 1, shuffled"
+ },
+ "10": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "3x25 holes, x normal, z normal, t  delta 1, shuffled"
+ },
+ "11": {
+  "delta": 1,
+  "fmt": "%th",
+  "kind": "21x28 entry_exit, x normal, z normal, t %th delta 1, shuffled"
+ },
+ "12": {
+  "delta": 7,
+  "fmt": "%td",
+  "kind": "16x34 ragged, x normal, z normal, t %td delta 7, shuffled"
+ },
+ "13": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "18x4 mixed, x normal, z constant, t  delta 1, shuffled"
+ },
+ "14": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "3x5 balanced, x normal, z missing, t  delta 1, shuffled"
+ },
+ "15": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "10x3 entry_exit, x missing, z normal, t %td delta 1, shuffled"
+ },
+ "16": {
+  "delta": 1,
+  "fmt": "%tm",
+  "kind": "40x5 entry_exit, x normal, z normal, t %tm delta 1"
+ },
+ "17": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "3x5 mixed, x normal, z missing, t  delta 1, shuffled"
+ },
+ "18": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "12x10 entry_exit, x normal, z normal, t  delta 7, shuffled"
+ },
+ "19": {
+  "delta": 3,
+  "fmt": "%td",
+  "kind": "30x3 ragged, x missing, z missing, t %td delta 3"
+ },
+ "20": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "4x38 ragged, x constant, z normal, t  delta 1, shuffled"
+ },
+ "21": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "8x3 entry_exit, x normal, z normal, t  delta 1"
+ },
+ "22": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "51x1 ragged, x normal, z missing, t  delta 1"
+ },
+ "23": {
+  "delta": 3,
+  "fmt": "%tq",
+  "kind": "23x19 holes, x normal, z normal, t %tq delta 3"
+ },
+ "24": {
+  "delta": 7,
+  "fmt": "%tq",
+  "kind": "4x5 mixed, x normal, z constant, t %tq delta 7, shuffled"
+ },
+ "25": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "28x7 mixed, x normal, z normal, t  delta 1, shuffled"
+ },
+ "26": {
+  "delta": 5,
+  "fmt": "%ty",
+  "kind": "22x24 holes, x normal, z normal, t %ty delta 5, shuffled"
+ },
+ "27": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "4x39 mixed, x normal, z normal, t  delta 1, shuffled"
+ },
+ "28": {
+  "delta": 5,
+  "fmt": "%tq",
+  "kind": "16x10 mixed, x normal, z normal, t %tq delta 5"
+ },
+ "29": {
+  "delta": 3,
+  "fmt": "%ty",
+  "kind": "21x3 mixed, x normal, z constant, t %ty delta 3"
+ },
+ "30": {
+  "delta": 5,
+  "fmt": "%tm",
+  "kind": "3x10 holes, x normal, z scaled, t %tm delta 5, shuffled"
+ },
+ "31": {
+  "delta": 5,
+  "fmt": "%th",
+  "kind": "16x12 balanced, x normal, z normal, t %th delta 5"
+ },
+ "32": {
+  "delta": 1,
+  "fmt": "%tq",
+  "kind": "25x1 ragged, x missing, z normal, t %tq delta 1"
+ },
+ "33": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "23x12 holes, x normal, z normal, t  delta 7, shuffled"
+ },
+ "34": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "20x15 singletons, x normal, z normal, t  delta 1"
+ },
+ "35": {
+  "delta": 2,
+  "fmt": "%tq",
+  "kind": "21x5 holes, x constant, z normal, t %tq delta 2"
+ },
+ "36": {
+  "delta": 2,
+  "fmt": "%tq",
+  "kind": "4x21 singletons, x normal, z missing, t %tq delta 2, shuffled"
+ },
+ "37": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "2x25 ragged, x normal, z normal, t %td delta 1, shuffled"
+ },
+ "38": {
+  "delta": 3,
+  "fmt": "",
+  "kind": "31x14 mixed, x normal, z normal, t  delta 3"
+ },
+ "39": {
+  "delta": 1,
+  "fmt": "%ty",
+  "kind": "22x7 entry_exit, x normal, z scaled, t %ty delta 1, shuffled"
+ },
+ "40": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "32x31 mixed, x scaled, z scaled, t  delta 5, shuffled"
+ },
+ "41": {
+  "delta": 3,
+  "fmt": "",
+  "kind": "55x2 ragged, x normal, z normal, t  delta 3"
+ },
+ "42": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "28x21 mixed, x normal, z normal, t %td delta 1, shuffled"
+ },
+ "43": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "14x4 mixed, x normal, z normal, t  delta 1, shuffled"
+ },
+ "44": {
+  "delta": 1,
+  "fmt": "%tm",
+  "kind": "20x17 balanced, x normal, z normal, t %tm delta 1"
+ },
+ "45": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "4x3 singletons, x normal, z missing, t  delta 1"
+ },
+ "46": {
+  "delta": 3,
+  "fmt": "%th",
+  "kind": "4x6 ragged, x scaled, z normal, t %th delta 3"
+ },
+ "47": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "25x20 singletons, x normal, z normal, t  delta 1"
+ },
+ "48": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "40x5 entry_exit, x scaled, z missing, t  delta 1"
+ },
+ "49": {
+  "delta": 2,
+  "fmt": "%ty",
+  "kind": "28x5 singletons, x normal, z missing, t %ty delta 2, shuffled"
+ },
+ "50": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "5x17 balanced, x missing, z normal, t  delta 1"
+ },
+ "51": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "40x25 entry_exit, x normal, z normal, t  delta 5"
+ },
+ "52": {
+  "delta": 1,
+  "fmt": "%tm",
+  "kind": "27x5 balanced, x missing, z normal, t %tm delta 1, shuffled"
+ },
+ "53": {
+  "delta": 3,
+  "fmt": "%ty",
+  "kind": "27x14 singletons, x missing, z missing, t %ty delta 3, shuffled"
+ },
+ "54": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "11x8 holes, x normal, z normal, t %td delta 1, shuffled"
+ },
+ "55": {
+  "delta": 3,
+  "fmt": "%td",
+  "kind": "2x2 balanced, x normal, z normal, t %td delta 3"
+ },
+ "56": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "4x12 mixed, x normal, z missing, t  delta 1"
+ },
+ "57": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "17x29 balanced, x normal, z normal, t  delta 1, shuffled"
+ },
+ "58": {
+  "delta": 1,
+  "fmt": "%th",
+  "kind": "14x2 ragged, x scaled, z normal, t %th delta 1"
+ },
+ "59": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "3x1 singletons, x normal, z normal, t  delta 2"
+ },
+ "60": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "35x7 entry_exit, x normal, z normal, t  delta 1"
+ },
+ "61": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "5x20 ragged, x scaled, z normal, t  delta 2, shuffled"
+ },
+ "62": {
+  "delta": 1,
+  "fmt": "%tm",
+  "kind": "5x16 holes, x scaled, z normal, t %tm delta 1, shuffled"
+ },
+ "63": {
+  "delta": 3,
+  "fmt": "%tm",
+  "kind": "2x3 singletons, x scaled, z missing, t %tm delta 3, shuffled"
+ },
+ "64": {
+  "delta": 5,
+  "fmt": "%td",
+  "kind": "49x2 holes, x normal, z normal, t %td delta 5, repeated pair"
+ },
+ "65": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "30x21 entry_exit, x normal, z normal, t  delta 7, repeated pair, shuffled"
+ },
+ "66": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "18x4 entry_exit, x normal, z normal, t %td delta 1"
+ },
+ "67": {
+  "delta": 3,
+  "fmt": "",
+  "kind": "1x27 singletons, x normal, z constant, t  delta 3"
+ },
+ "68": {
+  "delta": 3,
+  "fmt": "%tm",
+  "kind": "2x17 singletons, x normal, z missing, t %tm delta 3, shuffled"
+ },
+ "69": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "34x4 ragged, x normal, z normal, t  delta 1"
+ },
+ "70": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "28x18 entry_exit, x normal, z normal, t  delta 1"
+ },
+ "71": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "54x17 holes, x missing, z missing, t  delta 7"
+ },
+ "72": {
+  "delta": 7,
+  "fmt": "%th",
+  "kind": "19x11 balanced, x normal, z normal, t %th delta 7, shuffled"
+ },
+ "73": {
+  "delta": 1,
+  "fmt": "%ty",
+  "kind": "30x3 holes, x normal, z normal, t %ty delta 1"
+ },
+ "74": {
+  "delta": 3,
+  "fmt": "",
+  "kind": "36x5 singletons, x constant, z missing, t  delta 3, shuffled"
+ },
+ "75": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "12x22 ragged, x missing, z missing, t  delta 7, shuffled"
+ },
+ "76": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "2x21 holes, x normal, z normal, t  delta 1, shuffled"
+ },
+ "77": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "14x22 holes, x normal, z normal, t %td delta 1"
+ },
+ "78": {
+  "delta": 1,
+  "fmt": "%tq",
+  "kind": "56x14 balanced, x normal, z normal, t %tq delta 1"
+ },
+ "79": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "19x14 balanced, x missing, z scaled, t  delta 1, shuffled"
+ },
+ "80": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "26x5 balanced, x normal, z normal, t  delta 5"
+ },
+ "81": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "6x9 mixed, x normal, z normal, t  delta 5, shuffled"
+ },
+ "82": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "56x27 singletons, x normal, z normal, t  delta 2"
+ },
+ "83": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "43x31 ragged, x normal, z normal, t  delta 1, shuffled"
+ },
+ "84": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "10x17 mixed, x scaled, z constant, t  delta 1, shuffled"
+ },
+ "85": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "1x11 singletons, x normal, z missing, t  delta 1"
+ },
+ "86": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "7x6 entry_exit, x normal, z normal, t  delta 2, repeated pair"
+ },
+ "87": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "36x26 singletons, x scaled, z missing, t  delta 5, shuffled"
+ },
+ "88": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "13x16 holes, x missing, z scaled, t  delta 7"
+ },
+ "89": {
+  "delta": 1,
+  "fmt": "%tq",
+  "kind": "12x5 holes, x scaled, z normal, t %tq delta 1"
+ },
+ "90": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "9x25 holes, x normal, z normal, t  delta 1"
+ },
+ "91": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "13x15 mixed, x missing, z scaled, t  delta 1"
+ },
+ "92": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "3x17 mixed, x normal, z missing, t  delta 2, shuffled"
+ },
+ "93": {
+  "delta": 2,
+  "fmt": "%th",
+  "kind": "11x5 holes, x normal, z constant, t %th delta 2"
+ },
+ "94": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "13x3 holes, x normal, z normal, t  delta 1, shuffled"
+ },
+ "95": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "52x16 singletons, x missing, z missing, t  delta 1"
+ },
+ "96": {
+  "delta": 1,
+  "fmt": "%ty",
+  "kind": "4x5 ragged, x missing, z missing, t %ty delta 1"
+ },
+ "97": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "29x5 balanced, x scaled, z missing, t  delta 1, shuffled"
+ },
+ "98": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "41x11 singletons, x normal, z normal, t  delta 1, shuffled"
+ },
+ "99": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "4x16 mixed, x normal, z missing, t  delta 2"
+ },
+ "100": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "24x19 holes, x constant, z constant, t  delta 1"
+ },
+ "101": {
+  "delta": 3,
+  "fmt": "%tm",
+  "kind": "1x22 mixed, x normal, z missing, t %tm delta 3"
+ },
+ "102": {
+  "delta": 1,
+  "fmt": "%th",
+  "kind": "33x15 ragged, x normal, z normal, t %th delta 1"
+ },
+ "103": {
+  "delta": 3,
+  "fmt": "",
+  "kind": "59x13 entry_exit, x normal, z normal, t  delta 3, shuffled"
+ },
+ "104": {
+  "delta": 1,
+  "fmt": "%ty",
+  "kind": "2x3 entry_exit, x normal, z normal, t %ty delta 1"
+ },
+ "105": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "1x17 ragged, x normal, z normal, t  delta 1"
+ },
+ "106": {
+  "delta": 7,
+  "fmt": "%td",
+  "kind": "52x15 mixed, x normal, z scaled, t %td delta 7, shuffled"
+ },
+ "107": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "23x21 entry_exit, x normal, z normal, t  delta 1"
+ },
+ "108": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "14x6 holes, x normal, z constant, t  delta 5, shuffled"
+ },
+ "109": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "23x20 entry_exit, x constant, z normal, t  delta 1, shuffled"
+ },
+ "110": {
+  "delta": 1,
+  "fmt": "%tm",
+  "kind": "1x35 entry_exit, x normal, z missing, t %tm delta 1, shuffled"
+ },
+ "111": {
+  "delta": 1,
+  "fmt": "%tq",
+  "kind": "9x25 entry_exit, x normal, z normal, t %tq delta 1, shuffled"
+ },
+ "112": {
+  "delta": 2,
+  "fmt": "%tq",
+  "kind": "3x13 ragged, x constant, z scaled, t %tq delta 2, shuffled"
+ },
+ "113": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "52x11 ragged, x missing, z normal, t %td delta 1"
+ },
+ "114": {
+  "delta": 1,
+  "fmt": "%tq",
+  "kind": "20x8 balanced, x constant, z normal, t %tq delta 1, shuffled"
+ },
+ "115": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "16x1 holes, x normal, z missing, t  delta 5, shuffled"
+ },
+ "116": {
+  "delta": 5,
+  "fmt": "%td",
+  "kind": "11x9 mixed, x normal, z normal, t %td delta 5, shuffled"
+ },
+ "117": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "15x4 balanced, x all_missing, z normal, t %td delta 1"
+ },
+ "118": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "28x23 holes, x missing, z missing, t  delta 1"
+ },
+ "119": {
+  "delta": 7,
+  "fmt": "%tm",
+  "kind": "11x12 singletons, x normal, z constant, t %tm delta 7, shuffled"
+ },
+ "120": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "26x17 ragged, x normal, z missing, t  delta 1, shuffled"
+ },
+ "121": {
+  "delta": 5,
+  "fmt": "%tq",
+  "kind": "3x29 mixed, x normal, z normal, t %tq delta 5"
+ },
+ "122": {
+  "delta": 7,
+  "fmt": "%tm",
+  "kind": "17x25 holes, x normal, z normal, t %tm delta 7, shuffled"
+ },
+ "123": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "29x22 singletons, x missing, z normal, t  delta 1"
+ },
+ "124": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "3x25 singletons, x missing, z normal, t  delta 1"
+ },
+ "125": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "3x40 ragged, x normal, z missing, t  delta 1"
+ },
+ "126": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "12x30 balanced, x normal, z missing, t  delta 1, shuffled"
+ },
+ "127": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "51x5 holes, x normal, z normal, t  delta 7, shuffled"
+ },
+ "128": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "25x15 entry_exit, x missing, z normal, t  delta 1"
+ },
+ "129": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "3x4 entry_exit, x normal, z missing, t  delta 1, shuffled"
+ },
+ "130": {
+  "delta": 1,
+  "fmt": "%ty",
+  "kind": "38x19 mixed, x scaled, z normal, t %ty delta 1"
+ },
+ "131": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "4x4 ragged, x normal, z normal, t  delta 1, shuffled"
+ },
+ "132": {
+  "delta": 3,
+  "fmt": "%tm",
+  "kind": "43x1 mixed, x normal, z normal, t %tm delta 3"
+ },
+ "133": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "3x7 balanced, x normal, z scaled, t  delta 7, shuffled"
+ },
+ "134": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "11x25 singletons, x normal, z missing, t  delta 1"
+ },
+ "135": {
+  "delta": 3,
+  "fmt": "%td",
+  "kind": "4x11 holes, x normal, z normal, t %td delta 3, shuffled"
+ },
+ "136": {
+  "delta": 1,
+  "fmt": "%th",
+  "kind": "37x14 singletons, x normal, z all_missing, t %th delta 1, shuffled"
+ },
+ "137": {
+  "delta": 2,
+  "fmt": "%td",
+  "kind": "2x5 mixed, x normal, z normal, t %td delta 2, shuffled"
+ },
+ "138": {
+  "delta": 1,
+  "fmt": "%tm",
+  "kind": "56x9 entry_exit, x normal, z normal, t %tm delta 1, shuffled"
+ },
+ "139": {
+  "delta": 2,
+  "fmt": "%tq",
+  "kind": "30x17 balanced, x missing, z normal, t %tq delta 2"
+ },
+ "140": {
+  "delta": 1,
+  "fmt": "%ty",
+  "kind": "48x25 mixed, x normal, z scaled, t %ty delta 1, shuffled"
+ },
+ "141": {
+  "delta": 1,
+  "fmt": "%th",
+  "kind": "19x1 balanced, x normal, z normal, t %th delta 1"
+ },
+ "142": {
+  "delta": 3,
+  "fmt": "%tq",
+  "kind": "23x25 holes, x normal, z normal, t %tq delta 3"
+ },
+ "143": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "29x12 singletons, x normal, z normal, t  delta 1, shuffled"
+ },
+ "144": {
+  "delta": 1,
+  "fmt": "%tm",
+  "kind": "21x10 singletons, x normal, z normal, t %tm delta 1"
+ },
+ "145": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "22x4 entry_exit, x normal, z normal, t  delta 1, repeated pair"
+ },
+ "146": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "23x5 entry_exit, x scaled, z missing, t  delta 5"
+ },
+ "147": {
+  "delta": 2,
+  "fmt": "%td",
+  "kind": "21x2 singletons, x normal, z normal, t %td delta 2, shuffled"
+ },
+ "148": {
+  "delta": 1,
+  "fmt": "%tq",
+  "kind": "4x26 singletons, x normal, z missing, t %tq delta 1, shuffled"
+ },
+ "149": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "11x9 mixed, x scaled, z normal, t  delta 7"
+ },
+ "150": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "8x11 mixed, x constant, z normal, t  delta 1"
+ },
+ "151": {
+  "delta": 1,
+  "fmt": "%td",
+  "kind": "41x5 holes, x normal, z normal, t %td delta 1"
+ },
+ "152": {
+  "delta": 5,
+  "fmt": "",
+  "kind": "25x14 holes, x missing, z missing, t  delta 5"
+ },
+ "153": {
+  "delta": 3,
+  "fmt": "%tq",
+  "kind": "58x11 ragged, x all_missing, z normal, t %tq delta 3, shuffled"
+ },
+ "154": {
+  "delta": 5,
+  "fmt": "%td",
+  "kind": "13x16 ragged, x normal, z normal, t %td delta 5, shuffled"
+ },
+ "155": {
+  "delta": 3,
+  "fmt": "",
+  "kind": "7x39 singletons, x normal, z normal, t  delta 3"
+ },
+ "156": {
+  "delta": 1,
+  "fmt": "",
+  "kind": "28x6 entry_exit, x missing, z scaled, t  delta 1"
+ },
+ "157": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "3x21 singletons, x normal, z normal, t  delta 2, shuffled"
+ },
+ "158": {
+  "delta": 2,
+  "fmt": "",
+  "kind": "5x35 mixed, x normal, z normal, t  delta 2"
+ },
+ "159": {
+  "delta": 7,
+  "fmt": "",
+  "kind": "7x5 balanced, x normal, z normal, t  delta 7, shuffled"
+ }
+}

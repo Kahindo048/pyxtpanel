@@ -38,7 +38,11 @@ def ensure_dataset(name: str) -> None:
     if (DATA_DIR / f"{name}.dta").exists() and not name.startswith("sim_"):
         return
     key = name.removeprefix("sim_")
-    if key in panels.SPECS:
+    if key == "campaign":
+        from validation import campaign
+
+        campaign.write_dta()
+    elif key in panels.SPECS:
         panels.write_dta(name.removeprefix("sim_"))
     elif key in panels.HOSTILE_REFUSED:
         DATA_DIR.mkdir(parents=True, exist_ok=True)

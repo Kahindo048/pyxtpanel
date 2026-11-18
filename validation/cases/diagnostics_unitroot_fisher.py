@@ -1,4 +1,4 @@
-"""Fisher-type test against ``xtunitroot fisher, dfuller`` in Stata 17 (domain ``diagnostics_unitroot``).
+"""Fisher-type test against ``xtunitroot fisher, dfuller`` and ``, pperron`` in Stata 17.
 
 For each case Stata returns the four statistics P, Z, L and Pm with their degrees of freedom and
 p-values, the number of panels and of observations, and (through the undocumented ``generate()``
@@ -33,15 +33,35 @@ SPECS: dict[str, tuple[str, str, int, str, dict[str, Any]]] = {
     "fi_entry_exit": ("entry_exit", "x", 0, "demean", {"demean": True}),
     "fi_gaps": ("gaps", "x", 0, "", {}),
     "fi_short_units": ("one_obs_unit", "x", 0, "", {}),
+    "fp_lags2": ("ur_mixed", "y", 2, "", {"test": "pperron"}),
+    "fp_trend_demean": (
+        "ur_mixed",
+        "y",
+        3,
+        "trend demean",
+        {"test": "pperron", "deterministics": "trend", "demean": True},
+    ),
+    "fp_long": ("ur_long", "y", 4, "trend", {"test": "pperron", "deterministics": "trend"}),
+    "fp_entry_exit": ("entry_exit", "x", 1, "demean", {"test": "pperron", "demean": True}),
+    "fp_gaps": ("gaps", "x", 1, "", {"test": "pperron"}),
+    "fp_short_units": ("one_obs_unit", "x", 0, "", {"test": "pperron"}),
+    "fp_tiny": ("ur_tiny", "y", 0, "", {"test": "pperron"}),
+    "fp_tiny_trend": (
+        "ur_tiny",
+        "y",
+        1,
+        "trend",
+        {"test": "pperron", "deterministics": "trend"},
+    ),
 }
 METHODS = ("inverse_chi2", "inverse_normal", "logit", "modified")
 EPSILON = 2.220446049250313e-16
 
 
-def _stata(tag: str, variable: str, lags: int, options: str) -> list[str]:
+def _stata(tag: str, variable: str, lags: int, options: str, base: str) -> list[str]:
     return [
         "quietly xtset id t",
-        f"quietly xtunitroot fisher {variable}, dfuller lags({lags}) {options} generate(pu)",
+        f"quietly xtunitroot fisher {variable}, {base} lags({lags}) {options} generate(pu)",
         "scalar fp = r(P)",
         "scalar fdfp = r(df_P)",
         "scalar fpp = r(p_P)",
@@ -99,7 +119,7 @@ def _register(
         tag,
         domain=DOMAIN,
         dataset=f"sim_{dataset}",
-        stata=_stata(tag, variable, lags, options),
+        stata=_stata(tag, variable, lags, options, str(kwargs.get("test", "dfuller"))),
         atol=1e-9,
         rtol=1e-9,
     )(run)

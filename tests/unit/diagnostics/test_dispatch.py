@@ -75,7 +75,10 @@ def test_aliases_resolve_to_names_and_unknown_names_list_the_choices() -> None:
 
 def test_panel_tests_lists_the_category_a_tests_by_family() -> None:
     assert panel_tests("unitroot") == [
+        "breitung",
+        "cips",
         "fisher",
+        "hadri",
         "harris_tzavalis",
         "im_pesaran_shin",
         "levin_lin_chu",
@@ -86,7 +89,7 @@ def test_panel_tests_lists_the_category_a_tests_by_family() -> None:
 
 
 def test_no_default_test(panel: xt.PanelData) -> None:
-    with pytest.raises(SpecificationError, match="choose a test with test=.*fisher, harris"):
+    with pytest.raises(SpecificationError, match="choose a test with test=.*fisher, hadri, harris"):
         xt.unit_root(panel, "y")
     with pytest.raises(
         SpecificationError,

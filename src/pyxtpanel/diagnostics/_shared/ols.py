@@ -18,6 +18,19 @@ from pyxtpanel._types import FloatArray
 #: Relative tolerance below which a centred column is constant or collinear.
 RANK_TOLERANCE = 1e-10
 
+#: A residual sum of squares below this fraction of the scale of the data is rounding noise: the
+#: model fits perfectly, and a statistic built on its residuals would be noise too.
+PERFECT_FIT = 1e-24
+
+
+def is_perfect_fit(rss: float, scale: float) -> bool:
+    """Return whether ``rss`` is nothing but rounding noise next to ``scale``.
+
+    ``scale`` is the sum of squares of the variable that was fitted (about its mean when the model
+    has a constant).  A zero ``scale`` (a constant variable) always counts as a perfect fit.
+    """
+    return rss <= PERFECT_FIT * scale
+
 
 @dataclass(frozen=True)
 class OLSFit:

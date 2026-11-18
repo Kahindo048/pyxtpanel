@@ -236,6 +236,40 @@ mata: pyx_export("../out/fri_trimmed__t.csv", st_data(., "t"))
 restore
 mata: pyx_export("../out/fri_trimmed__r.csv", (st_numscalar("fr") \ st_numscalar("frdf") \ st_numscalar("frp")))
 
+* ---- case fri_periods_balanced
+use "../data/sim_csd.dta", clear
+quietly xtset id t
+quietly xtreg y x, fe
+quietly predict double ehat, e
+quietly xtcsd, friedman
+scalar fr = r(fried)
+scalar frdf = e(g_min) - 1
+scalar frp = chi2tail(frdf, fr)
+preserve
+quietly keep if !missing(ehat)
+mata: pyx_export("../out/fri_periods_balanced__e.csv", st_data(., "ehat"))
+mata: pyx_export("../out/fri_periods_balanced__id.csv", st_data(., "id"))
+mata: pyx_export("../out/fri_periods_balanced__t.csv", st_data(., "t"))
+restore
+mata: pyx_export("../out/fri_periods_balanced__r.csv", (st_numscalar("fr") \ st_numscalar("frdf") \ st_numscalar("frp")))
+
+* ---- case fri_periods_trimmed
+use "../data/sim_csd_trimmed.dta", clear
+quietly xtset id t
+quietly xtreg y x, fe
+quietly predict double ehat, e
+quietly xtcsd, friedman
+scalar fr = r(fried)
+scalar frdf = e(g_min) - 1
+scalar frp = chi2tail(frdf, fr)
+preserve
+quietly keep if !missing(ehat)
+mata: pyx_export("../out/fri_periods_trimmed__e.csv", st_data(., "ehat"))
+mata: pyx_export("../out/fri_periods_trimmed__id.csv", st_data(., "id"))
+mata: pyx_export("../out/fri_periods_trimmed__t.csv", st_data(., "t"))
+restore
+mata: pyx_export("../out/fri_periods_trimmed__r.csv", (st_numscalar("fr") \ st_numscalar("frdf") \ st_numscalar("frp")))
+
 * ---- case lmcs_factor
 use "../data/sim_csd.dta", clear
 quietly xtset id t

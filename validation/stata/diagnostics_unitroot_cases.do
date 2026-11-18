@@ -20,6 +20,298 @@ end
 
 mata: pyx_export("../out/_meta__stata.csv", (st_numscalar("c(stata_version)") \ st_numscalar("c(MP)")))
 
+* ---- case bal_llc
+use "../data/sim_ur_unbalanced.dta", clear
+quietly xtset id t
+capture quietly xtunitroot llc y, lags(1)
+scalar rc = _rc
+mata: pyx_export("../out/bal_llc__rc.csv", (st_numscalar("rc")))
+
+* ---- case bal_ht
+use "../data/sim_ur_unbalanced.dta", clear
+quietly xtset id t
+capture quietly xtunitroot ht y
+scalar rc = _rc
+mata: pyx_export("../out/bal_ht__rc.csv", (st_numscalar("rc")))
+
+* ---- case bal_breitung
+use "../data/sim_ur_unbalanced.dta", clear
+quietly xtset id t
+capture quietly xtunitroot breitung y, lags(1)
+scalar rc = _rc
+mata: pyx_export("../out/bal_breitung__rc.csv", (st_numscalar("rc")))
+
+* ---- case bal_hadri
+use "../data/sim_ur_unbalanced.dta", clear
+quietly xtset id t
+capture quietly xtunitroot hadri y
+scalar rc = _rc
+mata: pyx_export("../out/bal_hadri__rc.csv", (st_numscalar("rc")))
+
+* ---- case gap_ips
+use "../data/sim_gaps.dta", clear
+quietly xtset id t
+capture quietly xtunitroot ips x, lags(0)
+scalar rc = _rc
+mata: pyx_export("../out/gap_ips__rc.csv", (st_numscalar("rc")))
+
+* ---- case br_constant
+use "../data/sim_ur_walk.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+mata: pyx_export("../out/br_constant__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt")))
+
+* ---- case br_none
+use "../data/sim_ur_stationary.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, noconstant
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+mata: pyx_export("../out/br_none__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt")))
+
+* ---- case br_trend
+use "../data/sim_ur_trend.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, trend
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+mata: pyx_export("../out/br_trend__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt")))
+
+* ---- case br_lags2
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, lags(2)
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+mata: pyx_export("../out/br_lags2__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt")))
+
+* ---- case br_trend_lags
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, trend lags(1)
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+mata: pyx_export("../out/br_trend_lags__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt")))
+
+* ---- case br_none_lags
+use "../data/sim_ur_long.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, noconstant lags(2)
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+mata: pyx_export("../out/br_none_lags__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt")))
+
+* ---- case br_demean
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, demean lags(1)
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+mata: pyx_export("../out/br_demean__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt")))
+
+* ---- case br_robust
+use "../data/sim_ur_long.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, robust lags(2)
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+scalar blr = r(lrobust)
+scalar bpr = r(p_lrobust)
+mata: pyx_export("../out/br_robust__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt") \ st_numscalar("blr") \ st_numscalar("bpr")))
+
+* ---- case br_robust_trend_lags
+use "../data/sim_ur_long.dta", clear
+quietly xtset id t
+quietly xtunitroot breitung y, trend robust lags(3)
+scalar blam = r(lambda)
+scalar bp = r(p)
+scalar bng = r(N_g)
+scalar bnt = r(N_t)
+scalar blr = r(lrobust)
+scalar bpr = r(p_lrobust)
+mata: pyx_export("../out/br_robust_trend_lags__b.csv", (st_numscalar("blam") \ st_numscalar("bp") \ st_numscalar("bng") \ st_numscalar("bnt") \ st_numscalar("blr") \ st_numscalar("bpr")))
+
+* ---- case cips_lag0
+use "../data/sim_ur_walk.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(0)
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_lag0__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_lag1
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(1)
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_lag1__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_lag2_trend
+use "../data/sim_ur_long.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(2) trend
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_lag2_trend__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_nodemean
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(1) nodemean
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_nodemean__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_notrunc
+use "../data/sim_ur_stationary.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(1) trunoff
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_notrunc__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_lag3_trend_notrunc
+use "../data/sim_ur_long.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(3) trend trunoff nodemean
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_lag3_trend_notrunc__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_factor
+use "../data/sim_cips_factor.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(1)
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_factor__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_factor_trend
+use "../data/sim_cips_factor.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(2) trend
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_factor_trend__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_unbalanced
+use "../data/sim_ur_unbalanced.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(1)
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+mata: pyx_export("../out/cips_unbalanced__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn")))
+
+* ---- case cips_unbalanced_lags
+use "../data/sim_ur_unbalanced.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(2) trend nodemean trunoff
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+mata: pyx_export("../out/cips_unbalanced_lags__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn")))
+
+* ---- case cips_per_unit_lags
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(0 1 2 1 0 1 2 1 0 1 2 1 0 1 2 1 0 1 2 1 0 1 2 1 0 1 2 1 0 1 2 1 0 1 2 1 0 1 2 1)
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_per_unit_lags__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_small_n
+use "../data/sim_cips_small.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(1)
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_small_n__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
+* ---- case cips_short
+use "../data/sim_ur_trend.dta", clear
+quietly xtset id t
+quietly pescadf y, lags(1) trend
+scalar tb = r(tbar)
+scalar zt = r(Ztbar)
+scalar pv = r(pval)
+scalar nn = r(N)
+scalar c1 = r(cv1)
+scalar c5 = r(cv5)
+scalar c10 = r(cv10)
+mata: pyx_export("../out/cips_short__c.csv", (st_numscalar("tb") \ st_numscalar("zt") \ st_numscalar("pv") \ st_numscalar("nn") \ st_numscalar("c1") \ st_numscalar("c5") \ st_numscalar("c10")))
+
 * ---- case fi_lags1
 use "../data/sim_ur_mixed.dta", clear
 quietly xtset id t
@@ -151,6 +443,290 @@ quietly keep if !missing(pu)
 mata: pyx_export("../out/fi_short_units__unit_p.csv", st_data(., "pu"))
 restore
 mata: pyx_export("../out/fi_short_units__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_lags2
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher y, pperron lags(2)  generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_lags2__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_lags2__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_trend_demean
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher y, pperron lags(3) trend demean generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_trend_demean__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_trend_demean__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_long
+use "../data/sim_ur_long.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher y, pperron lags(4) trend generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_long__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_long__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_entry_exit
+use "../data/sim_entry_exit.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher x, pperron lags(1) demean generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_entry_exit__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_entry_exit__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_gaps
+use "../data/sim_gaps.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher x, pperron lags(1)  generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_gaps__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_gaps__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_short_units
+use "../data/sim_one_obs_unit.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher x, pperron lags(0)  generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_short_units__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_short_units__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_tiny
+use "../data/sim_ur_tiny.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher y, pperron lags(0)  generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_tiny__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_tiny__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case fp_tiny_trend
+use "../data/sim_ur_tiny.dta", clear
+quietly xtset id t
+quietly xtunitroot fisher y, pperron lags(1) trend generate(pu)
+scalar fp = r(P)
+scalar fdfp = r(df_P)
+scalar fpp = r(p_P)
+scalar fz = r(Z)
+scalar fpz = r(p_Z)
+scalar fl = r(L)
+scalar fdfl = r(df_L)
+scalar fpl = r(p_L)
+scalar fpm = r(Pm)
+scalar fppm = r(p_Pm)
+scalar fng = r(N_g)
+scalar fn = r(N)
+preserve
+quietly keep if !missing(pu)
+mata: pyx_export("../out/fp_tiny_trend__unit_p.csv", st_data(., "pu"))
+restore
+mata: pyx_export("../out/fp_tiny_trend__f.csv", (st_numscalar("fp") \ st_numscalar("fdfp") \ st_numscalar("fpp") \ st_numscalar("fz") \ st_numscalar("fpz") \ st_numscalar("fl") \ st_numscalar("fdfl") \ st_numscalar("fpl") \ st_numscalar("fpm") \ st_numscalar("fppm") \ st_numscalar("fng") \ st_numscalar("fn")))
+
+* ---- case ha_constant
+use "../data/sim_ur_walk.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_constant__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_trend
+use "../data/sim_ur_trend.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, trend
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_trend__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_demean
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, demean
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_demean__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_robust
+use "../data/sim_ur_stationary.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, robust
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_robust__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_robust_trend
+use "../data/sim_ur_trend.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, trend robust demean
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_robust_trend__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_bartlett
+use "../data/sim_ur_mixed.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, kernel(bartlett 2)
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_bartlett__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_parzen_trend
+use "../data/sim_ur_trend.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, trend kernel(parzen 3)
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_parzen_trend__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_qs
+use "../data/sim_ur_long.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, kernel(quadraticspectral 4.5)
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_qs__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
+
+* ---- case ha_kernel_default
+use "../data/sim_ur_walk.dta", clear
+quietly xtset id t
+quietly xtunitroot hadri y, kernel(bartlett) demean
+scalar hz = r(z)
+scalar hp = r(p)
+scalar hmu = r(mu)
+scalar hvar = r(var)
+scalar hng = r(N_g)
+scalar hnt = r(N_t)
+mata: pyx_export("../out/ha_kernel_default__h.csv", (st_numscalar("hz") \ st_numscalar("hp") \ st_numscalar("hmu") \ st_numscalar("hvar") \ st_numscalar("hng") \ st_numscalar("hnt")))
 
 * ---- case ht_walk
 use "../data/sim_ur_walk.dta", clear

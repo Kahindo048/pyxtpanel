@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import pandas as pd
 
 from pyxtpanel import _i18n
 from pyxtpanel._errors import SpecificationError
+from pyxtpanel.api._lazy import run_panel_test
 from pyxtpanel.api.panel_data import PanelData
 from pyxtpanel.describe.attrition import attrition
 from pyxtpanel.describe.corr import autocorr, xtcorr
@@ -17,7 +18,6 @@ from pyxtpanel.describe.structure import xtdescribe
 from pyxtpanel.describe.summary import xtsum
 from pyxtpanel.describe.tab import xttab
 from pyxtpanel.describe.trans import xttrans
-from pyxtpanel.diagnostics import TestResult, run_panel_test
 from pyxtpanel.explore.audit import AuditReport, duplicates_report
 from pyxtpanel.explore.audit import audit as audit_panel
 from pyxtpanel.explore.balance import balance_cost, unbalancedness
@@ -33,6 +33,9 @@ from pyxtpanel.panel.base import PanelBase
 from pyxtpanel.panel.declare import MissingKeys
 from pyxtpanel.panel.gaps import find_duplicates as duplicates
 from pyxtpanel.panel.io import read_stata, read_table
+
+if TYPE_CHECKING:
+    from pyxtpanel.diagnostics import TestResult
 
 __all__ = [
     "PanelLike",
@@ -54,6 +57,8 @@ __all__ = [
     "residual_variation",
     "resolve_duplicates",
     "serial_correlation",
+    "causality",
+    "cointegration",
     "slope_heterogeneity",
     "spells",
     "to_array3d",
@@ -287,9 +292,12 @@ def unit_root(
     """Test a variable for a unit root in every unit of a declared panel.
 
     The tests are Harris-Tzavalis (``"harris_tzavalis"`` or ``"ht"``), Levin-Lin-Chu
-    (``"levin_lin_chu"`` or ``"llc"``), Im-Pesaran-Shin (``"im_pesaran_shin"`` or ``"ips"``)
-    and Fisher (``"fisher"``).  There is no default: they answer different questions (a common
-    autoregressive parameter or one per unit, balanced panels or not).
+    (``"levin_lin_chu"`` or ``"llc"``), Breitung (``"breitung"``), Im-Pesaran-Shin
+    (``"im_pesaran_shin"`` or ``"ips"``), Fisher (``"fisher"``, with ADF or Phillips-Perron
+    p-values), Pesaran's CIPS (``"cips"``, valid when the units are correlated through common
+    factors) and Hadri (``"hadri"``, whose null is stationarity, the opposite of the others).
+    There is no default: they answer different questions (a common autoregressive parameter or
+    one per unit, balanced panels or not, a null of unit root or of stationarity).
 
     Parameters
     ----------
@@ -355,6 +363,60 @@ def serial_correlation(
         The options of the test.
     """
     return run_panel_test(panel, test, dependent, regressors, family="serial", **options)
+
+
+def causality(
+    panel: PanelBase,
+    dependent: str,
+    cause: str,
+    *,
+    test: str | None = None,
+    **options: Any,
+) -> TestResult:
+    """Test whether ``cause`` Granger-causes ``dependent`` in the units of a panel.
+
+    The test is Dumitrescu and Hurlin's (``"dumitrescu_hurlin"``, ``"granger"`` or
+    ``"xtgcause"``).  There is no default test.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    dependent, cause
+        Names of the variable that is caused and of the variable whose lags are tested.
+    test
+        Name or alias of the test (required).
+    **options
+        The options of the test (``lags``, ``statistic``).
+    """
+    return run_panel_test(panel, test, dependent, cause, family="causality", **options)
+
+
+def cointegration(
+    panel: PanelBase,
+    dependent: str,
+    regressors: Sequence[str],
+    *,
+    test: str | None = None,
+    **options: Any,
+) -> TestResult:
+    """Test a model for cointegration (no cointegration under the null), from the data.
+
+    The test is Kao's (``"kao"``): residual-based, with the same cointegrating vector in every
+    unit.  There is no default test.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    dependent, regressors
+        Names of the dependent variable and of the regressors of the cointegrating relation.
+    test
+        Name or alias of the test (required).
+    **options
+        The options of the test (``statistic``, ``adf_lags``, ``kernel``, ``kernel_lags``...).
+    """
+    return run_panel_test(panel, test, dependent, regressors, family="cointegration", **options)
 
 
 def slope_heterogeneity(

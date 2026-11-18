@@ -9,11 +9,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import pandas as pd
 
+from pyxtpanel.api._lazy import run_panel_test
 from pyxtpanel.describe.attrition import Attrition, attrition
 from pyxtpanel.describe.corr import AutoCorr, XtCorr, autocorr, xtcorr
 from pyxtpanel.describe.missing import (
@@ -26,7 +27,6 @@ from pyxtpanel.describe.structure import XtDescribe, xtdescribe
 from pyxtpanel.describe.summary import XtSum, xtsum
 from pyxtpanel.describe.tab import XtTab, xttab
 from pyxtpanel.describe.trans import XtTrans, xttrans
-from pyxtpanel.diagnostics import TestResult, run_panel_test
 from pyxtpanel.explore.audit import AuditReport, audit
 from pyxtpanel.explore.balance import BalanceCost, Unbalancedness, balance_cost, unbalancedness
 from pyxtpanel.explore.equations import Transform, UsableEquations, usable_equations
@@ -41,6 +41,9 @@ from pyxtpanel.ops.groups import group_size
 from pyxtpanel.ops.within import theta_re
 from pyxtpanel.panel.base import PanelBase
 from pyxtpanel.plot._spec import plot as _plot
+
+if TYPE_CHECKING:
+    from pyxtpanel.diagnostics import TestResult
 
 
 @dataclass(frozen=True, eq=False, repr=False)
@@ -402,6 +405,28 @@ class PanelData(PanelBase):
     ) -> TestResult:
         """Test the errors of a model for serial correlation (see ``serial_correlation``)."""
         return run_panel_test(self, test, dependent, regressors, family="serial", **options)
+
+    def causality(
+        self,
+        dependent: str,
+        cause: str,
+        *,
+        test: str | None = None,
+        **options: Any,
+    ) -> TestResult:
+        """Test whether ``cause`` Granger-causes ``dependent`` (see ``causality``)."""
+        return run_panel_test(self, test, dependent, cause, family="causality", **options)
+
+    def cointegration(
+        self,
+        dependent: str,
+        regressors: Sequence[str],
+        *,
+        test: str | None = None,
+        **options: Any,
+    ) -> TestResult:
+        """Test a model for cointegration (see ``cointegration``)."""
+        return run_panel_test(self, test, dependent, regressors, family="cointegration", **options)
 
     def slope_heterogeneity(
         self,

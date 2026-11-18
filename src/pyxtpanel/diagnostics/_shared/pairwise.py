@@ -181,5 +181,17 @@ def common_period_ranks(
         )
     ranks = stats.rankdata(values[complete], axis=0)
     with np.errstate(divide="ignore", invalid="ignore"):
-        rho = np.corrcoef(ranks, rowvar=False)
-    return np.atleast_2d(rho), periods
+        rho = np.atleast_2d(np.corrcoef(ranks, rowvar=False))
+    flat = np.flatnonzero(~np.isfinite(rho[np.triu_indices_from(rho, k=1)]))
+    if flat.size:  # a unit that never changes has tied ranks: its correlations are 0 / 0
+        i, j = (int(v[flat[0]]) for v in np.triu_indices_from(rho, k=1))
+        raise NumericalError(
+            _i18n.message(
+                "diag.pairwise.constant",
+                test=test,
+                first=plain_label(arrays.unit_labels[i]),
+                second=plain_label(arrays.unit_labels[j]),
+            ),
+            key="diag.pairwise.constant",
+        )
+    return rho, periods

@@ -18,9 +18,15 @@ from scipy import stats
 
 from pyxtpanel import _i18n
 from pyxtpanel._errors import NumericalError, SpecificationError
-from pyxtpanel.diagnostics._core import TestResult, TestSpec, panel_variables, register_test
+from pyxtpanel.diagnostics._core import (
+    TestResult,
+    TestSpec,
+    panel_variables,
+    plain_label,
+    register_test,
+)
 from pyxtpanel.diagnostics._shared.adf import select_lags
-from pyxtpanel.diagnostics._shared.ols import ols_residuals
+from pyxtpanel.diagnostics._shared.ols import is_perfect_fit, ols_residuals
 from pyxtpanel.diagnostics._shared.tables import load_table
 
 if TYPE_CHECKING:
@@ -61,6 +67,14 @@ _i18n.register(
             "estimate is not positive); give a fixed bandwidth.",
             "fr": "la fenêtre de Newey-West n'est pas définie pour une unité (l'estimation de sa "
             "variance de long terme n'est pas positive) ; donnez une fenêtre fixe.",
+        },
+        "diag.levin_lin_chu.constant_unit": {
+            "en": "unit {unit!r} has no variation left once the ADF terms are removed (it is "
+            "constant, or its augmented regression fits perfectly): the standardised residuals "
+            "are not defined.",
+            "fr": "l'unité {unit!r} ne varie plus une fois les termes ADF retirés (elle est "
+            "constante, ou sa régression augmentée est parfaite) : les résidus standardisés ne "
+            "sont pas définis.",
         },
         "diag.levin_lin_chu.degenerate": {
             "en": "the pooled regression of the standardised residuals is degenerate (the lagged "
@@ -181,8 +195,17 @@ def levin_lin_chu(
     if demean:
         y -= y.mean(axis=0)
     e_all, nu_all, s_all, used, hac_used, equations = [], [], [], [], [], []
-    for row in y:
-        e, nu, s_i, p_i, hac = _unit(row, model, lags, lag_selection, kernel, bandwidth)
+    for position, row in enumerate(y):
+        try:
+            e, nu, s_i, p_i, hac = _unit(row, model, lags, lag_selection, kernel, bandwidth)
+        except _ConstantUnitError:
+            raise NumericalError(
+                _i18n.message(
+                    "diag.levin_lin_chu.constant_unit",
+                    unit=plain_label(arrays.unit_labels[position]),
+                ),
+                key="diag.levin_lin_chu.constant_unit",
+            ) from None
         e_all.append(e)
         nu_all.append(nu)
         s_all.append(s_i)
@@ -292,6 +315,10 @@ def _validated(
     return _MODELS[str(deterministics)]
 
 
+class _ConstantUnitError(Exception):
+    """A unit has no variation left after the ADF terms (turned into a refusal naming it)."""
+
+
 def _unit(
     y: FloatArray,
     model: int,
@@ -318,12 +345,14 @@ def _unit(
     e = ols_residuals(dy[p:], z)
     nu = ols_residuals(level[p:], z)
     sum_nu2 = float(nu @ nu)
-    if sum_nu2 <= 0.0:
-        raise NumericalError(
-            _i18n.message("diag.levin_lin_chu.degenerate"), key="diag.levin_lin_chu.degenerate"
-        )
+    # a constant series leaves rounding noise, not an exact zero: compare with the data's scale
+    if is_perfect_fit(sum_nu2, float(level @ level)):
+        raise _ConstantUnitError
     slope = float(nu @ e) / sum_nu2
-    sigma2 = float(np.sum((e - slope * nu) ** 2)) / (periods - p - 1)
+    rss = float(np.sum((e - slope * nu) ** 2))
+    if is_perfect_fit(rss, float(dy @ dy)):
+        raise _ConstantUnitError
+    sigma2 = rss / (periods - p - 1)
     if model == 1:
         w = dy
     elif model == 2:

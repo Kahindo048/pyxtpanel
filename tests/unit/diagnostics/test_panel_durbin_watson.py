@@ -114,3 +114,28 @@ def test_by_name_alias_and_the_family_function_in_both_languages() -> None:
     assert xt.serial_correlation(panel, "y", ["x"], test="lbi").statistic == direct.statistic
     assert "Panel Durbin-Watson and Baltagi-Wu LBI statistics" in direct.summary("en")
     assert "Statistiques de Durbin-Watson de panel" in direct.summary("fr")
+
+
+def _constant_unit_frame(
+    units: int = 8, periods: int = 15, *, every_unit: bool = False
+) -> pd.DataFrame:
+    rng = np.random.default_rng(3)
+    y = rng.normal(size=(units, periods)).cumsum(axis=1)
+    y[: units if every_unit else 1] = 5.0
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, units + 1), periods),
+            "t": np.tile(np.arange(1, periods + 1), units),
+            "y": y.ravel(),
+            "x": rng.normal(size=units * periods),
+        }
+    )
+
+
+def test_a_regressor_that_fits_the_dependent_variable_perfectly_is_refused() -> None:
+    f = _constant_unit_frame(units=10, periods=12)
+    f["y"] = np.random.default_rng(5).normal(size=len(f)).cumsum()
+    f["x"] = 2.0 * f["y"] + 1.0
+    with pytest.raises(NumericalError, match="all zero") as refusal:
+        panel_durbin_watson(xt.xtset(f, "id", "t"), "y", ["x"])
+    assert refusal.value.key == "diag.panel_durbin_watson.zero_residuals"

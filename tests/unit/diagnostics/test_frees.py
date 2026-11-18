@@ -69,3 +69,29 @@ def test_frees_table_rows_and_the_normal_approximation_for_long_panels() -> None
 def test_frees_needs_four_common_periods() -> None:
     with pytest.raises(DataError, match="fewer than 4 do"):
         frees(declare(factor_data(7, periods=3, units=5)), "v")
+
+
+def _constant_unit_frame(
+    units: int = 8, periods: int = 15, *, every_unit: bool = False
+) -> pd.DataFrame:
+    rng = np.random.default_rng(3)
+    y = rng.normal(size=(units, periods)).cumsum(axis=1)
+    y[: units if every_unit else 1] = 5.0
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, units + 1), periods),
+            "t": np.tile(np.arange(1, periods + 1), units),
+            "y": y.ravel(),
+            "x": rng.normal(size=units * periods),
+        }
+    )
+
+
+def test_a_constant_unit_is_refused_because_its_ranks_are_all_tied() -> None:
+    from pyxtpanel._errors import NumericalError
+    from pyxtpanel.diagnostics import run_test
+
+    panel = xt.xtset(_constant_unit_frame(), "id", "t")
+    with pytest.raises(NumericalError, match="no variation") as refusal:
+        run_test("frees", panel, "y")
+    assert refusal.value.key == "diag.pairwise.constant"

@@ -32,6 +32,10 @@ _i18n.register(
             "fr": "weight doit être symétrique (plus grand écart {gap:.3g}) ; passez la matrice "
             "de poids de l'estimateur, non une version transposée ou partielle.",
         },
+        "diag.overid.zero_weight": {
+            "en": "the weight matrix is zero: every moment condition would count for nothing.",
+            "fr": "la matrice de poids est nulle : aucune condition de moment ne compterait.",
+        },
         "diag.overid.negative": {
             "en": "the statistic is negative ({value:.6g}): the weight matrix is not positive "
             "semi-definite.",
@@ -114,7 +118,7 @@ def overidentification(
     SpecificationError
         If a shape, a count or the scale is invalid, or the weight matrix is not symmetric.
     NumericalError
-        If the weight matrix is not positive semi-definite (negative statistic).
+        If the weight matrix is zero or not positive semi-definite (negative statistic).
     """
     raw = np.asarray(moments, dtype=np.float64)
     if raw.ndim == 2:
@@ -132,7 +136,13 @@ def overidentification(
             key="diag.overid.weight_not_symmetric",
         )
     w = (w + w.T) / 2.0
+    if q and not np.any(w):
+        raise NumericalError(
+            _i18n.message("diag.overid.zero_weight"), key="diag.overid.zero_weight"
+        )
     instruments = q if n_instruments is None else n_instruments
+    if n_groups is not None:
+        _positive_int("n_groups", n_groups, minimum=1)
     _positive_int("n_parameters", n_parameters, minimum=0)
     _positive_int("n_instruments", instruments, minimum=1, maximum=q)
     if not (math.isfinite(scale) and scale > 0):

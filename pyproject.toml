@@ -113,12 +113,12 @@ disallow_untyped_calls = false  # matplotlib.dates is not fully typed
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -m 'not bench'"
 markers = [
     "stata: needs Stata (local execution only)",
     "slow: long test",
     "golden: compares to frozen Stata reference results",
-    "bench: speed benchmark",
+    "bench: speed and import-time guards (left out of the default run: pytest -m bench)",
 ]
 filterwarnings = ["error::DeprecationWarning:pyxtpanel.*"]
 

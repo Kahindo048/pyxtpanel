@@ -7,6 +7,7 @@ import json
 import shutil
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from pyxtpanel._errors import DataError
@@ -93,3 +94,36 @@ def test_returned_tables_are_copies() -> None:
     first = tables.load_table("mackinnon_adf.csv")
     first.loc[0, "tau_star"] = 99.0
     assert tables.load_table("mackinnon_adf.csv").loc[0, "tau_star"] == -1.61
+
+
+def test_the_cips_critical_values_match_plm_but_for_one_cell() -> None:
+    # plm::cipstest (R 4.6.1, plm 2.6.7, critvals.cips) transcribes the same tables of Pesaran
+    # (2007) independently; the file holds its values (first dimension: N, second: T).  Of the 768
+    # cells of the constant ("drift") and trend cases 767 agree; the other, (trend, T = 200,
+    # N = 200, 10 %), is -2.50 in pescadf's table and -2.51 in plm's, and the table keeps pescadf's.
+    plm = pd.read_csv(GOLDEN.parent / "plm_cips_critical.csv")
+    plm = plm[plm["type"] != "none"]
+    mine = tables.load_table("cips_critical.csv").set_index(["case", "truncated", "t", "n"])
+    different = []
+    for row in plm.itertuples():
+        case = "constant" if row.type == "drift" else "trend"
+        # plm's first dimension is N, its second is T
+        value = mine.loc[(case, row.truncated, row.n, row.t), f"cv_{int(row.level)}"]
+        if abs(value - row.value) > 1e-12:
+            different.append((case, row.truncated, row.n, row.t, row.level, value, row.value))
+    assert len(plm) == 768
+    assert different == [
+        ("trend", 0, 200, 200, 10, -2.5, -2.51),
+        ("trend", 1, 200, 200, 10, -2.5, -2.51),
+    ]
+
+
+def test_the_cips_tables_have_every_cell_and_the_expected_order() -> None:
+    moments = tables.load_table("cips_moments.csv")
+    critical = tables.load_table("cips_critical.csv")
+    assert len(moments) == 2 * 81 and len(critical) == 4 * 81
+    assert set(moments["case"]) == {"constant", "trend"} and set(critical["truncated"]) == {0, 1}
+    assert (critical["cv_1"] < critical["cv_5"]).all() and (
+        critical["cv_5"] < critical["cv_10"]
+    ).all()
+    assert (moments["sd"] > 0).all() and (moments["mean"] < 0).all()

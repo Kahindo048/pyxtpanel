@@ -185,3 +185,28 @@ def test_by_name_in_both_languages() -> None:
     result = run_test("levin_lin_chu", declare(series(6)), "y")
     assert "Levin-Lin-Chu unit-root test" in result.summary("en")
     assert "racine unitaire de Levin-Lin-Chu" in result.summary("fr")
+
+
+def _constant_unit_frame(
+    units: int = 8, periods: int = 15, *, every_unit: bool = False
+) -> pd.DataFrame:
+    rng = np.random.default_rng(3)
+    y = rng.normal(size=(units, periods)).cumsum(axis=1)
+    y[: units if every_unit else 1] = 5.0
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, units + 1), periods),
+            "t": np.tile(np.arange(1, periods + 1), units),
+            "y": y.ravel(),
+            "x": rng.normal(size=units * periods),
+        }
+    )
+
+
+def test_a_constant_unit_is_refused_and_named() -> None:
+    from pyxtpanel._errors import NumericalError
+
+    panel = xt.xtset(_constant_unit_frame(), "id", "t")
+    with pytest.raises(NumericalError, match="unit 1 has no variation") as refusal:
+        levin_lin_chu(panel, "y", lags=1)
+    assert refusal.value.key == "diag.levin_lin_chu.constant_unit"

@@ -116,8 +116,11 @@ def check_unique_pairs(
     id_name: str,
     time_name: str,
     show: tuple[np.ndarray, np.ndarray],
-) -> None:
+) -> IntArray:
     """Raise if a (unit, period) pair is repeated (Stata ``xtset`` error 451).
+
+    The check sorts the rows by (unit, period); that order is returned so that the caller sorts
+    only once.
 
     Parameters
     ----------
@@ -127,6 +130,11 @@ def check_unique_pairs(
         Names used in the message.
     show
         Identifier and time value of each row as they are in the data, for the examples.
+
+    Returns
+    -------
+    numpy.ndarray
+        Positions that put the rows in (unit, period) order.
 
     Raises
     ------
@@ -139,7 +147,7 @@ def check_unique_pairs(
     sorted_key = key[order]
     repeated = np.flatnonzero(sorted_key[1:] == sorted_key[:-1])
     if repeated.size == 0:
-        return
+        return order
     rows = order[repeated[:MAX_ROWS_LISTED] + 1]
     examples = ", ".join(f"({id_name}={show[0][i]}, {time_name}={show[1][i]})" for i in rows)
     raise DeclarationError(

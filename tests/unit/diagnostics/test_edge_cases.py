@@ -22,9 +22,13 @@ from pyxtpanel._errors import DataError, NumericalError, PyxtpanelError, Specifi
 from pyxtpanel.diagnostics import (
     TestResult,
     breusch_pagan,
+    cips,
+    dumitrescu_hurlin,
     jarque_bera,
+    kao,
     lm_random_effects,
     panel_durbin_watson,
+    pedroni,
     reset,
     shapiro_francia,
     shapiro_wilk,
@@ -32,6 +36,7 @@ from pyxtpanel.diagnostics import (
     slope_homogeneity,
     vif,
     wald_groupwise,
+    westerlund,
     white,
 )
 
@@ -181,6 +186,11 @@ def frame(units: int = 10, periods: int = 8) -> pd.DataFrame:
 PANEL_CALLS: dict[str, Callable[[xt.PanelData], TestResult]] = {
     "slope_homogeneity": lambda p: slope_homogeneity(p, "y", ["x", "z"]),
     "panel_durbin_watson": lambda p: panel_durbin_watson(p, "y", ["x", "z"]),
+    "cips": lambda p: cips(p, "y", lags=0),
+    "kao": lambda p: kao(p, "y", ["x", "z"]),
+    "westerlund": lambda p: westerlund(p, "y", ["x", "z"]),
+    "pedroni": lambda p: pedroni(p, "y", ["x", "z"], kernel_lags=1),
+    "dumitrescu_hurlin": lambda p: dumitrescu_hurlin(p, "y", "x", statistic="zbar"),
 }
 
 

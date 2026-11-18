@@ -124,3 +124,33 @@ def test_by_name_in_both_languages() -> None:
     result = run_test("harris_tzavalis", declare(walks(5)), "y")
     assert "Harris-Tzavalis unit-root test" in result.summary("en")
     assert "racine unitaire de Harris-Tzavalis" in result.summary("fr")
+
+
+def _constant_unit_frame(
+    units: int = 8, periods: int = 15, *, every_unit: bool = False
+) -> pd.DataFrame:
+    rng = np.random.default_rng(3)
+    y = rng.normal(size=(units, periods)).cumsum(axis=1)
+    y[: units if every_unit else 1] = 5.0
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, units + 1), periods),
+            "t": np.tile(np.arange(1, periods + 1), units),
+            "y": y.ravel(),
+            "x": rng.normal(size=units * periods),
+        }
+    )
+
+
+def test_a_constant_series_is_refused_not_given_a_nan_or_a_numerical_warning() -> None:
+    from pyxtpanel._errors import NumericalError
+
+    panel = xt.xtset(_constant_unit_frame(every_unit=True), "id", "t")
+    with pytest.raises(NumericalError, match="no variation") as refusal:
+        harris_tzavalis(panel, "y")
+    assert refusal.value.key == "diag.harris_tzavalis.no_variation"
+
+
+def test_one_constant_unit_among_others_still_gives_the_pooled_statistic() -> None:
+    result = harris_tzavalis(xt.xtset(_constant_unit_frame(), "id", "t"), "y")
+    assert math.isfinite(result.statistic)

@@ -46,5 +46,37 @@
     "transcribed": "2026-11-07",
     "verified_against": "transcribed by program from the values compiled in the user-written xtcsd.ado (De Hoyos and Sarafidis 2006); no independent copy of the paper was readable; verified end to end by the xtcsd, frees cases of tests/golden/diagnostics_crosssection_golden.json for the rows they use",
     "sha256": "3311747f83dfb23b59ebf603f5189455627894d89cd5ab19480a7cfb8f081293"
+  },
+  "cips_moments.csv": {
+    "title": "Mean and standard deviation of the individual cross-sectionally augmented Dickey-Fuller (CADF) t statistic under the unit root, by T and N, with a constant or a constant and trend",
+    "source": "Pesaran, M. H. (2007), A simple panel unit root test in the presence of cross-section dependence, Journal of Applied Econometrics 22(2), 265-312, Tables II(b) and II(c) as compiled in the user-written pescadf.ado (Lewandowski 2006, extended to 9 x 9 by W. Hoelzl)",
+    "usage": "mean and sd of the unit's t statistic at the first tabulated T and N at or above the unit's number of periods and the number of units (no interpolation); Z[t-bar] = sum(t_i - mean_i) / sqrt(sum sd_i^2); keys 10, 15, 20, 30, 50, 70, 100, 200 and 999",
+    "transcribed": "2026-11-17",
+    "verified_against": "extracted by program from pescadf.ado of the Stata 17 installation (no independent copy of the paper was readable; plm does not tabulate these moments); verified end to end by the pescadf cases of tests/golden/diagnostics_unitroot_golden.json",
+    "sha256": "77af83e5b1163ed32b625573c382697bf05b72b2402c5088afb4dff9bb23b022"
+  },
+  "cips_critical.csv": {
+    "title": "Critical values (1%, 5%, 10%) of the average of the CADF t statistics (CIPS), by T and N, with a constant or a constant and trend, for the truncated (truncated = 1) and untruncated (truncated = 0) statistics",
+    "source": "Pesaran, M. H. (2007), A simple panel unit root test in the presence of cross-section dependence, Journal of Applied Econometrics 22(2), 265-312, Tables I(b), I(c), II(b) and II(c) as compiled in the user-written pescadf.ado",
+    "usage": "critical value at the first tabulated T and N at or above the panel's average number of periods and number of units (as pescadf does, no interpolation); reject when the average t is below it",
+    "transcribed": "2026-11-17",
+    "verified_against": "extracted by program from pescadf.ado; compared cell by cell with the independent transcription of plm::cipstest (R 4.6.1, plm 2.6.7, critvals.cips): 767 of the 768 cells of the constant and trend cases are identical, the other (trend, T = 200, N = 200, 10%) is -2.50 here and -2.51 in plm and is kept as in pescadf; verified end to end by the pescadf cases of tests/golden/diagnostics_unitroot_golden.json",
+    "sha256": "5e195a6fc8160e9af8f5c6bc6dbefbce128721725221f3539c880c01f1eaf67b"
+  },
+  "westerlund_moments.csv": {
+    "title": "Mean and variance of the Westerlund (2005) variance-ratio statistic under no cointegration, by number of regressors (1 to 7), deterministic terms (constant, trend) and alternative (some panels: panel-specific autoregressive parameters; all panels: common one)",
+    "source": "Westerlund, J. (2005), New simple tests for panel cointegration, Econometric Reviews 24(3), 297-316; values as used by Stata 17's xtcointtest westerlund, which compiles them in its Mata library",
+    "usage": "z = sqrt(N) (VR - mean) / sqrt(variance) with VR the variance ratio divided by T squared (T the longest unit)",
+    "transcribed": "2026-11-18",
+    "verified_against": "deduced from the output of xtcointtest westerlund (Stata 17, set type double) on 56 simulated panels, four per cell (m, deterministics) for both alternatives: z is linear in the raw variance ratio, the four panels fit the two constants with a residual of 4e-13 and every constant is a number with 8 decimals to 1e-16; verified end to end by the xtcointtest westerlund cases of tests/golden/diagnostics_cointegration_golden.json; not compared with the paper (not readable)",
+    "sha256": "01e1ea4f10b5c2466be981c70e5b6231c0ed4bd96a25b13961af0f8055abaadb"
+  },
+  "pedroni_moments.csv": {
+    "title": "Mean and variance adjustment terms of the seven Pedroni panel cointegration statistics (panel nu, rho, PP t, ADF t; group rho, PP t, ADF t), by deterministic terms (none, constant, constant and trend) and number of regressors (1 to 7)",
+    "source": "Pedroni, P. (1999), Critical values for cointegration tests in heterogeneous panels with multiple regressors, Oxford Bulletin of Economics and Statistics 61, 653-670, Table 2; Pedroni, P. (2004), Econometric Theory 20, 597-625; values as used by Stata 17's xtcointtest pedroni, which compiles them in its Mata library",
+    "usage": "z = (Z - mean sqrt(N)) / sqrt(variance) with Z the raw statistic; the panel nu rejects in the right tail, the six others in the left tail; the mean of the panel_rho with no deterministic term and 7 regressors is +25.889 as in Stata 17 (the other numbers of regressors give -2.77, -6.388, -10.191, -14.136, -18.042, -21.985 and the printed table -25.889): a sign error of Stata, reproduced and flagged by a note in the result",
+    "transcribed": "2026-11-18",
+    "verified_against": "deduced from the output of xtcointtest pedroni (Stata 17, set type double, kernel(bartlett 2) lags(1)) on 84 simulated panels, four per (deterministics, m) for both autoregressive parameters: z is linear in the raw statistic computed from the conventions found with Stata's getresd, the four panels fit the two constants with a residual of 5e-14 for all 147 cells, and every constant is a number with 3 decimals to 2e-11; the m = 2 constant row agrees with the printed Table 2 of the 1999 working paper (panel nu 11.754, 104.546; group PP t -2.453, 0.618); verified end to end by the xtcointtest pedroni cases of tests/golden/diagnostics_cointegration_golden.json",
+    "sha256": "6f56de9bd90c84e0dd9b86860bd783bce458ca0604bc7e4f83348d0c81a4fc11"
   }
 }

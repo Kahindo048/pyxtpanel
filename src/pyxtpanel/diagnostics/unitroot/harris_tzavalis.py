@@ -15,8 +15,9 @@ import pandas as pd
 from scipy import stats
 
 from pyxtpanel import _i18n
-from pyxtpanel._errors import SpecificationError
+from pyxtpanel._errors import NumericalError, SpecificationError
 from pyxtpanel.diagnostics._core import TestResult, TestSpec, panel_variables, register_test
+from pyxtpanel.diagnostics._shared.ols import is_perfect_fit
 
 if TYPE_CHECKING:
     from pyxtpanel.panel.base import PanelBase
@@ -39,6 +40,12 @@ _i18n.register(
         "diag.harris_tzavalis.bad_deterministics": {
             "en": "deterministics must be 'none', 'constant' or 'trend', got {value!r}.",
             "fr": "deterministics doit valoir 'none', 'constant' ou 'trend', reçu {value!r}.",
+        },
+        "diag.harris_tzavalis.no_variation": {
+            "en": "the series has no variation left once the deterministic terms are removed "
+            "(it is constant), so the autoregressive parameter is not defined.",
+            "fr": "la série ne varie plus une fois les termes déterministes retirés (elle est "
+            "constante), le paramètre autorégressif n'est pas défini.",
         },
     },
 )
@@ -110,6 +117,8 @@ def harris_tzavalis(
         If ``deterministics`` is not one of the three values.
     DataError
         If the panel is not strongly balanced, has a gap, or has too few periods.
+    NumericalError
+        If the series has no variation once the deterministic terms are removed.
     """
     # Stata: xtunitroot ht -> rho from reg y L.y (noconstant), xtreg y L.y, fe, or the same on
     # series with the unit mean and trend removed over t = 2..T; mean and variance of rho from
@@ -135,6 +144,13 @@ def harris_tzavalis(
     dependent, lagged = y[:, 1:], y[:, :-1]
     if deterministics != "none":
         dependent, lagged = _remove(dependent, deterministics), _remove(lagged, deterministics)
+    # Stata prints rho = 0 and a z of -20 for a constant panel: a series with no variation says
+    # nothing about a unit root, so it is refused instead.
+    if is_perfect_fit(float(np.sum(lagged * lagged)), float(np.sum(y * y))):
+        raise NumericalError(
+            _i18n.message("diag.harris_tzavalis.no_variation"),
+            key="diag.harris_tzavalis.no_variation",
+        )
     rho = float(np.sum(lagged * dependent) / np.sum(lagged * lagged))
     t = periods - 1 if small_sample_t else periods
     mean, variance = _moments(deterministics, float(t), n)

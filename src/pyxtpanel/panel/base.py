@@ -530,9 +530,15 @@ class PanelBase:
         array = np.asarray(values)
         if array.shape[0] != self.n_obs:
             raise ValueError(f"expected {self.n_obs} values, got {array.shape[0]}")
-        data = pd.DataFrame(array.reshape(self.n_obs, -1), index=self.index.source_row)
-        data = data.reindex(range(len(self.frame)))
-        data.index = self.frame.index
+        table = array.reshape(self.n_obs, -1)
+        if table.dtype.kind == "f":  # scatter into a missing-filled array: no reindex of a frame
+            scattered = np.full((len(self.frame), table.shape[1]), np.nan, dtype=table.dtype)
+            scattered[self.index.source_row] = table
+            data = pd.DataFrame(scattered, index=self.frame.index)
+        else:
+            data = pd.DataFrame(table, index=self.index.source_row)
+            data = data.reindex(range(len(self.frame)))
+            data.index = self.frame.index
         if array.ndim > 1:
             return data
         series: pd.Series = data.iloc[:, 0]

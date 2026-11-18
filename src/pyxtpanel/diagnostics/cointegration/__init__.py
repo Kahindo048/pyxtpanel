@@ -1,4 +1,1 @@
-"""Panel cointegration tests: Kao, Pedroni, Westerlund.
-
-Layer 4.
-"""
+"""cointegration tests (layer 4)."""

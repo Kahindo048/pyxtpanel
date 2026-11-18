@@ -1,0 +1,12 @@
+% Included by tools/doc.py (pandoc -H): breaking code, compact tables, readable spacing.
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+\fvset{fontsize=\footnotesize}
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\footnotesize\raggedright\sloppy\setlength{\tabcolsep}{3pt}}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+\usepackage{enumitem}
+\setlist{itemsep=0.2em, topsep=0.3em}

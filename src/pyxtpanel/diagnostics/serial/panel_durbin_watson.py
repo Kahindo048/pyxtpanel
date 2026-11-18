@@ -18,6 +18,7 @@ import pandas as pd
 from pyxtpanel import _i18n
 from pyxtpanel._errors import NumericalError, SpecificationError
 from pyxtpanel.diagnostics._core import Note, TestResult, TestSpec, panel_variables, register_test
+from pyxtpanel.diagnostics._shared.ols import is_perfect_fit
 
 if TYPE_CHECKING:
     from pyxtpanel.panel.base import PanelBase
@@ -142,7 +143,7 @@ def panel_durbin_watson(panel: PanelBase, dependent: str, regressors: Sequence[s
     coefficients, *_ = np.linalg.lstsq(x, y, rcond=1e-10)
     e = y - x @ coefficients
     total = float(e @ e)
-    if total <= 0.0:
+    if is_perfect_fit(total, float(y @ y)):  # rounding noise is no residual
         raise NumericalError(
             _i18n.message("diag.panel_durbin_watson.zero_residuals"),
             key="diag.panel_durbin_watson.zero_residuals",

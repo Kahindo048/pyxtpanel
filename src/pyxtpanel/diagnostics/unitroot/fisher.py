@@ -1,11 +1,11 @@
-"""Fisher-type panel unit-root test built from per-unit ADF p-values (category A, L.2.5).
+"""Fisher-type panel unit-root test built from per-unit ADF or Phillips-Perron p-values (L.2.5).
 
 Validated against Stata 17: ``xtunitroot fisher, dfuller`` with fixed lags, a constant, a trend
-or a drift, with and without cross-sectional means removed, on a balanced panel, on panels with
-entry, exit and holes and on a panel with units too short to be tested; the four statistics (P, Z,
-L and Pm), their degrees of freedom and p-values are compared, and so are the per-unit p-values
-that Stata returns through ``generate()``.  The cases are in
-``validation/cases/diagnostics_unitroot_fisher.py``.
+or a drift, ``xtunitroot fisher, pperron`` with a constant or a trend, with and without
+cross-sectional means removed, on a balanced panel, on panels with entry, exit and holes and on a
+panel with units too short to be tested; the four statistics (P, Z, L and Pm), their degrees of
+freedom and p-values are compared, and so are the per-unit p-values that Stata returns through
+``generate()``.  The cases are in ``validation/cases/diagnostics_unitroot_fisher.py``.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from pyxtpanel import _i18n
 from pyxtpanel._errors import NumericalError, SpecificationError
 from pyxtpanel.diagnostics._core import Note, TestResult, TestSpec, panel_variables, register_test
 from pyxtpanel.diagnostics._shared.adf import AdfCase, AdfFit, adf_fit, adf_pvalue
+from pyxtpanel.diagnostics._shared.pperron import pp_fit, pp_pvalue
 
 if TYPE_CHECKING:
     from pyxtpanel.panel.base import PanelBase
@@ -29,8 +30,9 @@ _i18n.register(
     "diag",
     {
         "diag.fisher.title": {
-            "en": "Fisher-type unit-root test (augmented Dickey-Fuller)",
-            "fr": "Test de racine unitaire de type Fisher (Dickey-Fuller augmenté)",
+            "en": "Fisher-type unit-root test (augmented Dickey-Fuller or Phillips-Perron)",
+            "fr": "Test de racine unitaire de type Fisher (Dickey-Fuller augmenté ou "
+            "Phillips-Perron)",
         },
         "diag.fisher.null": {
             "en": "all panels contain unit roots",
@@ -41,10 +43,20 @@ _i18n.register(
             "fr": "au moins une série du panel est stationnaire",
         },
         "diag.fisher.skipped": {
-            "en": "{count} unit(s) were left out: their ADF regression has no equation or no "
-            "p-value (too few consecutive observations for {lags} lag(s)).",
-            "fr": "{count} unité(s) ont été écartées : leur régression ADF n'a aucune équation "
-            "ou aucune p-value (trop peu d'observations consécutives pour {lags} retard(s)).",
+            "en": "{count} unit(s) were left out: their {base} regression has too few "
+            "consecutive observations or no p-value (with {lags} lag(s)).",
+            "fr": "{count} unité(s) ont été écartées : leur régression {base} a trop peu "
+            "d'observations consécutives ou aucune p-value (avec {lags} retard(s)).",
+        },
+        "diag.fisher.bad_test": {
+            "en": "test must be 'dfuller' or 'pperron', got {value!r}.",
+            "fr": "test doit valoir 'dfuller' ou 'pperron', reçu {value!r}.",
+        },
+        "diag.fisher.pperron_drift": {
+            "en": "deterministics='drift' is only available with test='dfuller' (Stata's pperron "
+            "has no drift variant).",
+            "fr": "deterministics='drift' n'existe qu'avec test='dfuller' (le pperron de Stata n'a "
+            "pas de variante avec dérive).",
         },
         "diag.fisher.bad_method": {
             "en": "method must be 'inverse_chi2', 'inverse_normal', 'logit' or 'modified', "
@@ -112,11 +124,14 @@ def fisher(
     deterministics: Literal["constant", "trend", "drift"] = "constant",
     demean: bool = False,
     method: Literal["inverse_chi2", "inverse_normal", "logit", "modified"] = "inverse_chi2",
+    test: Literal["dfuller", "pperron"] = "dfuller",
 ) -> TestResult:
-    """Return a Fisher-type combination of the per-unit ADF p-values.
+    """Return a Fisher-type combination of the per-unit ADF or Phillips-Perron p-values.
 
-    One augmented Dickey-Fuller test with ``lags`` lagged differences is run per unit; the
-    p-values ``p_i`` of the ``N`` units that could be tested are combined by ``method``:
+    One unit-root test is run per unit: an augmented Dickey-Fuller test with ``lags`` lagged
+    differences (``test="dfuller"``) or a Phillips-Perron test with ``lags`` Newey-West lags
+    (``test="pperron"``, the p-value is MacKinnon's for ``Z(t)``).  The p-values ``p_i`` of the
+    ``N`` units that could be tested are combined by ``method``:
 
     * ``"inverse_chi2"`` (Maddala-Wu, ``P``): ``-2 sum ln p_i`` on ``2N`` df, which needs a
       finite number of units;
@@ -136,19 +151,22 @@ def fisher(
     variable
         Name of the numeric variable tested.
     lags
-        Number of lagged differences in every ADF regression (Stata requires it).
+        Number of lagged differences in every ADF regression, or of Newey-West lags in every
+        Phillips-Perron regression (Stata requires it).
     deterministics
         ``"constant"`` (default), ``"trend"`` (constant and linear trend, MacKinnon p-values) or
-        ``"drift"`` (constant; p-values from Student's t, as ``dfuller, drift``).
+        ``"drift"`` (constant; p-values from Student's t, as ``dfuller, drift``; ADF only).
     demean
         Remove the mean across units in each period first.
     method
         How to combine the p-values.
+    test
+        ``"dfuller"`` (default) or ``"pperron"``.
 
     Raises
     ------
     SpecificationError
-        If ``lags``, ``deterministics`` or ``method`` is invalid.
+        If ``lags``, ``deterministics``, ``method`` or ``test`` is invalid.
     NumericalError
         If no unit can be tested.
     """
@@ -160,19 +178,7 @@ def fisher(
     # STATA-QUIRK: a unit with equations but no defined statistic (saturated regression) gets
     # p = 1 and counts in the degrees of freedom; Z and L drop it (invnormal(1) is missing).  A
     # unit without any equation is skipped, but Stata stops when that unit is the first one.
-    if isinstance(lags, bool) or not isinstance(lags, (int, np.integer)) or lags < 0:
-        raise SpecificationError(
-            _i18n.message("diag.fisher.bad_lags", value=lags), key="diag.fisher.bad_lags"
-        )
-    if deterministics not in ("constant", "trend", "drift"):
-        raise SpecificationError(
-            _i18n.message("diag.fisher.bad_deterministics", value=deterministics),
-            key="diag.fisher.bad_deterministics",
-        )
-    if method not in _METHODS:
-        raise SpecificationError(
-            _i18n.message("diag.fisher.bad_method", value=method), key="diag.fisher.bad_method"
-        )
+    _validate(lags, deterministics, method, test)
     arrays = panel_variables(panel, [variable], test="fisher", min_units=2)
     values = arrays.values[:, 0].copy()
     if demean:
@@ -180,25 +186,22 @@ def fisher(
         totals = np.bincount(period, weights=values)
         counts = np.bincount(period)
         values -= (totals / np.where(counts > 0, counts, 1))[period]
-    case: AdfCase = deterministics
-    labels, sizes, taus, pvalues = [], [], [], []
+    labels, sizes, taus, pvalues, z_rhos = [], [], [], [], []
     skipped = 0
     for unit, window in enumerate(arrays.unit_slices()):
         time = arrays.time_index[window]
         series = np.full(int(time[-1] - time[0]) + 1, np.nan)
         series[time - time[0]] = values[window]
-        fit = adf_fit(series, int(lags), case)
-        if fit is None:
+        one = _unit_test(series, int(lags), deterministics, test)
+        if one is None or math.isnan(one[1]):  # no equation, or a drift test without p-value
             skipped += 1
             continue
-        p_unit = adf_pvalue(fit, case)
-        if math.isnan(p_unit):  # a drift test with an undefined statistic has no p-value
-            skipped += 1
-            continue
+        fit, p_unit, z_rho = one
         labels.append(arrays.unit_labels[unit])
         sizes.append(fit)
         taus.append(fit.tau)
         pvalues.append(p_unit)
+        z_rhos.append(z_rho)
     if not pvalues:
         raise NumericalError(
             _i18n.message("diag.fisher.none_computed", lags=int(lags)),
@@ -206,8 +209,15 @@ def fisher(
         )
     p = np.maximum(np.array(pvalues), _EPSILON)
     statistic, pvalue, df = _combine(method, p)
-    notes = (Note("diag.fisher.skipped", {"count": skipped, "lags": int(lags)}),) if skipped else ()
+    base = "Phillips-Perron" if test == "pperron" else "ADF"
+    notes = (
+        (Note("diag.fisher.skipped", {"count": skipped, "lags": int(lags), "base": base}),)
+        if skipped
+        else ()
+    )
     details = _unit_table(labels, sizes, np.array(taus), np.array(pvalues))
+    if test == "pperron":
+        details["z_rho"] = z_rhos
     return TestResult(
         name="fisher",
         statistic=statistic,
@@ -222,10 +232,57 @@ def fisher(
             "deterministics": deterministics,
             "demean": demean,
             "method": method,
+            "test": test,
         },
         details=details,
         notes=notes,
     )
+
+
+def _validate(lags: object, deterministics: str, method: str, test: str) -> None:
+    """Refuse an invalid option with the message of the catalogue."""
+    if isinstance(lags, bool) or not isinstance(lags, (int, np.integer)) or lags < 0:
+        raise SpecificationError(
+            _i18n.message("diag.fisher.bad_lags", value=lags), key="diag.fisher.bad_lags"
+        )
+    if deterministics not in ("constant", "trend", "drift"):
+        raise SpecificationError(
+            _i18n.message("diag.fisher.bad_deterministics", value=deterministics),
+            key="diag.fisher.bad_deterministics",
+        )
+    if method not in _METHODS:
+        raise SpecificationError(
+            _i18n.message("diag.fisher.bad_method", value=method), key="diag.fisher.bad_method"
+        )
+    if test not in ("dfuller", "pperron"):
+        raise SpecificationError(
+            _i18n.message("diag.fisher.bad_test", value=test), key="diag.fisher.bad_test"
+        )
+    if test == "pperron" and deterministics == "drift":
+        raise SpecificationError(
+            _i18n.message("diag.fisher.pperron_drift"), key="diag.fisher.pperron_drift"
+        )
+
+
+def _unit_test(
+    series: np.ndarray, lags: int, deterministics: str, test: str
+) -> tuple[AdfFit, float, float] | None:
+    """Run one unit's test: its fit, p-value and ``Z(rho)`` (``NaN`` for ADF), or ``None``."""
+    if test == "pperron":
+        pp_case: Literal["constant", "trend"] = "trend" if deterministics == "trend" else "constant"
+        pp = pp_fit(series, lags, pp_case)
+        if pp is None:
+            return None
+        return AdfFit(pp.z_t, math.nan, pp.n, 0, pp.lags), pp_pvalue(pp, pp_case), pp.z_rho
+    case: AdfCase = (
+        "trend"
+        if deterministics == "trend"
+        else ("drift" if deterministics == "drift" else "constant")
+    )
+    adf = adf_fit(series, lags, case)
+    if adf is None:
+        return None
+    return adf, adf_pvalue(adf, case), math.nan
 
 
 def _combine(method: str, p: np.ndarray) -> tuple[float, float, tuple[float, ...]]:

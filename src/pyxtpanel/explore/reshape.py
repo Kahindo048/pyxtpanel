@@ -3,7 +3,8 @@
 Additions of the package built on the panel structure; ``to_wide`` and ``to_long`` follow
 Stata's ``reshape wide`` and ``reshape long`` (column names ``stub`` + time, one row per unit in
 wide form, all the combinations of unit and period in long form).  Validated by hand on small
-panels, by round trips, by invariance tests and, for the wide form, against Stata.
+panels, by round trips, by invariance tests and, for both forms, against Stata (``reshape wide``
+then ``reshape long``).
 
 * :func:`to_wide`: one row per unit, one column per variable and observed period;
 * :func:`to_long`: the inverse, from a wide DataFrame (``reshape long``), returning a plain
@@ -126,7 +127,10 @@ def to_wide(
     "to_long",
     ToolSpec(
         summary="Back from the wide form: one row per unit and period, ready for xtset.",
-        validation="hand-computed frames, round trip with to_wide, invariance tests",
+        validation=(
+            "hand-computed frames, round trip with to_wide, comparison with reshape long, "
+            "invariance tests"
+        ),
         stata="reshape long",
         similar="panelr::long_panel",
         on_panel=False,

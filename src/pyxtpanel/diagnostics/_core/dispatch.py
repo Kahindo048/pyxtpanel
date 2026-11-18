@@ -53,6 +53,8 @@ _i18n.register(
 _FAMILY_LABELS = {
     "unitroot": "unit-root",
     "crosssection": "cross-section dependence",
+    "cointegration": "cointegration",
+    "causality": "causality",
     "serial": "serial-correlation",
     "heterogeneity": "slope-heterogeneity",
 }

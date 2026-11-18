@@ -222,6 +222,52 @@ def _wide(name: str) -> None:
         return {"counts": np.array(out, dtype=float).reshape(-1, 1)}
 
 
+# ---------------------------------------------------------------- wide then long
+
+
+def _long(name: str) -> None:
+    tag = f"long_{name}"
+    lines = [
+        "keep id t x z",
+        "reshape wide x z, i(id) j(t)",
+        "reshape long x z, i(id) j(t)",
+        "sort id t",
+        "scalar nrows = _N",
+        "quietly count if !missing(x)",
+        "scalar nx = r(N)",
+        "quietly count if !missing(z)",
+        "scalar nz = r(N)",
+        "gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)",
+        "quietly summarize xz",
+        "scalar total = r(sum)",
+        "gen double w = _n * xz",
+        "quietly summarize w",
+        "scalar wsum = r(sum)",
+        "gen double wt = t * xz",
+        "quietly summarize wt",
+        "scalar tsum = r(sum)",
+        export_scalars(tag, "counts", ["nrows", "nx", "nz", "total", "wsum", "tsum"]),
+    ]
+
+    @case(tag, domain=DOMAIN, dataset=f"sim_{name}", stata=lines, atol=1e-9, rtol=1e-9)
+    def _run(name: str = name) -> dict[str, np.ndarray]:
+        from pyxtpanel import to_long
+
+        wide = _panel(name).to_wide(["x", "z"]).reset_index()
+        long = to_long(wide, ["x", "z"], id="id", time="t")
+        xz = long["x"].fillna(0.0).to_numpy() + long["z"].fillna(0.0).to_numpy()
+        rows = np.arange(1, len(long) + 1)
+        out = [
+            len(long),
+            int(long["x"].notna().sum()),
+            int(long["z"].notna().sum()),
+            xz.sum(),
+            float((rows * xz).sum()),
+            float((long["t"].to_numpy(dtype=float) * xz).sum()),
+        ]
+        return {"counts": np.array(out, dtype=float).reshape(-1, 1)}
+
+
 # ---------------------------------------------------------------- gaps (tsreport)
 
 
@@ -248,4 +294,5 @@ for _name in PANELS:
     _event(_name)
     _outliers(_name)
     _wide(_name)
+    _long(_name)
     _gaps(_name)

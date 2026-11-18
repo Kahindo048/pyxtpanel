@@ -148,7 +148,7 @@ def test_an_unbalanced_panel_is_refused_with_the_first_incomplete_unit() -> None
     rows = [r for r in BALANCED if r != (2, 3, 23.0)]
     with pytest.raises(DataError, match=r"unit 2 is observed 3 times out of 4") as info:
         panel_variables(panel(rows), ["x"], test="llc", balanced="required")
-    assert info.value.stata_code == 459 and "llc needs" in str(info.value)
+    assert info.value.stata_code == 498 and "llc needs" in str(info.value)
     assert panel_variables(panel(rows), ["x"], test="ips", balanced="both").n_obs == 11
 
 
@@ -156,7 +156,7 @@ def test_a_gap_is_refused_with_the_unit_and_the_period() -> None:
     rows = [r for r in BALANCED if r != (2, 3, 23.0)]
     with pytest.raises(DataError, match=r"unit 2 has a gap after period 2") as info:
         panel_variables(panel(rows), ["x"], test="xtserial", consecutive=True)
-    assert info.value.stata_code == 451
+    assert info.value.stata_code == 498
 
 
 def test_a_missing_value_removes_its_row_and_can_make_a_gap() -> None:

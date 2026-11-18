@@ -147,3 +147,118 @@ def test_by_name_and_alias_through_the_three_routes_in_both_languages() -> None:
     assert "Test d'homogénéité des pentes" in direct.summary("fr")
     with pytest.raises(SpecificationError, match="choose a test"):
         xt.slope_heterogeneity(panel, "y", ["x"])
+
+
+def _constant_unit_frame(
+    units: int = 8, periods: int = 15, *, every_unit: bool = False
+) -> pd.DataFrame:
+    rng = np.random.default_rng(3)
+    y = rng.normal(size=(units, periods)).cumsum(axis=1)
+    y[: units if every_unit else 1] = 5.0
+    return pd.DataFrame(
+        {
+            "id": np.repeat(np.arange(1, units + 1), periods),
+            "t": np.tile(np.arange(1, periods + 1), units),
+            "y": y.ravel(),
+            "x": rng.normal(size=units * periods),
+        }
+    )
+
+
+def test_too_few_periods_for_the_adjusted_statistic_is_refused_not_divided_by_zero() -> None:
+    # one slope and a constant: the variance of the adjusted statistic needs T > 3
+    panel = xt.xtset(
+        _constant_unit_frame(units=12, periods=3).assign(y=lambda f: f["x"] ** 2), "id", "t"
+    )
+    with pytest.raises(DataError, match="needs more periods") as refusal:
+        slope_homogeneity(panel, "y", ["x"])
+    assert refusal.value.key == "diag.slope_homogeneity.too_short"
+
+
+def hac_zero_bandwidth_by_definition(frame: pd.DataFrame) -> float:
+    """S_HAC for one regressor and no lag: the Blomquist-Westerlund formulas in plain loops."""
+    cleaned = []
+    for _, g in frame.groupby("id"):
+        data = g[["y", "x"]].to_numpy()
+        data = data - data.mean(axis=0)  # the constant partialled out
+        cleaned.append(data)
+    xs = np.concatenate([c[:, 1] for c in cleaned])
+    ys = np.concatenate([c[:, 0] for c in cleaned])
+    pooled = float(xs @ ys) / float(xs @ xs)
+    low = up = 0.0
+    parts = []
+    for c in cleaned:
+        xi, yi = c[:, 1], c[:, 0]
+        t = len(xi)
+        scores = xi * (yi - xi * pooled)
+        v = float(scores @ scores) / t
+        q = float(xi @ xi) / t
+        qvq = q * q / v
+        low += t * qvq
+        up += q / v * float(xi @ yi)
+        parts.append((t, qvq, float(xi @ yi) / float(xi @ xi)))
+    beta = up / low
+    return sum(t * qvq * (b - beta) ** 2 for t, qvq, b in parts)
+
+
+def test_the_hac_statistic_without_lags_is_the_white_form_from_the_definition() -> None:
+    panel = make_panel(True, seed=3)
+    result = slope_homogeneity(panel, "y", ["x"], bandwidth=0)
+    s = hac_zero_bandwidth_by_definition(panel.frame)
+    n = 40
+    assert result.details is not None
+    assert result.details.loc["swamy", "statistic"] == pytest.approx(s, rel=1e-10)
+    assert result.details.loc["delta", "statistic"] == pytest.approx(
+        np.sqrt(n) * (s / n - 1) / np.sqrt(2), rel=1e-10
+    )
+    assert result.options["bandwidth"] == 0.0 and result.options["kernel"] == "bartlett"
+
+
+def test_whitening_and_a_bandwidth_imply_the_hac_version() -> None:
+    panel = make_panel(True, seed=4)
+    explicit = slope_homogeneity(panel, "y", ["x", "z"], hac=True, whitening=True)
+    implied = slope_homogeneity(panel, "y", ["x", "z"], whitening=True)
+    assert implied.statistic == explicit.statistic and "kernel" in implied.options
+    plain = slope_homogeneity(panel, "y", ["x", "z"])
+    assert "kernel" not in plain.options and plain.statistic != implied.statistic
+    fixed = slope_homogeneity(panel, "y", ["x", "z"], bandwidth=2)
+    assert fixed.options["bandwidth"] == 2.0 and fixed.options["bandwidth_fixed"] is True
+
+
+@pytest.mark.parametrize("kernel", ["bartlett", "qs", "truncated"])
+def test_every_kernel_gives_a_finite_statistic_and_a_bandwidth(kernel: str) -> None:
+    result = slope_homogeneity(make_panel(True), "y", ["x", "z"], hac=True, kernel=kernel)  # type: ignore[arg-type]
+    assert np.isfinite(result.statistic) and result.options["bandwidth"] >= 0  # type: ignore[operator]
+
+
+def test_the_hac_version_runs_on_an_unbalanced_panel_and_with_three_regressors() -> None:
+    result = slope_homogeneity(make_panel(True, drop=0.1), "y", ["x", "z", "w"], hac=True)
+    assert np.isfinite(result.statistic)
+    whitened = slope_homogeneity(make_panel(True), "y", ["x", "z", "w"], whitening=True)
+    assert np.isfinite(whitened.statistic)  # may differ from xthst's (documented)
+
+
+def test_lags_of_the_cross_sectional_averages_drop_the_rows_that_lack_them() -> None:
+    panel = make_panel(True)
+    none = slope_homogeneity(panel, "y", ["x"], crosssectional=["x"])
+    lagged = slope_homogeneity(panel, "y", ["x"], crosssectional=["x"], cr_lags=2)
+    assert none.n_obs == 800 and lagged.n_obs == 800 - 2 * 40
+    assert lagged.options["cr_lags"] == (2,)
+    # one value per variable, the last one applies to the following ones (as xthst)
+    two = slope_homogeneity(panel, "y", ["x"], crosssectional=["x", "z"], cr_lags=[1, 2])
+    assert two.options["cr_lags"] == (1, 2) and two.n_obs == 800 - 2 * 40
+    same = slope_homogeneity(panel, "y", ["x"], crosssectional=["x", "z"], cr_lags=[1])
+    assert same.options["cr_lags"] == (1, 1) and same.n_obs == 800 - 40
+
+
+def test_hac_option_refusals() -> None:
+    panel = make_panel(True)
+    with pytest.raises(SpecificationError, match="hac and ar cannot be combined") as refusal:
+        slope_homogeneity(panel, "y", ["x"], hac=True, ar=True)
+    assert refusal.value.key == "diag.slope_homogeneity.hac_ar"
+    with pytest.raises(SpecificationError, match="kernel must be"):
+        slope_homogeneity(panel, "y", ["x"], hac=True, kernel="parzen")  # type: ignore[arg-type]
+    with pytest.raises(SpecificationError, match="bandwidth must be"):
+        slope_homogeneity(panel, "y", ["x"], bandwidth=-1)
+    with pytest.raises(SpecificationError, match="cr_lags must be"):
+        slope_homogeneity(panel, "y", ["x"], crosssectional=["x"], cr_lags=-1)

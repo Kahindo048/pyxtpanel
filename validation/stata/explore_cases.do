@@ -142,6 +142,28 @@ mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_balanced__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
 
+* ---- case long_balanced
+use "../data/sim_balanced.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_balanced__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
+
 * ---- case gaps_balanced
 use "../data/sim_balanced.dta", clear
 xtset id t
@@ -271,6 +293,28 @@ mata: M = editmissing(st_data(., "x* z*"), 0)
 mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_gaps__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
+
+* ---- case long_gaps
+use "../data/sim_gaps.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_gaps__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
 
 * ---- case gaps_gaps
 use "../data/sim_gaps.dta", clear
@@ -402,6 +446,28 @@ mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_entry_exit__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
 
+* ---- case long_entry_exit
+use "../data/sim_entry_exit.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_entry_exit__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
+
 * ---- case gaps_entry_exit
 use "../data/sim_entry_exit.dta", clear
 xtset id t
@@ -531,6 +597,28 @@ mata: M = editmissing(st_data(., "x* z*"), 0)
 mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_weak__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
+
+* ---- case long_weak
+use "../data/sim_weak.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_weak__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
 
 * ---- case gaps_weak
 use "../data/sim_weak.dta", clear
@@ -662,6 +750,28 @@ mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_delta2__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
 
+* ---- case long_delta2
+use "../data/sim_delta2.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_delta2__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
+
 * ---- case gaps_delta2
 use "../data/sim_delta2.dta", clear
 xtset id t, delta(2)
@@ -791,6 +901,28 @@ mata: M = editmissing(st_data(., "x* z*"), 0)
 mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_unsorted_ids__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
+
+* ---- case long_unsorted_ids
+use "../data/sim_unsorted_ids.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_unsorted_ids__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
 
 * ---- case gaps_unsorted_ids
 use "../data/sim_unsorted_ids.dta", clear
@@ -922,6 +1054,28 @@ mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_one_obs_unit__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
 
+* ---- case long_one_obs_unit
+use "../data/sim_one_obs_unit.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_one_obs_unit__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
+
 * ---- case gaps_one_obs_unit
 use "../data/sim_one_obs_unit.dta", clear
 xtset id t
@@ -1051,6 +1205,28 @@ mata: M = editmissing(st_data(., "x* z*"), 0)
 mata: st_numscalar("colw", sum((1..cols(M)) :* colsum(M)))
 mata: st_numscalar("roww", sum((1::rows(M)) :* rowsum(M)))
 mata: pyx_export("../out/wide_re_effects__counts.csv", (st_numscalar("ncols") \ st_numscalar("nunits") \ st_numscalar("total") \ st_numscalar("nonmiss") \ st_numscalar("colw") \ st_numscalar("roww")))
+
+* ---- case long_re_effects
+use "../data/sim_re_effects.dta", clear
+keep id t x z
+reshape wide x z, i(id) j(t)
+reshape long x z, i(id) j(t)
+sort id t
+scalar nrows = _N
+quietly count if !missing(x)
+scalar nx = r(N)
+quietly count if !missing(z)
+scalar nz = r(N)
+gen double xz = cond(missing(x), 0, x) + cond(missing(z), 0, z)
+quietly summarize xz
+scalar total = r(sum)
+gen double w = _n * xz
+quietly summarize w
+scalar wsum = r(sum)
+gen double wt = t * xz
+quietly summarize wt
+scalar tsum = r(sum)
+mata: pyx_export("../out/long_re_effects__counts.csv", (st_numscalar("nrows") \ st_numscalar("nx") \ st_numscalar("nz") \ st_numscalar("total") \ st_numscalar("wsum") \ st_numscalar("tsum")))
 
 * ---- case gaps_re_effects
 use "../data/sim_re_effects.dta", clear

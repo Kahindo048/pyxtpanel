@@ -53,6 +53,12 @@ _i18n.register(
             "fr": "la statistique est négative ({value:.4g}) : les hypothèses du modèle ne "
             "sont pas satisfaites (l'estimateur efficient ne l'est pas) ; pas de p-value.",
         },
+        "diag.hausman.bad_keep": {
+            "en": "keep must list distinct positions of the {k} coefficients (0 to {last}), got "
+            "{value}.",
+            "fr": "keep doit lister des positions distinctes parmi les {k} coefficients (0 à "
+            "{last}), reçu {value}.",
+        },
         "diag.hausman.shape": {
             "en": "{name} must have {expected} entries, got {got}.",
             "fr": "{name} doit avoir {expected} éléments, reçu {got}.",
@@ -125,6 +131,16 @@ def hausman(
     v1 = as_array("v_consistent", v_consistent, ndim=2, shape=(k, k))
     v2 = as_array("v_efficient", v_efficient, ndim=2, shape=(k, k))
     index = np.arange(k) if keep is None else np.asarray(list(keep), dtype=np.int64)
+    if (
+        index.size == 0
+        or bool(np.any(index < 0))
+        or bool(np.any(index >= k))
+        or np.unique(index).size != index.size
+    ):
+        raise SpecificationError(
+            _i18n.message("diag.hausman.bad_keep", k=k, last=k - 1, value=list(index.tolist())),
+            key="diag.hausman.bad_keep",
+        )
     if names is not None and len(names) != index.size:
         raise SpecificationError(
             _i18n.message("diag.hausman.shape", name="names", expected=index.size, got=len(names)),

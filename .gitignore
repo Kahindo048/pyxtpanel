@@ -25,3 +25,7 @@ validation/stata/_run_*.log
 .idea/
 Thumbs.db
 desktop.ini
+
+# documentation générée depuis docs/documentation.md (python -m tools.doc --pdf)
+docs/documentation.tex
+docs/documentation.pdf

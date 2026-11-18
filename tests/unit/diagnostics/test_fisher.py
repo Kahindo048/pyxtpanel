@@ -141,3 +141,127 @@ def test_by_name_in_both_languages() -> None:
     result = run_test("fisher", declare(PANEL), "y", lags=1)
     assert "Fisher-type unit-root test" in result.summary("en")
     assert "type Fisher" in result.summary("fr")
+
+
+# ---------------------------------------------------------------- Phillips-Perron (L.2.10)
+
+
+def naive_pp(y: np.ndarray, lags: int, trend: bool) -> tuple[float, float]:
+    """Z(t) and Z(rho) of ``pperron`` from the normal equations and explicit autocovariances."""
+    t_index = np.arange(1.0, y.size)
+    columns = [y[:-1], *([t_index] if trend else []), np.ones(y.size - 1)]
+    x = np.column_stack(columns)
+    target = y[1:]
+    xtx_inverse = np.linalg.inv(x.T @ x)
+    beta = xtx_inverse @ x.T @ target
+    u = target - x @ beta
+    n, k = x.shape
+    s2 = float(u @ u) / (n - k)
+    sig, s = math.sqrt(s2 * xtx_inverse[0, 0]), math.sqrt(s2)
+    gamma0 = float(u @ u) / n
+    lam = gamma0
+    for i in range(1, lags + 1):
+        lam += 2 * (1 - i / (lags + 1)) * float(sum(u[j] * u[j - i] for j in range(i, n))) / n
+    z_rho = n * (beta[0] - 1) - (n * sig / s) ** 2 * (lam - gamma0) / 2
+    z_t = (beta[0] - 1) / sig * math.sqrt(gamma0 / lam) - 0.5 * (lam - gamma0) * (
+        n * sig / s
+    ) / math.sqrt(lam)
+    return z_t, z_rho
+
+
+@pytest.mark.parametrize("trend", [False, True])
+@pytest.mark.parametrize("lags", [0, 1, 3])
+def test_the_phillips_perron_statistics_match_a_direct_computation(trend: bool, lags: int) -> None:
+    from pyxtpanel.diagnostics._shared.pperron import pp_fit, pp_pvalue
+
+    y = unit(4)
+    case = "trend" if trend else "constant"
+    fit = pp_fit(y, lags, case)
+    z_t, z_rho = naive_pp(y, lags, trend)
+    assert fit is not None and fit.n == y.size - 1
+    assert fit.z_t == pytest.approx(z_t, rel=1e-10) and fit.z_rho == pytest.approx(z_rho, rel=1e-10)
+    assert 0.0 <= pp_pvalue(fit, case) <= 1.0
+
+
+def test_without_lags_the_phillips_perron_statistic_is_the_dickey_fuller_one() -> None:
+    from pyxtpanel.diagnostics._shared.pperron import pp_fit
+
+    y = unit(6)
+    pp, adf = pp_fit(y, 0, "constant"), adf_fit(y, 0, "constant")
+    assert pp is not None and adf is not None
+    assert pp.z_t == pytest.approx(adf.tau, rel=1e-10)
+    assert pp.z_rho == pytest.approx(adf.n * (adf.coefficient), rel=1e-10)  # n (rho - 1), rho - 1
+
+
+def test_values_printed_by_stata_pperron() -> None:
+    from pyxtpanel.diagnostics._shared.pperron import pp_fit, pp_pvalue
+
+    # Stata 17: pperron y if id == 1, lags(2) on sim_ur_mixed (see the validation case fp_lags2).
+    fit = pp_fit(unit(1), 2, "constant")
+    assert fit is not None and fit.lags == 2
+    assert pp_pvalue(fit, "constant") == pytest.approx(
+        fisher(declare(PANEL), "y", lags=2, test="pperron").details.loc[1, "pvalue"],  # type: ignore[union-attr]
+        rel=1e-13,
+    )
+
+
+def test_degenerate_phillips_perron_regressions_as_pperron_does() -> None:
+    from pyxtpanel.diagnostics._shared.pperron import pp_fit, pp_pvalue
+
+    assert pp_fit(np.array([1.0]), 0, "constant") is None  # no equation
+    assert pp_fit(np.array([1.0, 2.0]), 0, "constant") is None  # one equation
+    saturated = pp_fit(np.array([1.0, 2.0, 4.0]), 0, "constant")  # two equations, two coefficients
+    assert (
+        saturated is not None
+        and math.isnan(saturated.z_t)
+        and pp_pvalue(saturated, "constant") == 1.0
+    )
+    trend = pp_fit(
+        np.array([1.0, 2.0, 4.0, 3.0]), 0, "trend"
+    )  # three equations, three coefficients
+    assert trend is not None and math.isnan(trend.z_t) and pp_pvalue(trend, "trend") == 1.0
+    constant = pp_fit(np.full(10, 3.0), 1, "constant")
+    assert constant is not None and math.isnan(constant.z_t)
+    holed = unit(3).copy()
+    holed[7] = np.nan
+    assert pp_fit(holed, 1, "constant").n == unit(3).size - 3  # type: ignore[union-attr]
+
+
+def test_the_fisher_test_with_phillips_perron_p_values() -> None:
+    from pyxtpanel.diagnostics._shared.pperron import pp_fit, pp_pvalue
+
+    result = fisher(declare(PANEL), "y", lags=2, test="pperron")
+    assert result.options["test"] == "pperron"
+    assert result.details is not None and {"statistic", "pvalue", "z_rho"} <= set(result.details)
+    expected = [pp_pvalue(pp_fit(unit(i), 2, "constant"), "constant") for i in range(1, 41)]  # type: ignore[arg-type]
+    assert result.details["pvalue"].to_numpy() == pytest.approx(expected, rel=1e-13)
+    assert result.statistic == pytest.approx(
+        -2 * np.log(np.maximum(expected, 2.220446049250313e-16)).sum(), rel=1e-12
+    )
+    assert result.df == (80.0,) and result.n_groups == 40
+    adf = fisher(declare(PANEL), "y", lags=2)
+    assert adf.statistic != result.statistic and "z_rho" not in (adf.details.columns)  # type: ignore[union-attr]
+
+
+def test_phillips_perron_demean_and_trend_and_the_unit_note() -> None:
+    frame = PANEL.copy()
+    frame["y"] -= frame.groupby("t")["y"].transform("mean")
+    assert fisher(
+        declare(PANEL), "y", lags=1, demean=True, test="pperron"
+    ).statistic == pytest.approx(
+        fisher(declare(frame), "y", lags=1, test="pperron").statistic, rel=1e-12
+    )
+    assert math.isfinite(
+        fisher(declare(PANEL), "y", lags=1, deterministics="trend", test="pperron").statistic
+    )
+    short = PANEL[~((PANEL["id"] == 5) & (PANEL["t"] > 1))]  # unit 5 keeps a single observation
+    result = fisher(declare(short), "y", lags=1, test="pperron")
+    assert result.df == (78.0,) and "Phillips-Perron regression" in result.summary("en")
+
+
+def test_phillips_perron_refusals() -> None:
+    panel = declare(PANEL)
+    with pytest.raises(SpecificationError, match="only available with test='dfuller'"):
+        fisher(panel, "y", lags=1, deterministics="drift", test="pperron")
+    with pytest.raises(SpecificationError, match="test must be 'dfuller' or 'pperron'"):
+        fisher(panel, "y", lags=1, test="kpss")  # type: ignore[arg-type]

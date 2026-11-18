@@ -17,7 +17,10 @@ ruff check src tests && ruff format src tests
 mypy
 lint-imports
 pytest -m "not stata"
+python -m tools.doc --write   # after adding a function, operator, figure, tool or test: refresh the annexes
 ```
+
+A new feature must also be named in its part of `docs/documentation.md` (the check `python -m tools.doc` and the contract test fail otherwise); the Python blocks of that document are run by the test suite. `python -m tools.doc --pdf` rebuilds `docs/documentation.tex` and `docs/documentation.pdf` (generated files, ignored by git; the Markdown stays the source).
 
 ## Adding a feature (one file, no existing file modified)
 
