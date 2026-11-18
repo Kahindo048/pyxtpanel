@@ -58,7 +58,8 @@ def test_windows_line_endings_do_not_change_the_checksum(
     for item in tables._directory().iterdir():
         shutil.copy(item, tmp_path / item.name)
     csv = tmp_path / "mackinnon_adf.csv"
-    csv.write_bytes(csv.read_bytes().replace(b"\n", b"\r\n"))
+    # a Windows checkout may already have CRLF: go through LF first, or "\r\n" becomes "\r\r\n"
+    csv.write_bytes(csv.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
     monkeypatch.setattr(tables, "_directory", lambda: tmp_path)
     tables.manifest.cache_clear()
     tables._read.cache_clear()

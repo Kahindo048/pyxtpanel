@@ -1,0 +1,11 @@
+# Text files are stored and checked out with LF on every system, so that a Windows checkout reads the
+# same bytes as a Linux one (the numerical tables carry a checksum; the generated documentation is
+# compared text to text).
+* text=auto eol=lf
+
+# Binary files: never converted.
+*.dta binary
+*.gz binary
+*.png binary
+*.pdf binary
+*.whl binary

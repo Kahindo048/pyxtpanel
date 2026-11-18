@@ -101,7 +101,7 @@ def test_no_default_test(panel: xt.PanelData) -> None:
 def test_a_test_of_another_family_or_on_arrays_is_refused(panel: xt.PanelData) -> None:
     with pytest.raises(SpecificationError, match="'pesaran_cd' is not a unit-root test"):
         xt.unit_root(panel, "y", test="cd")
-    with pytest.raises(SpecificationError, match="test on arrays \(category B\)"):
+    with pytest.raises(SpecificationError, match=r"test on arrays \(category B\)"):
         panel.test("hansen")
 
 

@@ -12,6 +12,7 @@ tests of a family answer different questions.
 from __future__ import annotations
 
 import inspect
+import re
 
 from pyxtpanel import _i18n
 from pyxtpanel._errors import SpecificationError
@@ -133,7 +134,7 @@ def run_panel_test(
             _i18n.message(
                 "diag.dispatch.bad_call",
                 name=name,
-                reason=str(error),
+                reason=_reason(signature, error),
                 accepted=_accepted(signature),
             ),
             key="diag.dispatch.bad_call",
@@ -141,6 +142,21 @@ def run_panel_test(
     result = function(panel, *args, **options)
     assert isinstance(result, TestResult)
     return result
+
+
+def _reason(signature: inspect.Signature, error: TypeError) -> str:
+    """Return Python's reason for the refused call, worded the same on every Python version.
+
+    Python 3.12 says "missing a required keyword-only argument" for an option that can only be
+    given by name; 3.10 and 3.11 say "missing a required argument" for it.  The message is shown
+    to users and compared in tests, so the 3.12 wording is used everywhere.
+    """
+    reason = str(error)
+    match = re.fullmatch(r"missing a required argument: '(\w+)'", reason)
+    parameter = signature.parameters.get(match.group(1)) if match else None
+    if parameter is not None and parameter.kind is inspect.Parameter.KEYWORD_ONLY:
+        return f"missing a required keyword-only argument: '{parameter.name}'"
+    return reason
 
 
 def _accepted(signature: inspect.Signature) -> str:
