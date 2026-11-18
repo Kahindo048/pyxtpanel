@@ -31,7 +31,13 @@ _options = Options()
 
 
 def get_options() -> Options:
-    """Return the current global options."""
+    """Return the current global options.
+
+    Returns
+    -------
+    Options
+        Immutable set of global options.
+    """
     return _options
 
 
@@ -75,6 +81,16 @@ def set_options(**changes: Any) -> Options:
 @contextmanager
 def option_context(**changes: Any) -> Iterator[Options]:
     """Change options inside a ``with`` block and restore them afterwards.
+
+    Parameters
+    ----------
+    changes
+        New values of the options, by name (those of :func:`set_options`).
+
+    Yields
+    ------
+    Options
+        The options in force inside the block.
 
     Examples
     --------

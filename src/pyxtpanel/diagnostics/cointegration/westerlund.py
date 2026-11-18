@@ -128,6 +128,11 @@ def westerlund(
     demean
         Remove the mean across units in each period from every variable first.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

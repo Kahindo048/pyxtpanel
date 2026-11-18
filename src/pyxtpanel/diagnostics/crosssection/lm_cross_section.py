@@ -93,6 +93,11 @@ def lm_cross_section(panel: PanelBase, variable: str, *, min_overlap: int = 3) -
     min_overlap
         Smallest number of common periods a pair of units may have (3 or more).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

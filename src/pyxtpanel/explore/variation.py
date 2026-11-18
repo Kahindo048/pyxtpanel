@@ -141,6 +141,11 @@ def variation(panel: PanelBase, variables: Sequence[str] | None = None) -> Varia
         A declared panel.
     variables
         Variables to examine; by default every numeric variable other than the keys.
+
+    Returns
+    -------
+    Variation
+        Result of :func:`variation`.
     """
     names = list(variables) if variables is not None else numeric_names(panel)
     index = panel.index
@@ -246,6 +251,25 @@ def residual_variation(
 
     A value counts as non-zero when it exceeds ``1e-12`` times the largest absolute value of the
     variable, so that rounding error does not make a constant look varying.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    variables
+        Variables to examine.
+    transforms
+        Transformations whose residual variation is measured (``"within"``, ``"fd"``, ``"fod"``).
+
+    Returns
+    -------
+    ResidualVariation
+        Result of :func:`residual_variation`.
+
+    Raises
+    ------
+    SpecificationError
+        If a transformation is not one of those listed.
     """
     for kind in transforms:
         if kind not in TRANSFORMS:

@@ -86,6 +86,11 @@ def diff_hansen(
     df_full
         Degrees of freedom of ``j_full``, to check that the restricted model stays identified.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

@@ -110,6 +110,11 @@ def missing_report(panel: PanelBase, variables: Sequence[str] | None = None) -> 
         The declared panel.
     variables
         Columns to examine (default: every column except the two keys).
+
+    Returns
+    -------
+    MissingReport
+        Result of :func:`missing_report`.
     """
     names, flags = _flags(panel, variables)
     index = panel.index
@@ -208,7 +213,20 @@ class CompleteCases(Result):
     ),
 )
 def complete_cases(panel: PanelBase, variables: Sequence[str]) -> CompleteCases:
-    """Keep the rows where all ``variables`` are observed and show the effect on ``T_i``."""
+    """Keep the rows where all ``variables`` are observed and show the effect on ``T_i``.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    variables
+        Variables that must all be observed for a row to be kept.
+
+    Returns
+    -------
+    CompleteCases
+        Result of :func:`complete_cases`.
+    """
     _, flags = _flags(panel, variables)
     keep_sorted = ~flags.to_numpy().any(axis=1)
     index = panel.index

@@ -138,6 +138,11 @@ def dumitrescu_hurlin(
     statistic
         The statistic reported as the result's statistic and p-value.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

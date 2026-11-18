@@ -163,6 +163,11 @@ def fisher(
     test
         ``"dfuller"`` (default) or ``"pperron"``.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

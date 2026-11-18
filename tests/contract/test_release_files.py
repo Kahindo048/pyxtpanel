@@ -75,6 +75,14 @@ def test_the_ci_tests_the_minimum_versions_the_package_promises() -> None:
     )
 
 
+def test_the_ci_has_a_job_where_linearmodels_is_installed() -> None:
+    """The cross-checks with linearmodels are skipped without it: one job must install it."""
+    job = CI["jobs"]["test"]
+    assert any(entry["deps"] == "linearmodels" for entry in job["strategy"]["matrix"]["include"])
+    install = next(s for s in job["steps"] if s.get("name") == "Install (with linearmodels)")
+    assert "linearmodels" in install["run"] and install["if"] == "matrix.deps == 'linearmodels'"
+
+
 def test_the_release_runs_the_ci_then_publishes_without_a_token() -> None:
     jobs = RELEASE["jobs"]
     assert jobs["checks"]["uses"] == "./.github/workflows/ci.yml"
@@ -85,6 +93,18 @@ def test_the_release_runs_the_ci_then_publishes_without_a_token() -> None:
     steps = yaml.safe_dump(jobs)  # the jobs only: the comments may say "no password"
     assert "secrets." not in steps and "password" not in steps, "no stored credential"
     assert jobs["publish-pypi"]["environment"]["name"] == "pypi"
+
+
+def test_the_release_installs_the_published_version_from_pypi_and_tests_it() -> None:
+    """After the publication a clean environment installs the tag's version and smoke-tests it."""
+    job = RELEASE["jobs"]["verify-pypi"]
+    assert job["needs"] == "publish-pypi" and "refs/tags" in job["if"]
+    text = "\n".join(step.get("run", "") for step in job["steps"])
+    assert "pyxtpanel==$version" in text, "the version of the tag, not whatever pip finds"
+    assert "for attempt" in text, "the index can take minutes to list a new release"
+    assert "-I smoke_install.py" in text and "GITHUB_REF_NAME#v" in text
+    smoke = (ROOT / "tools" / "smoke_install.py").read_text(encoding="utf-8")
+    assert "expected_version" in smoke, "the smoke test checks the installed version"
 
 
 def test_the_pre_commit_hooks_run_the_tools_of_the_ci() -> None:

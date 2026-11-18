@@ -136,6 +136,18 @@ def event_time(
     event_period
         Name of a column holding the period of the event (a value of the time variable, constant
         within the unit, missing if the unit is never treated).
+
+    Returns
+    -------
+    EventTime
+        Result of :func:`event_time`.
+
+    Raises
+    ------
+    SpecificationError
+        If both or neither of ``indicator`` and ``event_period`` are given.
+    DataError
+        If ``event_period`` is not the same on all the rows of a unit.
     """
     if (indicator is None) == (event_period is None):
         raise SpecificationError(

@@ -163,6 +163,11 @@ def xttrans(
     max_values
         Refuse variables with more distinct values than this.
 
+    Returns
+    -------
+    XtTrans
+        Result of :func:`xttrans`.
+
     Raises
     ------
     DataError

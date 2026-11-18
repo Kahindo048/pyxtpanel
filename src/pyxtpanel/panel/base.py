@@ -339,7 +339,18 @@ class PanelBase:
         return replace(self, index=subset_index(self.index, keep))
 
     def gaps(self, *, only_with_gaps: bool = False) -> pd.DataFrame:
-        """Per unit: first and last period, observations, breaks and missing periods inside."""
+        """Per unit: first and last period, observations, breaks and missing periods inside.
+
+        Parameters
+        ----------
+        only_with_gaps
+            Keep only the units that have a gap.
+
+        Returns
+        -------
+        pandas.DataFrame
+            One row per unit.
+        """
         return gaps_table(self, only_with_gaps=only_with_gaps)
 
     def tsfill(self: P, *, full: bool = False, indicator: str | None = None) -> P:
@@ -430,7 +441,13 @@ class PanelBase:
         return panel_from_stata(cls, path, id=id, time=time, **options)  # type: ignore[return-value]
 
     def to_stata(self, path: str | Path) -> None:
-        """Write a Stata ``.dta`` file that keeps the ``xtset`` declaration of the panel."""
+        """Write a Stata ``.dta`` file that keeps the ``xtset`` declaration of the panel.
+
+        Parameters
+        ----------
+        path
+            Destination ``.dta`` file.
+        """
         write_stata(self, path)
 
     @classmethod
@@ -439,11 +456,28 @@ class PanelBase:
         return cls.from_frame(frame_of_linearmodels(obj), **options)
 
     def to_linearmodels(self) -> Any:
-        """Return a ``linearmodels.panel.data.PanelData`` (needs ``linearmodels``)."""
+        """Return a ``linearmodels.panel.data.PanelData`` (needs ``linearmodels``).
+
+        Returns
+        -------
+        Any
+            Special type indicating an unconstrained type.
+        """
         return to_linearmodels(self)
 
     def to_multiindex(self, *, order: Literal["original", "sorted"] = "sorted") -> pd.DataFrame:
-        """Return the data indexed by (id, time), sorted by default."""
+        """Return the data indexed by (id, time), sorted by default.
+
+        Parameters
+        ----------
+        order
+            ``"sorted"`` (default) or ``"original"``: the order of the rows.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The data indexed by (id, time).
+        """
         return self.to_frame(order=order, index="keys")
 
     def arrays(
@@ -478,6 +512,16 @@ class PanelBase:
         index is reused, so no sorting or validation is repeated.  The new frame must have the
         same number of rows and the same identifier and time values, row by row.
 
+        Parameters
+        ----------
+        frame
+            New values: same number of rows, same identifier and time values, row by row.
+
+        Returns
+        -------
+        PanelData
+            A panel of the same structure holding the new values.
+
         Raises
         ------
         DataError
@@ -507,7 +551,18 @@ class PanelBase:
         return True
 
     def matches(self, frame: pd.DataFrame) -> bool:
-        """Whether ``frame`` still equals the data this panel was declared from."""
+        """Whether ``frame`` still equals the data this panel was declared from.
+
+        Parameters
+        ----------
+        frame
+            The DataFrame to compare with the data the panel was declared from.
+
+        Returns
+        -------
+        bool
+            ``True`` when ``frame`` holds the data the panel was declared from.
+        """
         return bool(frame.equals(self.frame))
 
     def align(self, values: Any, name: str | None = None) -> pd.Series | pd.DataFrame:

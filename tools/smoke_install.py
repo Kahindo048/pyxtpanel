@@ -1,6 +1,7 @@
 """Smoke test of an INSTALLED package (J.3.3): run it from outside the repository, with ``-I``.
 
     python -I tools/smoke_install.py            # in an environment where only the wheel is installed
+    python -I tools/smoke_install.py 0.0.2      # also checks that this is the version installed
 
 It checks that the package comes from ``site-packages`` (not from ``src/``), that the data files of
 the wheel are there (the numerical tables of the unit-root tests), and that the main paths work with
@@ -19,9 +20,12 @@ import pandas as pd
 import pyxtpanel as xt
 
 
-def main() -> None:
+def main(expected_version: str | None = None) -> None:
     location = str(xt.__file__)
     assert "site-packages" in location or "dist-packages" in location, f"not installed: {location}"
+    assert expected_version in (None, xt.__version__), (
+        f"installed {xt.__version__}, expected {expected_version}"
+    )
     print("pyxtpanel", xt.__version__, "from", location)
 
     rng = np.random.default_rng(0)
@@ -58,4 +62,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1] if len(sys.argv) > 1 else None)

@@ -101,6 +101,29 @@ def plot_scatter(
     observed); the within panel has one point per observation (deviations from those means).
     Each panel carries its least-squares line and the slope and number of points, written on the
     figure instead of a legend.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    x
+        Name of the variable on the horizontal axis.
+    y
+        Name of the variable on the vertical axis.
+    part
+        ``"between"``, ``"within"`` or ``"both"`` (default): the parts of the variation drawn.
+    lang
+        ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
+
+    Raises
+    ------
+    SpecificationError
+        If ``part`` is not ``"between"``, ``"within"`` or ``"both"``.
     """
     chosen = resolve_lang(lang)
     if part not in ("between", "within", "both"):

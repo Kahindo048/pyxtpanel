@@ -207,11 +207,67 @@ def test_stata_coded_months_and_quarters() -> None:
     assert days.axis.labels(days.rank)[0] == "01jan1960"
 
 
-@pytest.mark.parametrize("fmt", ["%tw", "%tc", "%tC", "%9.0g", "td"])
+@pytest.mark.parametrize("fmt", ["%tc", "%tC", "%9.0g", "td"])
 def test_unsupported_stata_formats(fmt) -> None:  # type: ignore[no-untyped-def]
     with pytest.raises(SpecificationError, match="not supported") as info:
         encode_time(np.array([1, 2]), format=fmt)
     assert info.value.stata_code == 198
+
+
+def test_stata_weeks_count_52_a_year_from_1960w1() -> None:
+    """Checked in Stata 17: ``yw(1960,1)`` is 0, ``yw(1961,1)`` is 52, ``%tw -1`` is ``1959w52``."""
+    values = np.array([-1, 0, 51, 52, 2079, 2080, 2131, 2132])
+    enc = encode_time(values, format="%tw")
+    assert enc.axis.freq == "SW" and enc.axis.kind == "stata"
+    assert enc.axis.labels(enc.rank) == [
+        "1959w52",
+        "1960w1",
+        "1960w52",
+        "1961w1",
+        "1999w52",
+        "2000w1",
+        "2000w52",
+        "2001w1",
+    ]
+    assert enc.axis.values(enc.rank).tolist() == values.tolist()
+    assert enc.axis.stata_values(enc.rank).tolist() == values.tolist()
+    assert enc.rank.tolist() == (values - values.min()).tolist()  # consecutive, across new year
+
+
+def test_a_stata_week_starts_on_the_first_of_january_plus_seven_days_a_week() -> None:
+    """Dates of ``dofw`` in Stata 17: 2000w1 is 01jan2000, 2000w52 is 23dec2000."""
+    enc = encode_time(np.array([2080, 2081, 2131, 2132]), format="%tw")
+    assert enc.axis.datetimes(enc.rank).strftime("%Y-%m-%d").tolist() == [
+        "2000-01-01",
+        "2000-01-08",
+        "2000-12-23",
+        "2001-01-01",
+    ]
+
+
+def test_dates_fall_in_their_stata_week_and_the_last_week_takes_the_last_days() -> None:
+    """``wofd`` in Stata 17: 24dec to 31dec 2000 are all 2000w52; so is 31dec2004 (a leap year)."""
+    days = np.array(
+        ["2000-12-23", "2000-12-24", "2000-12-31", "2001-01-01", "2004-12-31", "2005-01-01"],
+        dtype="datetime64[D]",
+    )
+    enc = encode_time(days, freq="SW")
+    assert enc.axis.labels(enc.rank) == [
+        "2000w52",
+        "2000w52",
+        "2000w52",
+        "2001w1",
+        "2004w52",
+        "2005w1",
+    ]
+    assert enc.rank.tolist() == [0, 0, 0, 1, 208, 209]  # 4 years of 52 weeks after 2000w52
+
+
+def test_stata_weeks_with_a_step() -> None:
+    enc = encode_time(np.array([2130, 2132, 2134]), delta=2, format="%tw")
+    assert enc.axis.labels(enc.rank) == ["2000w51", "2001w1", "2001w3"]
+    assert enc.rank.tolist() == [0, 1, 2]
+    assert enc.axis.delta_text == "2 weeks"
 
 
 def test_format_parsing_accepts_display_variants() -> None:

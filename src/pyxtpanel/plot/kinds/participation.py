@@ -88,7 +88,20 @@ def participation_data(panel: PanelBase) -> ParticipationData:
     PlotSpec(summary="Map of the periods in which each unit is observed, sorted by pattern."),
 )
 def plot_participation(panel: PanelBase, *, lang: Lang | None = None) -> Figure:
-    """Draw a cell for each (unit, period) observed, with units grouped by participation pattern."""
+    """Draw a cell for each (unit, period) observed, with units grouped by participation pattern.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    lang
+        ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
+    """
     from matplotlib.colors import ListedColormap
 
     chosen = resolve_lang(lang)

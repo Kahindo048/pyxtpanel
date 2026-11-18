@@ -73,6 +73,11 @@ def moment_covariance(unit_moments: object, *, center: bool = False) -> FloatArr
         ``(n_units, q)`` array, one row of moments per unit.
     center
         Subtract the mean of the moments first (Stata's ``center`` option); default ``False``.
+
+    Returns
+    -------
+    numpy.ndarray
+        The ``(q, q)`` matrix ``sum_i g_i g_i'``.
     """
     g = as_array("unit_moments", unit_moments, ndim=2)
     if center:

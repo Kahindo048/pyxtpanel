@@ -152,7 +152,7 @@ layers = [
     "pyxtpanel._results | pyxtpanel._registry",
     "pyxtpanel._i18n",
     "pyxtpanel._config",
-    "pyxtpanel._errors | pyxtpanel._types | pyxtpanel._version | pyxtpanel._format",
+    "pyxtpanel._errors | pyxtpanel._types | pyxtpanel._version | pyxtpanel._format | pyxtpanel._signature",
 ]
 exhaustive = false
 

@@ -176,6 +176,11 @@ def plot_states(
         Refuse a variable with more distinct values.
     lang
         ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
     """
     from matplotlib.colors import ListedColormap
     from matplotlib.patches import Patch

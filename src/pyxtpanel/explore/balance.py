@@ -108,7 +108,18 @@ class Unbalancedness(Result):
     ),
 )
 def unbalancedness(panel: PanelBase) -> Unbalancedness:
-    """Compute ``gamma`` and ``nu`` (as ``plm::punbalancedness``) and the figures behind them."""
+    """Compute ``gamma`` and ``nu`` (as ``plm::punbalancedness``) and the figures behind them.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+
+    Returns
+    -------
+    Unbalancedness
+        Result of :func:`unbalancedness`.
+    """
     counts = panel.index.counts.astype(np.float64)
     n_units, n_obs = counts.size, float(counts.sum())
     t_mean = n_obs / n_units
@@ -256,6 +267,16 @@ def balance_cost(panel: PanelBase) -> BalanceCost:
     complete in it (the result is balanced).  For each window length the best start is the one
     that keeps the most units, the earliest in case of ties.  Only windows of consecutive
     periods are searched: the largest rectangle with arbitrary periods is an NP-hard problem.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+
+    Returns
+    -------
+    BalanceCost
+        Result of :func:`balance_cost`.
     """
     index = panel.index
     n_units, n_obs = index.n_units, index.n_obs

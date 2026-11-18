@@ -178,6 +178,11 @@ def xtsum(panel: PanelBase, variables: str | Sequence[str], *, by: str | None = 
     by
         Column that defines groups; each group is summarized on its own rows.
 
+    Returns
+    -------
+    XtSum
+        Result of :func:`xtsum`.
+
     Raises
     ------
     SpecificationError

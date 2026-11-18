@@ -4,8 +4,8 @@ A panel is observed on a calendar, not on a list of rows.  :func:`encode_time` t
 column into integer ranks ``0, 1, 2, ...`` such that two periods that are ``k`` steps apart on
 the calendar have ranks that differ by ``k``.  A lag is then a subtraction on ranks
 (``t - 1``), whatever the unit of the time variable: an integer with a step ``delta``, dates
-with a frequency (day, week, month, quarter, half-year, year), ``pandas.Period`` values, or
-Stata-coded integers with a ``%t`` format.
+with a frequency (day, week, Stata week, month, quarter, half-year, year), ``pandas.Period``
+values, or Stata-coded integers with a ``%t`` format.
 
 The axis is *global*: every unit shares the same calendar.  This is stricter than Stata, which
 only requires, within each unit, differences that are at least ``delta``.
@@ -26,10 +26,9 @@ import pandas as pd
 from pyxtpanel import _i18n
 from pyxtpanel._errors import PyxtpanelWarning, SpecificationError, TimeAxisError
 from pyxtpanel._types import IntArray
-from pyxtpanel.time.formats import STATA_OFFSET, freq_from_format, label_period
+from pyxtpanel.time.formats import STATA_OFFSET, Freq, freq_from_format, label_period
 
-Freq = Literal["D", "W", "M", "Q", "H", "Y"]
-FREQS: tuple[Freq, ...] = ("D", "W", "M", "Q", "H", "Y")
+FREQS: tuple[Freq, ...] = ("D", "W", "SW", "M", "Q", "H", "Y")
 Kind = Literal["integer", "datetime", "period", "stata"]
 
 #: Largest ``n_units * n_steps`` for which the lookup keys of the calendar fit in an int64.
@@ -38,6 +37,7 @@ MAX_KEY = 2**62
 _FREQ_NAMES = {
     "D": "day",
     "W": "week",
+    "SW": "week",
     "M": "month",
     "Q": "quarter",
     "H": "half-year",
@@ -116,8 +116,8 @@ _i18n.register(
             "être indexé. Utilisez une unité de temps plus grande ou un delta plus grand.",
         },
         "time.format_unsupported": {
-            "en": "Stata format {fmt!r} is not supported (supported: %td %tm %tq %th %ty).",
-            "fr": "Le format Stata {fmt!r} n'est pas géré (gérés : %td %tm %tq %th %ty).",
+            "en": "Stata format {fmt!r} is not supported (supported: %td %tw %tm %tq %th %ty).",
+            "fr": "Le format Stata {fmt!r} n'est pas géré (gérés : %td %tw %tm %tq %th %ty).",
         },
     },
 )
@@ -138,7 +138,8 @@ class TimeAxis:
         Number of calendar units between two consecutive steps (Stata's ``delta()``).
     ordinal_min
         Calendar ordinal of the first period (rank 0).  An ordinal counts calendar units from
-        1970 (days, months, quarters, half-years, years; weeks from the Monday of that week),
+        1970 (days, months, quarters, half-years, years; weeks from the Monday of that week;
+        Stata weeks, 52 a year, from 1970w1),
         or is the integer itself for ``"integer"``.
     n_steps
         Number of steps from the first to the last period, inclusive (``max rank + 1``).
@@ -305,6 +306,10 @@ def _ordinals_from_dates(days: np.ndarray, freq: Freq) -> IntArray:
         return days.astype(np.int64)
     if freq == "W":
         return (days.astype(np.int64) + 3) // 7  # weeks start on Monday; 1970-01-01 is Thursday
+    if freq == "SW":  # Stata's week: 52 a year, the 52nd takes the last 8 or 9 days
+        years = days.astype("datetime64[Y]")
+        day_of_year = (days - years.astype("datetime64[D]")).astype(np.int64)
+        return years.astype(np.int64) * 52 + np.minimum(day_of_year // 7, 51)
     months = days.astype("datetime64[M]").astype(np.int64)
     return months // {"M": 1, "Q": 3, "H": 6, "Y": 12}[freq]
 
@@ -315,6 +320,9 @@ def _start_dates(ordinal: IntArray, freq: Freq) -> np.ndarray:
         return ordinal.astype("datetime64[D]").astype("datetime64[ns]")
     if freq == "W":
         return ((ordinal * 7 - 3).astype("datetime64[D]")).astype("datetime64[ns]")
+    if freq == "SW":
+        years = (ordinal // 52).astype("datetime64[Y]").astype("datetime64[D]")
+        return (years + (ordinal % 52 * 7).astype("timedelta64[D]")).astype("datetime64[ns]")
     months = ordinal * {"M": 1, "Q": 3, "H": 6, "Y": 12}[freq]
     return months.astype("datetime64[M]").astype("datetime64[ns]")
 

@@ -157,6 +157,11 @@ def im_pesaran_shin(
         Interpolate the tables of moments in ``T`` (default); with ``False`` take the entry of
         the first tabulated ``T`` at or above it.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

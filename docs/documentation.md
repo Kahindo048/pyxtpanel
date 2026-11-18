@@ -92,9 +92,15 @@ Most functions exist both as methods (`panel.xtsum(...)`) and as top-level funct
 (`to_long`, `resolve_duplicates`) are top-level functions only.
 
 **The calendar.** The time variable is an integer (with `delta` for a step other than 1), a date
-(`freq`) or a Stata-coded integer (`format`). The panel works on the *calendar*, not on rows: the
-lag of 2005 in a unit that has no 2004 row is missing, not the 2003 value. Periods are compared by their
-position `(t - t0) / delta`.
+(`freq`) or a Stata-coded integer (`format`: `%td`, `%tw`, `%tm`, `%tq`, `%th` or `%ty`). The panel
+works on the *calendar*, not on rows: the lag of 2005 in a unit that has no 2004 row is missing, not
+the 2003 value. Periods are compared by their position `(t - t0) / delta`.
+
+Stata's weeks (`%tw`) are not calendar weeks: a year has 52 of them, week `w` starts on 1 January plus
+`7 * (w - 1)` days, and the 52nd lasts 8 or 9 days, so that 2000w52 is followed by 2001w1. They are
+counted from 1960w1 and printed `2000w3`; with dates, `freq="SW"` puts each date in its Stata week.
+`freq="W"` is the other kind, the calendar week of seven days from a Monday, which has no Stata format
+and cannot be written to a `.dta`.
 
 **Balance.** A panel is *strongly balanced* (every unit observed in every period), *weakly balanced*
 (same number of periods in each unit, not the same periods) or *unbalanced*. `panel.balanced` gives
@@ -384,6 +390,12 @@ plt.close("all")
 ```python skip
 figures[0].savefig("lgdp_lines.png", dpi=150)
 ```
+
+A figure called wrongly is refused before anything is drawn, with a `SpecificationError` that
+names the figure, says what is wrong and lists the arguments the figure accepts (in the language
+given by `lang=`, or the global one): `panel.plot("states")` answers
+`figure 'states': missing a required argument: 'variable'. Arguments of the figure: variable,
+sort='first_change', max_states=8, lang=None.` instead of a bare `TypeError`.
 
 ## 7. Statistical tests guide
 
@@ -771,7 +783,7 @@ has a test that fixes the behaviour.
 4. **A random campaign.** `validation/campaign.py` draws 160 panels at random where a hand-written
    list is thin: from one row to 60 units, holes, entry and exit, units with a single row, missing
    values from none to all, constant variables, a repeated pair, any identifiers in any order, any
-   origin and step of time, Stata days, months, quarters, half-years and years, shuffled rows.
+   origin and step of time, Stata days, weeks, months, quarters, half-years and years, shuffled rows.
    Stata and the package each
    compute 73 quantities per panel (declaration, `xtsum` of two variables, six operators, within and
    between, `xtdescribe`, `xttrans`, `xtcorr`, `tsfill`) and every cell agrees to 1e-9. A wider run of
@@ -780,6 +792,19 @@ has a test that fixes the behaviour.
    (`tests/properties/test_campaign_invariance.py`, no Stata needed). The campaign found one defect
    (a constant variable had a correlation of rounding noise in `xtcorr`), fixed, and one divergence
    (9.4).
+
+   **How close can an agreement be?** Stata does not agree with itself to the last digit, so a
+   tolerance tighter than its own noise would ask the impossible. `validation/self_agreement.py` ran
+   the 160 panels again in Stata with the units renamed in another order (which changes the order of
+   its floating-point additions) and measured, cell by cell, the error `|a - b| / max(|b|, 1)`
+   (`tests/golden/stata_self_agreement.json`): Stata against itself, at most **5e-14**; the package
+   against Stata, at most **4e-13**, on 11 680 cells, none above 1e-12. Closed forms (counts, moments,
+   transformations) therefore agree to about 1e-12, three orders of magnitude inside the 1e-9 the
+   campaign checks and the 1e-10 the project aims at. Reading the value from the screen instead of
+   from `r()` is far worse: written with `%12.0g` (the default of `string()`) the error reaches 2e-6,
+   with `%9.0g` (the width of Stata's tables) 5e-3 on large sums. This is why the frozen references
+   are exported from Mata at 15 digits and never read from a log. The 5e-5 / 1e-6 floor stays for the
+   quantities that are not closed forms (iterative or simulated).
 5. **Edge cases.** Every category A test is run on degenerate panels (a single unit, a constant, a
    unit entirely missing, one period); each call returns a finite statistic or a catalogue error in
    both languages, never a raw exception, warning or `NaN`.

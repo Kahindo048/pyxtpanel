@@ -68,7 +68,18 @@ class Attrition(Result):
     ),
 )
 def attrition(panel: PanelBase) -> Attrition:
-    """Count entries, exits and re-entries by calendar period and estimate unit survival."""
+    """Count entries, exits and re-entries by calendar period and estimate unit survival.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+
+    Returns
+    -------
+    Attrition
+        Result of :func:`attrition`.
+    """
     index = panel.index
     low, high = int(np.min(index.rank)), int(np.max(index.rank))
     size = high - low + 1

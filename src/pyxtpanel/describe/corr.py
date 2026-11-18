@@ -178,6 +178,11 @@ def xtcorr(
     kind
         ``"overall"``, ``"within"``, ``"between"`` or ``"all"`` (default).
 
+    Returns
+    -------
+    XtCorr
+        Result of :func:`xtcorr`.
+
     Raises
     ------
     SpecificationError
@@ -241,6 +246,25 @@ def autocorr(panel: PanelBase, variable: str, lags: int | Sequence[int] = 1) -> 
 
     The correlation is Pearson's on the pooled pairs ``(w_it, w_i,t−k)`` where both periods are
     observed; a gap in the calendar removes the pair instead of pairing distant observations.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    variable
+        Name of a numeric variable; rows where it is missing are ignored.
+    lags
+        One lag or several, in calendar periods (each at least 1).
+
+    Returns
+    -------
+    AutoCorr
+        Result of :func:`autocorr`: within autocorrelation by lag (``rho`` and ``n`` pairs).
+
+    Raises
+    ------
+    SpecificationError
+        If ``lags`` is empty or holds a lag below 1.
     """
     wanted = [lags] if isinstance(lags, (int, np.integer)) else list(lags)
     if not wanted or any(int(k) < 1 for k in wanted):

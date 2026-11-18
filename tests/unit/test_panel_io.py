@@ -122,6 +122,25 @@ def test_writing_refuses_text_ids_and_weekly_data(tmp_path: Path) -> None:
         PanelBase.from_frame(weekly, "id", "d").to_stata(tmp_path / "w.dta")
 
 
+def test_stata_weeks_survive_a_round_trip_through_a_dta_file(tmp_path: Path) -> None:
+    """``%tw`` is written as Stata's weekly format and read back as the same panel."""
+    frame = pd.DataFrame(
+        {
+            "id": [1, 1, 1, 2, 2],
+            "w": [2078, 2079, 2081, 2079, 2080],  # 1999w51 ... 2000w2, across the new year
+            "x": [1.0, 2.0, 4.0, 5.0, 6.0],
+        }
+    )
+    panel = PanelBase.from_frame(frame, "id", "w", format="%tw")
+    path = tmp_path / "weeks.dta"
+    panel.to_stata(path)
+    assert read_stata(path).attrs["time_format"] == "%tw"
+    again = PanelBase.from_stata(path)
+    assert again.axis.freq == "SW" and again.n_gaps == panel.n_gaps == 1
+    assert again.axis.labels(again.index.rank)[:3] == ["1999w51", "1999w52", "2000w2"]
+    np.testing.assert_array_equal(again.index.rank, panel.index.rank)
+
+
 def test_inject_xtset_into_a_foreign_file_is_refused(tmp_path: Path) -> None:
     bad = tmp_path / "bad.dta"
     bad.write_bytes(b"nope")

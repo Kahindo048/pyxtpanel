@@ -162,6 +162,11 @@ def xttab(panel: PanelBase, variable: str, *, max_values: int = MAX_VALUES) -> X
     max_values
         Refuse variables with more distinct values than this.
 
+    Returns
+    -------
+    XtTab
+        Result of :func:`xttab`.
+
     Raises
     ------
     SpecificationError

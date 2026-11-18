@@ -116,6 +116,11 @@ def panel_durbin_watson(panel: PanelBase, dependent: str, regressors: Sequence[s
         Names of the regressors, without a constant (the unit effects are removed by the within
         transformation).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

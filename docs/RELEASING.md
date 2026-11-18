@@ -37,8 +37,13 @@ token is stored anywhere (PyPI "trusted publishing"). The workflows are in `.git
 5. **Tag**, on a commit whose CI run is green. `git tag vX.Y.Z` then `git push origin vX.Y.Z`. The tag must be the version of
    `pyproject.toml` with a `v` in front; the workflow refuses it otherwise. A tag with `rc`, `a`, `b` or
    `dev` in it creates a GitHub *pre-release*.
-6. **Check.** The PyPI page (the README is its description), `pip install pyxtpanel` in a clean
-   environment, and the GitHub release with the two files attached.
+6. **Check.** The job `verify-pypi` of the workflow does the installation check by itself: once the
+   release is published it installs `pyxtpanel==X.Y.Z` from PyPI in a clean environment (ten tries,
+   30 seconds apart, because the index can take a few minutes to list a new release) and runs
+   `tools/smoke_install.py X.Y.Z` outside the repository, which also fails if the version installed is
+   not the tag's. A red `verify-pypi` means the release on PyPI does not install: yank it (below).
+   By hand, look at the PyPI page (the README is its description) and the GitHub release with the two
+   files attached.
 
 ## If something goes wrong
 

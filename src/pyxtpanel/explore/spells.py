@@ -130,6 +130,16 @@ def spells(panel: PanelBase, variable: str, *, max_states: int = 50) -> Spells:
         A discrete variable (numeric, with at most ``max_states`` distinct values).
     max_states
         Refuse a variable with more distinct values, which is almost surely continuous.
+
+    Returns
+    -------
+    Spells
+        Result of :func:`spells`.
+
+    Raises
+    ------
+    SpecificationError
+        If the variable has more than ``max_states`` distinct values.
     """
     index = panel.index
     x = sorted_columns(panel, [variable])[:, 0]

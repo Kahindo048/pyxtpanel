@@ -4,7 +4,7 @@ The fixed panels of ``validation/panels.py`` are chosen by hand.  A campaign dra
 random, in the dimensions where a hand-written list is thin: size (one unit, one period, a few
 rows), holes, entry and exit, units with a single row, missing values (from none to all), constant
 variables, a repeated (unit, period) pair, the time variable (integers with any origin and step,
-Stata quarters and months), the identifier (any integers, in any order) and the order of the rows.
+Stata weeks, months and quarters), the identifier (any integers, in any order) and the order of the rows.
 
 Every scenario is generated from the seed ``(SEED, k)``, then **frozen** with the others in
 ``tests/golden/data/campaign.csv.gz`` (and ``campaign_meta.json``): the tests never depend on a
@@ -36,7 +36,7 @@ SEED = 20261118
 N_SCENARIOS = 160
 
 #: Stata quarter and month numbers of a start date, in a range that is far from the epoch.
-FORMATS = {"": 0.55, "%td": 0.12, "%tm": 0.12, "%tq": 0.11, "%th": 0.05, "%ty": 0.05}
+FORMATS = {"": 0.48, "%td": 0.12, "%tw": 0.07, "%tm": 0.12, "%tq": 0.11, "%th": 0.05, "%ty": 0.05}
 STEPS = (1, 1, 1, 1, 2, 3, 5, 7)
 
 

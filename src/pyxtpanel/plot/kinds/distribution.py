@@ -84,6 +84,29 @@ def plot_distribution(
 
     The within values are shifted by the overall mean, as in ``xtsum``, so that both panels share
     the scale of the variable.  Each panel says its standard deviation.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    variable
+        Name of a numeric variable.
+    style
+        ``"hist"`` (histograms, default) or ``"box"`` (box plots).
+    bins
+        Number of bins of each histogram (``style="hist"``).
+    lang
+        ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
+
+    Raises
+    ------
+    SpecificationError
+        If ``style`` is not ``"hist"`` or ``"box"``.
     """
     chosen = resolve_lang(lang)
     if style not in ("hist", "box"):

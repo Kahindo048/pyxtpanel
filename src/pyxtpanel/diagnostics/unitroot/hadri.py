@@ -141,6 +141,11 @@ def hadri(
         Number of lags of the kernel (an integer for Bartlett and Parzen; any non-negative number
         for the quadratic-spectral kernel, whose sum runs over its integer part).
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError

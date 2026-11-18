@@ -67,6 +67,18 @@ def plot_balance_cost(panel: PanelBase, *, lang: Lang | None = None) -> Figure:
     Left: units and observations kept when only units with at least ``k`` observations stay (the
     panel is still unbalanced).  Right: the best window of consecutive periods of each length,
     which gives a balanced panel; the largest balanced block (most observations) is marked.
+
+    Parameters
+    ----------
+    panel
+        The declared panel.
+    lang
+        ``"en"`` or ``"fr"`` (default: the global option).
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure; save it with :func:`pyxtpanel.plot.save_figure`.
     """
     chosen = resolve_lang(lang)
     cost = balance_cost(panel)

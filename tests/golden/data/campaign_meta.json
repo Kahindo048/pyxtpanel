@@ -26,8 +26,8 @@
  },
  "5": {
   "delta": 7,
-  "fmt": "",
-  "kind": "20x14 holes, x scaled, z normal, t  delta 7"
+  "fmt": "%td",
+  "kind": "20x14 holes, x scaled, z normal, t %td delta 7"
  },
  "6": {
   "delta": 1,
@@ -66,8 +66,8 @@
  },
  "13": {
   "delta": 1,
-  "fmt": "",
-  "kind": "18x4 mixed, x normal, z constant, t  delta 1, shuffled"
+  "fmt": "%td",
+  "kind": "18x4 mixed, x normal, z constant, t %td delta 1, shuffled"
  },
  "14": {
   "delta": 1,
@@ -76,8 +76,8 @@
  },
  "15": {
   "delta": 1,
-  "fmt": "%td",
-  "kind": "10x3 entry_exit, x missing, z normal, t %td delta 1, shuffled"
+  "fmt": "%tw",
+  "kind": "10x3 entry_exit, x missing, z normal, t %tw delta 1, shuffled"
  },
  "16": {
   "delta": 1,
@@ -96,8 +96,8 @@
  },
  "19": {
   "delta": 3,
-  "fmt": "%td",
-  "kind": "30x3 ragged, x missing, z missing, t %td delta 3"
+  "fmt": "%tw",
+  "kind": "30x3 ragged, x missing, z missing, t %tw delta 3"
  },
  "20": {
   "delta": 1,
@@ -186,8 +186,8 @@
  },
  "37": {
   "delta": 1,
-  "fmt": "%td",
-  "kind": "2x25 ragged, x normal, z normal, t %td delta 1, shuffled"
+  "fmt": "%tw",
+  "kind": "2x25 ragged, x normal, z normal, t %tw delta 1, shuffled"
  },
  "38": {
   "delta": 3,
@@ -201,8 +201,8 @@
  },
  "40": {
   "delta": 5,
-  "fmt": "",
-  "kind": "32x31 mixed, x scaled, z scaled, t  delta 5, shuffled"
+  "fmt": "%td",
+  "kind": "32x31 mixed, x scaled, z scaled, t %td delta 5, shuffled"
  },
  "41": {
   "delta": 3,
@@ -211,8 +211,8 @@
  },
  "42": {
   "delta": 1,
-  "fmt": "%td",
-  "kind": "28x21 mixed, x normal, z normal, t %td delta 1, shuffled"
+  "fmt": "%tw",
+  "kind": "28x21 mixed, x normal, z normal, t %tw delta 1, shuffled"
  },
  "43": {
   "delta": 1,
@@ -251,8 +251,8 @@
  },
  "50": {
   "delta": 1,
-  "fmt": "",
-  "kind": "5x17 balanced, x missing, z normal, t  delta 1"
+  "fmt": "%td",
+  "kind": "5x17 balanced, x missing, z normal, t %td delta 1"
  },
  "51": {
   "delta": 5,
@@ -271,8 +271,8 @@
  },
  "54": {
   "delta": 1,
-  "fmt": "%td",
-  "kind": "11x8 holes, x normal, z normal, t %td delta 1, shuffled"
+  "fmt": "%tw",
+  "kind": "11x8 holes, x normal, z normal, t %tw delta 1, shuffled"
  },
  "55": {
   "delta": 3,
@@ -386,8 +386,8 @@
  },
  "77": {
   "delta": 1,
-  "fmt": "%td",
-  "kind": "14x22 holes, x normal, z normal, t %td delta 1"
+  "fmt": "%tw",
+  "kind": "14x22 holes, x normal, z normal, t %tw delta 1"
  },
  "78": {
   "delta": 1,
@@ -531,8 +531,8 @@
  },
  "106": {
   "delta": 7,
-  "fmt": "%td",
-  "kind": "52x15 mixed, x normal, z scaled, t %td delta 7, shuffled"
+  "fmt": "%tw",
+  "kind": "52x15 mixed, x normal, z scaled, t %tw delta 7, shuffled"
  },
  "107": {
   "delta": 1,
@@ -566,8 +566,8 @@
  },
  "113": {
   "delta": 1,
-  "fmt": "%td",
-  "kind": "52x11 ragged, x missing, z normal, t %td delta 1"
+  "fmt": "%tw",
+  "kind": "52x11 ragged, x missing, z normal, t %tw delta 1"
  },
  "114": {
   "delta": 1,
@@ -601,8 +601,8 @@
  },
  "120": {
   "delta": 1,
-  "fmt": "",
-  "kind": "26x17 ragged, x normal, z missing, t  delta 1, shuffled"
+  "fmt": "%td",
+  "kind": "26x17 ragged, x normal, z missing, t %td delta 1, shuffled"
  },
  "121": {
   "delta": 5,
@@ -666,8 +666,8 @@
  },
  "133": {
   "delta": 7,
-  "fmt": "",
-  "kind": "3x7 balanced, x normal, z scaled, t  delta 7, shuffled"
+  "fmt": "%td",
+  "kind": "3x7 balanced, x normal, z scaled, t %td delta 7, shuffled"
  },
  "134": {
   "delta": 1,
@@ -676,8 +676,8 @@
  },
  "135": {
   "delta": 3,
-  "fmt": "%td",
-  "kind": "4x11 holes, x normal, z normal, t %td delta 3, shuffled"
+  "fmt": "%tw",
+  "kind": "4x11 holes, x normal, z normal, t %tw delta 3, shuffled"
  },
  "136": {
   "delta": 1,
@@ -686,8 +686,8 @@
  },
  "137": {
   "delta": 2,
-  "fmt": "%td",
-  "kind": "2x5 mixed, x normal, z normal, t %td delta 2, shuffled"
+  "fmt": "%tw",
+  "kind": "2x5 mixed, x normal, z normal, t %tw delta 2, shuffled"
  },
  "138": {
   "delta": 1,
@@ -726,8 +726,8 @@
  },
  "145": {
   "delta": 1,
-  "fmt": "",
-  "kind": "22x4 entry_exit, x normal, z normal, t  delta 1, repeated pair"
+  "fmt": "%td",
+  "kind": "22x4 entry_exit, x normal, z normal, t %td delta 1, repeated pair"
  },
  "146": {
   "delta": 5,
@@ -736,8 +736,8 @@
  },
  "147": {
   "delta": 2,
-  "fmt": "%td",
-  "kind": "21x2 singletons, x normal, z normal, t %td delta 2, shuffled"
+  "fmt": "%tw",
+  "kind": "21x2 singletons, x normal, z normal, t %tw delta 2, shuffled"
  },
  "148": {
   "delta": 1,
@@ -771,8 +771,8 @@
  },
  "154": {
   "delta": 5,
-  "fmt": "%td",
-  "kind": "13x16 ragged, x normal, z normal, t %td delta 5, shuffled"
+  "fmt": "%tw",
+  "kind": "13x16 ragged, x normal, z normal, t %tw delta 5, shuffled"
  },
  "155": {
   "delta": 3,
@@ -796,7 +796,7 @@
  },
  "159": {
   "delta": 7,
-  "fmt": "",
-  "kind": "7x5 balanced, x normal, z normal, t  delta 7, shuffled"
+  "fmt": "%td",
+  "kind": "7x5 balanced, x normal, z normal, t %td delta 7, shuffled"
  }
 }

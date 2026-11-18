@@ -165,6 +165,11 @@ def levin_lin_chu(
         Interpolate the adjustment table in the average number of equations (default); with
         ``False`` take the row of the first tabulated value at or above it.
 
+    Returns
+    -------
+    TestResult
+        Outcome of a statistical test.
+
     Raises
     ------
     SpecificationError
