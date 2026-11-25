@@ -142,7 +142,7 @@ include_external_packages = true
 name = "Layers: imports only go downwards"
 type = "layers"
 layers = [
-    "pyxtpanel.api | pyxtpanel.contract",
+    "pyxtpanel.api | pyxtpanel.contract | pyxtpanel.extend",
     "pyxtpanel.plot | pyxtpanel.report | pyxtpanel.datasets",
     "pyxtpanel.explore",
     "pyxtpanel.describe | pyxtpanel.diagnostics",

@@ -71,16 +71,7 @@ _i18n.register(
 
 def numeric_names(panel: PanelBase) -> list[str]:
     """Numeric variables of the panel other than its two keys."""
-    keys = {panel.id_name, panel.time_name}
-    names = [
-        str(c)
-        for c in panel.frame.columns
-        if str(c) not in keys
-        and (
-            pd.api.types.is_numeric_dtype(panel.frame[c])
-            or pd.api.types.is_bool_dtype(panel.frame[c])
-        )
-    ]
+    names = list(panel.numeric_names)
     if not names:
         raise SpecificationError(
             _i18n.message("explore.var.no_numeric"), key="explore.var.no_numeric"

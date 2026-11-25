@@ -54,6 +54,11 @@ def message(key: str, lang: Lang | None = None, **fields: object) -> str:
     **fields
         Values substituted in the template.
 
+    Returns
+    -------
+    str
+        The message, with its fields filled in.
+
     Raises
     ------
     KeyError
@@ -65,17 +70,49 @@ def message(key: str, lang: Lang | None = None, **fields: object) -> str:
 
 
 def all_keys() -> list[str]:
-    """Return all registered message keys, sorted."""
+    """Return all registered message keys, sorted.
+
+    Returns
+    -------
+    list of str
+        Every key of the catalogue (those of the companion packages included).
+    """
     return sorted(_CATALOGUE)
 
 
 def has_language(key: str, lang: Lang) -> bool:
-    """Whether ``key`` is translated into ``lang``."""
+    """Whether ``key`` is translated into ``lang``.
+
+    Parameters
+    ----------
+    key
+        Message identifier.
+    lang
+        ``"en"`` or ``"fr"``.
+
+    Returns
+    -------
+    bool
+        ``True`` if the message has a text in that language.
+    """
     return lang in _CATALOGUE[key]
 
 
 def fields_of(key: str, lang: Lang) -> frozenset[str]:
-    """Names of the fields of the template of ``key`` in ``lang``."""
+    """Names of the fields of the template of ``key`` in ``lang``.
+
+    Parameters
+    ----------
+    key
+        Message identifier.
+    lang
+        ``"en"`` or ``"fr"``.
+
+    Returns
+    -------
+    frozenset of str
+        The fields of the template; a translation must have the same as the English text.
+    """
     return frozenset(
         name for _, name, _, _ in Formatter().parse(_CATALOGUE[key][lang]) if name is not None
     )

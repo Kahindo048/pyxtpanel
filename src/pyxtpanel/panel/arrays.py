@@ -235,11 +235,15 @@ class PanelArrays:
 def build_arrays(panel: PanelBase, columns: Sequence[str]) -> PanelArrays:
     """Build the :class:`PanelArrays` of ``columns`` (see :meth:`PanelBase.arrays`)."""
     names = tuple(columns)
-    values = sorted_columns(panel, names)
+    return arrays_from_values(panel, names, sorted_columns(panel, names))
+
+
+def arrays_from_values(panel: PanelBase, names: Sequence[str], values: FloatArray) -> PanelArrays:
+    """Wrap ``values`` (``(n_obs, len(names))``, sorted order) in the layout of the contract."""
     index = panel.index
     return PanelArrays(
         values=values,
-        columns=names,
+        columns=tuple(names),
         offsets=index.offsets,
         unit_labels=index.unit_labels,
         unit_of_row=index.unit,
