@@ -700,7 +700,64 @@ system = Equations(
 print(system.residuals.shape, system.offsets.shape)
 ```
 
-### 8.4 Errors, language and versioning
+### 8.4 Companion packages: terms, calendar, messages and figures
+
+A package that builds on the foundation without estimating anything (a plotting package such as
+`pyxtviz`, a report) reads the panel through the same contract and adds three things. It imports
+nothing private (no module whose name starts with an underscore): what it may use is published in
+`pyxtpanel.extend`, whose own version `EXTEND_VERSION` changes only when a name is removed or
+changed (adding one does not).
+
+* **Terms.** `panel.term_arrays(items)` is `arrays` for variables *and* Stata-style terms: it
+  returns the same `PanelArrays`, with canonical names in `columns` (`"L2.x"`). There is no
+  `where`; restrict the panel with `select` first, because a restriction before or after a lag does
+  not give the same values.
+* **Columns of any type.** `panel.sorted_column(name)` returns one column or index level (a region,
+  a date, a label) in the sorted order of the rows of `arrays`, as a new array, for what `arrays`
+  cannot read because it is not a number.
+* **Which variables exist.** `panel.numeric_names` is the tuple of the numeric (or boolean)
+  columns other than the two keys, in column order: what a package chooses from when the user names
+  no variable, each name readable by `arrays`. It looks at the data types only, so it is cheap on a
+  wide panel, and it is empty when the panel holds nothing but its keys.
+* **Calendar.** `panel.calendar` is a read-only view of the calendar: `kind`, `freq`, `delta`,
+  `n_steps`, and `values(positions)`, `datetimes(positions)`, `labels(positions)`,
+  `positions_of(values)`, where positions are the values of `time_index`. `datetimes` is for dated
+  calendars only and raises a `TimeAxisError` on plain integers.
+* **Messages and registry.** `extend.register_messages(domain, table)` and `extend.message(key)`
+  give the package its own French and English messages under its own prefix;
+  `extend.call_reason` and `extend.call_arguments` word a call that does not fit a signature;
+  `extend.Registry` is the registry the foundation uses for its own extension points;
+  `extend.ExtendedPanelLike` is `PanelLike` plus `calendar`, `numeric_names`, `term_arrays` and `sorted_column` (`PanelLike` itself
+  is not widened, because estimators test it with `isinstance`).
+
+```python
+from pyxtpanel import extend
+
+assert extend.EXTEND_VERSION == 1 and isinstance(panel, extend.ExtendedPanelLike)
+terms = panel.term_arrays(["lgdp", "L.lgdp", "D.lgdp"])
+print(terms.columns, terms.valid.sum())
+print(panel.calendar.labels(terms.time_index[:3]), panel.calendar.freq)
+```
+
+**Figures.** A package supplies figure kinds to `panel.plot(kind, ...)` and `pyxtpanel.plot.plot`
+by declaring an entry point in the group `pyxtpanel.plot_kinds`, whose target is an object with
+`names()` (the kinds it supplies) and `get(name)` (the function that draws one,
+`f(panel, ..., lang=None) -> Figure`):
+
+```toml
+[project.entry-points."pyxtpanel.plot_kinds"]
+pyxtviz = "pyxtviz.plugin:KINDS"
+```
+
+The rules: nothing is looked up unless the kind asked for is not one of the package's own (so
+`import pyxtpanel` and the built-in figures never pay for it); the package's own kinds win over a
+plugin of the same name; between plugins, the entry point named first in alphabetical order wins; a
+plugin that cannot be loaded never breaks the built-in figures, and raises a clear
+`PyxtpanelError` (in the language of the call) only when the kind asked for was found nowhere else.
+The call is checked against the signature of the function, as for the package's own kinds. An
+unknown kind names `pyxtviz` when no package supplies kinds.
+
+### 8.5 Errors, language and versioning
 
 * **Errors.** Raise or let through `PyxtpanelError` subclasses; they carry `stata_code` and a catalogue
   `key`. Messages exist in French and English, selected by `xt.set_options(lang=...)`. Annex C lists

@@ -29,6 +29,7 @@ from pyxtpanel.panel.index import PanelIndex, subset_index
 from pyxtpanel.panel.io import panel_from_stata, write_stata
 from pyxtpanel.panel.select import check_not_empty, selection_mask
 from pyxtpanel.time.axis import TimeAxis
+from pyxtpanel.time.calendar import Calendar
 
 P = TypeVar("P", bound="PanelBase")
 
@@ -168,6 +169,24 @@ class PanelBase:
         return self.n_obs
 
     @property
+    def numeric_names(self) -> tuple[str, ...]:
+        """Numeric (or boolean) variables of the panel other than its two keys, in column order.
+
+        This is the list a package built on ``pyxtpanel`` chooses from when the user names no
+        variable; each name can be given to :meth:`arrays`.  The names come from the data types of
+        the columns only (no values are read), so it is cheap on a wide panel.  An empty tuple
+        means the panel has no variable besides its keys.
+        """
+        keys = {self.id_name, self.time_name}
+        frame = self.frame
+        return tuple(
+            str(c)
+            for c in frame.columns
+            if str(c) not in keys
+            and (pd.api.types.is_numeric_dtype(frame[c]) or pd.api.types.is_bool_dtype(frame[c]))
+        )
+
+    @property
     def delta(self) -> int:
         """Calendar units between two consecutive periods."""
         return self.axis.delta
@@ -210,6 +229,15 @@ class PanelBase:
         return self.n_gaps > 0
 
     # ---------------------------------------------------------------- time
+
+    @property
+    def calendar(self) -> Calendar:
+        """Read-only view of the calendar shared by all units (see :class:`Calendar`).
+
+        This is what a package built on ``pyxtpanel`` relies on to turn the calendar positions of
+        :meth:`arrays` (``time_index``) back into time values, dates or labels.
+        """
+        return Calendar(self.axis)
 
     @property
     def t_min(self) -> Any:
@@ -504,6 +532,32 @@ class PanelBase:
         """
         panel = self if where is None else self.select(where)
         return build_arrays(panel, columns)
+
+    def sorted_column(self, name: str) -> np.ndarray:
+        """Return one column (or index level) of the data, of any type, in the sorted order.
+
+        :meth:`arrays` reads numbers only.  This reads what is not one: a region, a sector, a
+        date, a label.  The rows follow the sorted index of the panel (unit, then period), the same
+        as the rows of :meth:`arrays`, so that the two can be used together.
+
+        Parameters
+        ----------
+        name
+            A column of the declared frame, or one of its index levels.
+
+        Returns
+        -------
+        numpy.ndarray
+            ``(n_obs,)`` array in the type of the column (``object`` for text); a new array, the
+            data of the panel are not shared.  Missing values are kept as they are in the frame.
+
+        Raises
+        ------
+        DataError
+            If there is no such column (the message proposes close names).
+        """
+        values: np.ndarray = _column(self.frame, name).to_numpy()
+        return values[self.index.source_row]
 
     def with_frame(self: P, frame: pd.DataFrame) -> P:
         """Return a panel of the same structure holding new values, without sorting again.

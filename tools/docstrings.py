@@ -29,7 +29,13 @@ from collections.abc import Callable, Iterator
 from typing import Any
 
 #: Modules whose ``__all__`` is public API.
-MODULES = ("pyxtpanel", "pyxtpanel.contract", "pyxtpanel.diagnostics", "pyxtpanel.plot")
+MODULES = (
+    "pyxtpanel",
+    "pyxtpanel.contract",
+    "pyxtpanel.diagnostics",
+    "pyxtpanel.extend",
+    "pyxtpanel.plot",
+)
 
 _ERRORS = {
     "SpecificationError",

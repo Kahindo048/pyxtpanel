@@ -36,9 +36,10 @@ from pyxtpanel.explore.outliers import LevelShifts, WithinOutliers, level_shifts
 from pyxtpanel.explore.reshape import Array3D, to_array3d, to_wide
 from pyxtpanel.explore.spells import Spells, spells
 from pyxtpanel.explore.variation import ResidualVariation, Variation, residual_variation, variation
-from pyxtpanel.ops.frame import apply_operator, eliminate_effects, operate, transform
+from pyxtpanel.ops.frame import apply_operator, eliminate_effects, operate, term_columns, transform
 from pyxtpanel.ops.groups import group_size
 from pyxtpanel.ops.within import theta_re
+from pyxtpanel.panel.arrays import PanelArrays, arrays_from_values
 from pyxtpanel.panel.base import PanelBase
 from pyxtpanel.plot._spec import plot as _plot
 
@@ -83,6 +84,35 @@ class PanelData(PanelBase):
             One column per term, named in canonical form, on the index of the declared frame.
         """
         return operate(self, terms)
+
+    def term_arrays(self, items: str | Sequence[str]) -> PanelArrays:
+        """Return the array contract for variables or Stata-style terms (``"x"``, ``"L.x"``).
+
+        The same object as :meth:`arrays`, for terms: a name that is a column of the frame is
+        read as it is, anything else is read as a term (``"L2.x"``, ``"D.x"``).  The names in
+        ``columns`` are canonical (``"L2.x"``).  There is no ``where``: restrict the panel with
+        :meth:`select` first, since a restriction applied before or after a lag does not give the
+        same values.
+
+        Parameters
+        ----------
+        items
+            Column names or terms, in the order wanted (one string or a sequence).
+
+        Returns
+        -------
+        PanelArrays
+            Frozen ``float64`` arrays sorted by unit then period, as :meth:`arrays` returns.
+
+        Raises
+        ------
+        SpecificationError
+            If a term is malformed.
+        DataError
+            If a variable is unknown or not numeric.
+        """
+        names, values = term_columns(self, items)
+        return arrays_from_values(self, names, values)
 
     def lag(
         self, variables: str | Sequence[str], k: int | Sequence[int] = 1

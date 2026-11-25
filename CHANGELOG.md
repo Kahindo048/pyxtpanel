@@ -4,6 +4,20 @@ All notable changes are recorded here. The project follows [Semantic Versioning]
 
 ## [Unreleased]
 
+### Added
+- **Extension contract for companion packages** (`pyxtviz` first): everything is additive, `CONTRACT_VERSION` stays at 1 and the array layout is unchanged.
+  - `pyxtpanel.extend` (`EXTEND_VERSION = 1`): `Registry`, `register_messages`, `message`, `message_keys`, `has_language`, `message_fields`, `call_reason`, `call_arguments`, the types `Lang`, `LANGUAGES`, `FloatArray`, `IntArray`, `BoolArray`, and the protocol `ExtendedPanelLike` (`PanelLike` plus `calendar` and `term_arrays`; `PanelLike` itself is not widened). Each name is the same object as the internal one, so a companion never imports a private module. Importing it does not import matplotlib.
+  - `PanelData.calendar`: a read-only `Calendar` (`kind`, `freq`, `delta`, `n_steps`, `values`, `datetimes`, `labels`, `positions_of`) in front of the internal time axis; `datetimes` on a calendar of plain integers raises a bilingual `TimeAxisError` (`time.no_dates`) where the internal axis had an `assert`.
+  - `PanelData.term_arrays(items)`: the same `PanelArrays` as `arrays`, for variables and Stata-style terms (`"L.x"`, `"D.x"`), with canonical names in `columns` and no `where`.
+  - `PanelData.numeric_names`: the numeric (or boolean) columns other than the two keys, in column order, from the data types alone (cheap on a wide panel); part of `ExtendedPanelLike`. A companion package needs it to pick variables when the user names none. `variation` now reads the same list.
+  - `PanelData.sorted_column(name)`: a column (or index level) of any type, in the sorted order of the rows of `arrays` (a region, a sector, a date), as a new array; part of `ExtendedPanelLike`. `arrays` and `term_arrays` read numbers only, and a grouping variable is rarely one.
+  - Entry-point group `pyxtpanel.plot_kinds`: `panel.plot(kind)` and `plot()` find figure kinds supplied by other installed packages (an object with `names()` and `get(name)`). Lazy (nothing is looked up for the package's own kinds), the package's own kinds win, the first entry-point name wins among plugins, a plugin that cannot be loaded raises a clear `PyxtpanelError` only when the kind was found nowhere else, and an unknown kind names `pyxtviz` when no package supplies kinds.
+  - The API snapshot (`tools/snapshot_api.py`) now also records the properties of `PanelData`, the members of `Calendar`, the surface of `pyxtpanel.extend` and the members of `ExtendedPanelLike`; until now a property such as `panel.calendar` would not have been protected. Documentation part 8.4 describes the contract.
+
+### Changed
+- An unknown figure kind is reported with the keys `plot.unknown_kind` and `plot.unknown_kind_install` (it was `registry.unknown`); it is still a `SpecificationError` that lists the available kinds.
+- The docstrings of the message and signature helpers (`_i18n`, `_signature`) are complete, since they are now public through `pyxtpanel.extend`.
+
 ## [0.0.2] - 2026-11-18
 
 ### Added

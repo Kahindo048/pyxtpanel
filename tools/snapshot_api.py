@@ -14,15 +14,49 @@ import dataclasses
 import inspect
 import json
 import sys
+from functools import cached_property
 from pathlib import Path
 
 TARGET = Path(__file__).resolve().parents[1] / "tests" / "contract" / "api_snapshot.json"
+
+
+def _members(cls: type) -> dict[str, str]:
+    """Public methods (with their signature) and properties of a class, as ``{name: text}``."""
+    found = {}
+    for name, member in inspect.getmembers(cls):
+        if name.startswith("_"):
+            continue
+        if inspect.isfunction(member):
+            found[name] = str(inspect.signature(member))
+        elif isinstance(inspect.getattr_static(cls, name), (property, cached_property)):
+            found[name] = "property"
+    return found
+
+
+def _extend() -> dict[str, str]:
+    """The surface of ``pyxtpanel.extend``: a signature, a class, a value or a type alias."""
+    from pyxtpanel import extend
+
+    surface = {}
+    for name in extend.__all__:
+        value = getattr(extend, name)
+        if inspect.isfunction(value):
+            surface[name] = str(inspect.signature(value))
+        elif inspect.isclass(value) and name != "Lang":
+            surface[name] = "class"
+        elif isinstance(value, int | tuple):
+            surface[name] = repr(value)
+        else:
+            surface[name] = "alias"
+    return surface
 
 
 def snapshot() -> dict[str, object]:
     """Describe the public API as plain data."""
     import pyxtpanel
     from pyxtpanel.contract import CONTRACT_VERSION, PanelArrays
+    from pyxtpanel.extend import ExtendedPanelLike
+    from pyxtpanel.time.calendar import Calendar
 
     functions = {}
     for name in pyxtpanel.__all__:
@@ -40,6 +74,17 @@ def snapshot() -> dict[str, object]:
         "panel_data_methods": methods,
         "contract_version": CONTRACT_VERSION,
         "panel_arrays_fields": [f.name for f in dataclasses.fields(PanelArrays)],
+        "panel_data_properties": sorted(
+            name for name, kind in _members(pyxtpanel.PanelData).items() if kind == "property"
+        ),
+        "calendar_members": _members(Calendar),
+        "extend": _extend(),
+        "extended_panel_like_members": sorted(
+            {
+                *getattr(ExtendedPanelLike, "__annotations__", {}),
+                *(n for n in vars(ExtendedPanelLike) if not n.startswith("_")),
+            }
+        ),
     }
 
 

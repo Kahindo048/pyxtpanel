@@ -20,6 +20,18 @@ def reason(signature: inspect.Signature, error: TypeError) -> str:
     Python 3.12 says "missing a required keyword-only argument" for an option that can only be
     given by name; 3.10 and 3.11 say "missing a required argument" for it.  The message is shown
     to users and compared in tests, so the 3.12 wording is used everywhere.
+
+    Parameters
+    ----------
+    signature
+        Signature of the function the call was bound to.
+    error
+        The ``TypeError`` raised by ``signature.bind``.
+
+    Returns
+    -------
+    str
+        The reason, to put in an error message.
     """
     text = str(error)
     match = re.fullmatch(r"missing a required argument: '(\w+)'", text)
@@ -30,7 +42,18 @@ def reason(signature: inspect.Signature, error: TypeError) -> str:
 
 
 def accepted(signature: inspect.Signature) -> str:
-    """Return the arguments after the first (the panel), with the default of each option."""
+    """Return the arguments after the first (the panel), with the default of each option.
+
+    Parameters
+    ----------
+    signature
+        Signature of the function.
+
+    Returns
+    -------
+    str
+        Comma-separated list such as ``"variable, n_units=12, mean=True"``.
+    """
     parts = []
     for index, (name, parameter) in enumerate(signature.parameters.items()):
         if index == 0:

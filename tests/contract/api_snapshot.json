@@ -1,5 +1,43 @@
 {
+  "calendar_members": {
+    "datetimes": "(self, positions: 'IntArray | Sequence[int] | int') -> 'pd.DatetimeIndex'",
+    "delta": "property",
+    "freq": "property",
+    "kind": "property",
+    "labels": "(self, positions: 'IntArray | Sequence[int] | int') -> 'list[str]'",
+    "n_steps": "property",
+    "positions_of": "(self, values: 'Sequence[Any] | np.ndarray | pd.Index | pd.Series') -> 'IntArray'",
+    "values": "(self, positions: 'IntArray | Sequence[int] | int') -> 'pd.Index'"
+  },
   "contract_version": 1,
+  "extend": {
+    "BoolArray": "alias",
+    "EXTEND_VERSION": "1",
+    "ExtendedPanelLike": "class",
+    "FloatArray": "alias",
+    "IntArray": "alias",
+    "LANGUAGES": "('en', 'fr')",
+    "Lang": "alias",
+    "Registry": "class",
+    "call_arguments": "(signature: 'inspect.Signature') -> 'str'",
+    "call_reason": "(signature: 'inspect.Signature', error: 'TypeError') -> 'str'",
+    "has_language": "(key: 'str', lang: 'Lang') -> 'bool'",
+    "message": "(key: 'str', lang: 'Lang | None' = None, **fields: 'object') -> 'str'",
+    "message_fields": "(key: 'str', lang: 'Lang') -> 'frozenset[str]'",
+    "message_keys": "() -> 'list[str]'",
+    "register_messages": "(domain: 'str', table: 'Mapping[str, Mapping[str, str]]') -> 'None'"
+  },
+  "extended_panel_like_members": [
+    "arrays",
+    "calendar",
+    "id_name",
+    "n_obs",
+    "n_units",
+    "numeric_names",
+    "sorted_column",
+    "term_arrays",
+    "time_name"
+  ],
   "functions": {
     "as_panel": "(obj: 'PanelBase | pd.DataFrame', id: 'str | None' = None, time: 'str | None' = None, **options: 'Any') -> 'PanelData'",
     "attrition": "(panel: 'PanelBase') -> 'Attrition'",
@@ -149,7 +187,9 @@
     "select": "(self: 'P', where: 'str | Sequence[bool] | BoolArray | None' = None, *, units: 'Sequence[Any] | None' = None, periods: 'Sequence[Any] | slice | None' = None, complete: 'Sequence[str] | None' = None) -> 'P'",
     "serial_correlation": "(self, dependent: 'str', regressors: 'Sequence[str]', *, test: 'str | None' = None, **options: 'Any') -> 'TestResult'",
     "slope_heterogeneity": "(self, dependent: 'str', regressors: 'Sequence[str]', *, test: 'str | None' = None, **options: 'Any') -> 'TestResult'",
+    "sorted_column": "(self, name: 'str') -> 'np.ndarray'",
     "spells": "(self, variable: 'str', *, max_states: 'int' = 50) -> 'Spells'",
+    "term_arrays": "(self, items: 'str | Sequence[str]') -> 'PanelArrays'",
     "test": "(self, name: 'str', *args: 'Any', **options: 'Any') -> 'TestResult'",
     "theta_re": "(self, sigma_u: 'float', sigma_e: 'float') -> 'pd.Series'",
     "to_array3d": "(self, variables: 'Sequence[str] | None' = None) -> 'Array3D'",
@@ -172,5 +212,22 @@
     "xtsum": "(self, variables: 'str | Sequence[str]', *, by: 'str | None' = None) -> 'XtSum'",
     "xttab": "(self, variable: 'str', *, max_values: 'int' = 1000) -> 'XtTab'",
     "xttrans": "(self, variable: 'str', *, gaps: \"Literal['bridge', 'strict']\" = 'bridge', bins: 'int | Sequence[float] | None' = None, max_values: 'int' = 1000) -> 'XtTrans'"
-  }
+  },
+  "panel_data_properties": [
+    "balance_summary",
+    "balanced",
+    "calendar",
+    "counts",
+    "delta",
+    "has_gaps",
+    "n_gaps",
+    "n_obs",
+    "n_periods",
+    "n_units",
+    "numeric_names",
+    "t_max",
+    "t_mean",
+    "t_min",
+    "unit_labels"
+  ]
 }
